@@ -1,0 +1,5 @@
+class FileCache {
+    static Initialize() {
+        
+    }
+}
