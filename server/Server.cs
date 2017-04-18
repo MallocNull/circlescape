@@ -17,11 +17,11 @@ namespace CircleScape {
         }
 
         protected override void OnMessage(MessageEventArgs e) {
-            
+            Sess
         }
 
         protected override void OnClose(CloseEventArgs e) {
-            
+
         }
     }
 

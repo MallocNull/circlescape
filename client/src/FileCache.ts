@@ -1,5 +1,7 @@
 class FileCache {
-    static Initialize() {
+    static dbHandle: IDBDatabase = null;
+
+    static Initialize(): void {
          
     }
 }
