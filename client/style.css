@@ -1,3 +1,13 @@
 body {
     background: #000;
 }
+
+#cs {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+}
+
+.hidden {
+    display: none;
+}

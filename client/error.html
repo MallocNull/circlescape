@@ -1,11 +1,97 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Error</title>
+        <title>Runtime Error</title>
         <meta charset="UTF-8" />
+        <style type="text/css">
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+                background: #eee;
+                width: 100vw;
+            }
+
+            a {
+                text-decoration: none;
+                font-weight: bold;
+                color: #00b;
+            }
+
+            a:visited {
+                color: #00b;
+            }
+
+            a:hover {
+                font-style: italic;
+            }
+
+            #content {
+                width: 25%;
+                min-width: 300px;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 30px 0;
+            }
+
+            ul {
+                list-style: none;
+                padding: 0;
+            }
+
+            li {
+                padding-left: 16px;
+            }
+
+            li:before {
+                padding-right: 8px;
+                font-weight: bold;
+            }
+
+            .check:before {
+                color: #060;
+                content: "✔";
+            }
+
+            .cross:before {
+                color: #600;
+                content: "✖";
+                font-style: initial !important;
+            }
+
+            .cross {
+                font-weight: bold;
+                font-style: italic;
+            }
+        </style>
+        <script type="text/javascript">
+            window.onload = function() {
+                var url = window.location.href;
+                url = url.substr(url.lastIndexOf("?") + 1);
+                var features = url.split("&")[0].split("=")[1];
+
+                for(var i = 1; i <= features.length; ++i)
+                    document.getElementById("supchk"+ i).className = features[i-1] == "1" ? "mark check" : "mark cross";
+            }
+        </script>
     </head>
     <body>
-        <h2>Your browser does not support a necessary feature to run this application.</h2>
-        <p>Please upgrade your browser to the most recent version or install a modern browser, such as Mozilla Firefox or Google Chrome.</p>
+        <div id="content">
+            <h2>
+                Your browser does not support the required features to run this application.
+            </h2>
+
+            <p>
+                The required features are:
+                <ul>
+                    <li id="supchk1" class="cross">Canvas</li>
+                    <li id="supchk2" class="cross">WebGL</li>
+                    <li id="supchk3" class="cross">IndexedDB</li>
+                </ul>
+            </p>
+
+            <p>
+                Please upgrade your browser to the most recent version or install a modern browser, 
+                such as <a href="https://www.mozilla.org">Mozilla Firefox</a> or <a href="https://www.google.com/chrome/">Google Chrome</a>.
+            </p>
+        </div>
     </body>
 </html>
