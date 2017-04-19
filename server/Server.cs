@@ -7,8 +7,8 @@ using WebSocketSharp;
 using WebSocketSharp.Server;
 
 namespace CircleScape {
-    class Server : WebSocketBehavior {
-        Server() {
+    class Connection : WebSocketBehavior {
+        Connection() {
             
         }
 
@@ -25,7 +25,7 @@ namespace CircleScape {
         }
     }
 
-    class EntryPoint {
+    class Server {
         static void Main(string[] args) {
 
         }

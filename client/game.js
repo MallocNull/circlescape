@@ -3,6 +3,8 @@ var FileCache = (function () {
     }
     FileCache.Initialize = function () {
         var request = window.indexedDB.open("fileCache", 1);
+        request.onupgradeneeded = function (event) {
+        };
     };
     return FileCache;
 }());

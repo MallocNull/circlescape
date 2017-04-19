@@ -2,6 +2,6 @@
 
 class Entrypoint {
     static Main(): void {
-        FileCache.Initialize();
+        FileCache.Initialize(); 
     }
 }
