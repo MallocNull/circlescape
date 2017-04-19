@@ -4,8 +4,11 @@ class FileCache {
     static Initialize(): void {
         var request = window.indexedDB.open("fileCache", 1);
 
-        request.onupgradeneeded = function(event) {
-            
+        request.onupgradeneeded = function(event: any) {
+            var db: IDBDatabase = event.target.result;
+            db.createObjectStore("files", {keyPath: "name"});
         };
     }
+
+    static 
 }

@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "es5",
-        "out": "game.js",
+        "out": "bin/scape.js",
         "watch": true
     }
 }

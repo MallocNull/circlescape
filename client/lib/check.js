@@ -1,5 +1,8 @@
+// feature checking trashcode (c) obrado 1989
+
 window.onload = function() {
     var support = {
+        anim: true,
         canvas: true,
         webgl: true,
         idb: true
@@ -20,8 +23,9 @@ window.onload = function() {
     if(!window.indexedDB)
         support.idb = false;
 
-    if(!support.canvas || !support.webgl || !support.idb) {
-        window.location.href = "error.html?err="+ (+support.canvas) 
+    if(!support.anim || !support.canvas || !support.webgl || !support.idb) {
+        window.location.href = "error.html?err="+ (+support.anim) 
+                                             +""+ (+support.canvas) 
                                              +""+ (+support.webgl) 
                                              +""+ (+support.idb);
         return;

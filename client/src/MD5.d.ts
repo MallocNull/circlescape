@@ -1,0 +1,1 @@
+declare function md5(input: string, key?: string, raw?: boolean);
