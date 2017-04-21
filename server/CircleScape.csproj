@@ -56,8 +56,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Server.cs" />
+    <Compile Include="Entrypoint.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Websocket\Connection.cs" />
+    <Compile Include="Websocket\Pool.cs" />
+    <Compile Include="Websocket\Server.cs" />
+    <Compile Include="Websocket\Stack.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
