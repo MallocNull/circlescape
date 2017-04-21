@@ -8,6 +8,10 @@ class FileCache {
             var db: IDBDatabase = event.target.result;
             db.createObjectStore("files", {keyPath: "name"});
         };
+
+        request.onsuccess = function(event: any) {
+            
+        }
     }
 
     static 
