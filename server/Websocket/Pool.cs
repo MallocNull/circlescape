@@ -20,9 +20,8 @@ namespace CircleScape.Websocket {
             = new Dictionary<UInt64, Connection>();
 
         public Pool() {
-            for(var i = 0; i < InitialCount; ++i) {
-                
-            }
+            for(var i = 0; i < InitialCount; ++i)
+                CreateThread();
         }
 
         public bool AddConnection(Connection connection) {
@@ -31,14 +30,15 @@ namespace CircleScape.Websocket {
             }
         }
 
-        private ThreadContext CreateThread(Connection initialConnection = null) {
-            var stack = new Stack(true);
+        private ThreadContext CreateThread(Connection initialConnection = null, bool runWithNoClients = false) {
+            var stack = new Stack(runWithNoClients, initialConnection);
             var ctx = new ThreadContext {
                 Stack = stack,
                 Thread = new Thread(new ThreadStart(stack.ManageStack))
             };
 
             Threads.Add(ctx);
+            updateFullThreadCount = true;
             return ctx;
         }
 
