@@ -28,6 +28,8 @@ namespace CircleScape.Websocket {
             foreach(var thread in Threads) {
 
             }
+
+            return false;
         }
 
         private ThreadContext CreateThread(Connection initialConnection = null, bool runWithNoClients = false) {
