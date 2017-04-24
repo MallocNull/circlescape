@@ -6,18 +6,22 @@ using System.Text;
 using System.Threading;
 
 namespace CircleScape.Websocket {
-    class Stack {
+    class Stack<T> where T : Connection {
+        private Pool<T> PoolRef = null;
         private List<Connection> Clients = new List<Connection>();
         private Mutex ClientsMutex = new Mutex();
         private bool RunWithNoClients = false;
+        private bool Running = true;
+        private bool _finished = false;
 
-        public Stack(Connection initialConnection = null) {
+        public Stack(Pool<T> poolRef, Connection initialConnection = null) {
+            PoolRef = poolRef;
             if(initialConnection != null)
                 Clients.Add(initialConnection);
         }
 
-        public Stack(bool runWithNoClients, Connection initialConnection = null)
-            : this(initialConnection) 
+        public Stack(Pool<T> poolRef, bool runWithNoClients, Connection initialConnection = null)
+            : this(poolRef, initialConnection) 
         {
             RunWithNoClients = runWithNoClients;
         }
@@ -32,17 +36,30 @@ namespace CircleScape.Websocket {
             return true;
         }
 
-        public int ClientCount {
+        public int Count {
             get {
                 return Clients.Count;
             }
         }
 
+        public void StopThread() {
+            Running = false;
+        }
+
+        public bool Finished { get; private set; }
+
         // USED FOR THREADING -- DO NOT CALL
         public void ManageStack() {
-            int clientCount = ClientCount;
+            while(Running && (Count > 0 || RunWithNoClients)) {
+                for(var i = Count - 1; i >= 0 && Running; ++i) {
+                    PoolRef.OnConnectionParse(Clients[i]);
 
-            for(var i = 0; i < clientCount; ++i)
+
+                }
+            }
+
+            Finished = true;
+            PoolRef.InvalidateThread(this);
         }
     }
 }
