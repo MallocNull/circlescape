@@ -1,21 +1,21 @@
 ﻿/***************************************/using
     System                              ;using
 /***************************************/
-    System.
+    System                              .
      Collections                        .
       Generic                           ;using
 /***************************************/
-    System.
+    System                              .
      Linq                               ;using
 /***************************************/
-    System. 
+    System                              . 
      Text                               ;using
 /***************************************/
-    System.
+    System                              .
      Threading                          .
       Tasks                             ;using
 /***************************************/
-    System.
+    System                              .
      Data                               .
       SQLite                            ;
 /***************************************/
