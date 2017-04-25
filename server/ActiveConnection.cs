@@ -9,8 +9,6 @@ namespace CircleScape {
     class ActiveConnection : Websocket.Connection {
         public ActiveConnection(TcpClient sock) : base(sock) { }
 
-        public ActiveConnection(PendingConnection conn) : base(conn) {
-
-        }
+        public ActiveConnection(PendingConnection conn) : base(conn) { }
     }
 }

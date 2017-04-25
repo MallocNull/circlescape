@@ -21,11 +21,6 @@ namespace CircleScape {
             };
 
             ActiveConnectionsPool = new Pool<ActiveConnection>();
-
-            var test = new PendingConnection(new TcpClient());
-            var teste = test as ActiveConnection;
-
-            
         }
     }
 }
