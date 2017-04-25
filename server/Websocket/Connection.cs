@@ -24,9 +24,34 @@ namespace CircleScape.Websocket {
             Stream = sock.GetStream();
         }
 
+        public Connection(Connection conn) {
+            Socket = conn.Socket;
+            Stream = Socket.GetStream();
+
+            Disconnected = conn.Disconnected;
+            DisconnectReason = conn.DisconnectReason;
+
+            Handshaked = conn.Handshaked;
+            RawClientHandshake = conn.RawClientHandshake;
+            Headers = conn.Headers;
+        }
+
         public void Disconnect(string reason = null) {
             Disconnected = true;
             DisconnectReason = reason;
+
+            if(Socket.Connected) {
+                Socket.SendTimeout = 1000;
+                if(!Handshaked) {
+                    var raw = Encoding.ASCII.GetBytes(Handshake.DenyRequest().GetRaw());
+                    Stream.Write(raw, 0, raw.Length);
+                    Socket.Close();
+                } else {
+
+                }
+            }
+
+            OnClose();
         }
 
         // called after the client successfully handshakes

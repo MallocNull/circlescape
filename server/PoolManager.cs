@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CircleScape.Websocket;
+using System.Net.Sockets;
 
 namespace CircleScape {
     static class PoolManager {
@@ -20,6 +21,11 @@ namespace CircleScape {
             };
 
             ActiveConnectionsPool = new Pool<ActiveConnection>();
+
+            var test = new PendingConnection(new TcpClient());
+            var teste = test as ActiveConnection;
+
+            
         }
     }
 }
