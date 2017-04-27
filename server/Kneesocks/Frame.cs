@@ -15,11 +15,13 @@ namespace Kneesocks {
             Pong            = 0xA
         };
 
-        public kOpcode Opcode { get; private set; }
-        public bool IsFinal { get; private set; }
-        public bool IsMasked { get; private set; }
-        public byte[] Mask { get; private set; }
-        public byte Reserved { get; private set; }
+        public kOpcode Opcode { get; set; }
+        public bool IsFinal { get; set; }
+        public bool IsMasked { get; set; }
+        public byte[] Mask { get; set; }
+        public byte Reserved { get; set; }
 
+
+        public byte[] Content { get; private set; }
     }
 }

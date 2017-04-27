@@ -116,6 +116,7 @@
     </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
+      <DependentUpon>App.config</DependentUpon>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -146,6 +147,7 @@
     </Content>
     <Content Include="Fodyweavers.xml">
       <SubType>Designer</SubType>
+      <DependentUpon>App.config</DependentUpon>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

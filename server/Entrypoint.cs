@@ -9,6 +9,7 @@ using CircleScape.DAL;
 namespace CircleScape {
     class Entrypoint {
         static void Main(string[] args) {
+
         }
     }
 }
