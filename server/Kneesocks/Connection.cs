@@ -5,8 +5,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CircleScape.Websocket {
-    abstract class Connection {
+namespace Kneesocks {
+    public abstract class Connection {
         private TcpClient Socket;
         private NetworkStream Stream;
 

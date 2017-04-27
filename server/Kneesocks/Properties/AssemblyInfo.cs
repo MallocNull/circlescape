@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CircleScape Server")]
+[assembly: AssemblyTitle("Kneesocks")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("server")]
+[assembly: AssemblyProduct("Kneesocks")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("438dbac1-ba37-40bb-9cce-0fe1f23c6dc5")]
+[assembly: Guid("347353f6-cecd-4895-8717-2b5394ac71cc")]
 
 // Version information for an assembly consists of the following four values:
 //

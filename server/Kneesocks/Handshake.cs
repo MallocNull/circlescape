@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CircleScape.Websocket {
-    class Handshake {
+namespace Kneesocks {
+    public class Handshake {
         private const string HttpVersion = "1.1";
 
         public enum kStatusCode {
@@ -132,7 +132,7 @@ namespace CircleScape.Websocket {
             return this;
         }
 
-        public void ClearContent() {
+        public Handshake ClearContent() {
             Content = null;
             return this;
         }

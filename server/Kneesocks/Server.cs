@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CircleScape.Database {
-    class Database {
+namespace Kneesocks {
+    public class Server {
+
     }
 }

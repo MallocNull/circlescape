@@ -5,8 +5,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-namespace CircleScape.Websocket {
-    class Stack<T> where T : Connection {
+namespace Kneesocks {
+    public class Stack<T> where T : Connection {
         private Pool<T> PoolRef = null;
         private List<Connection> Clients = new List<Connection>();
         private Mutex ClientsMutex = new Mutex();
@@ -52,7 +52,7 @@ namespace CircleScape.Websocket {
         public void ManageStack() {
             while(Running && (Count > 0 || RunWithNoClients)) {
                 for(var i = Count - 1; i >= 0 && Running; ++i) {
-                    PoolRef.OnConnectionParse(Clients[i]);
+                    Clients[i].OnParse();
 
 
                 }

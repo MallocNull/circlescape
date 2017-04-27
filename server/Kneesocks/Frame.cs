@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CircleScape.Websocket {
-    class Frame {
+namespace Kneesocks {
+    public class Frame {
         public enum kOpcode {
             Continuation    = 0x0,
             TextFrame       = 0x1,
