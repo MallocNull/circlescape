@@ -20,8 +20,19 @@ namespace Kneesocks {
         public bool IsMasked { get; set; }
         public byte[] Mask { get; set; }
         public byte Reserved { get; set; }
+        
+        public byte[] Content { get; set; }
+        public byte[] MaskedContent {
+            get {
+                byte[] ret = new byte[Content.Length];
+                for(var i = 0; i < Content.Length; ++i)
+                    ret[i] = (byte)(Content[i] ^ Mask[i % 4]);
+                return ret;
+            }
+        }
 
+        public static FromRaw(byte[] raw) {
 
-        public byte[] Content { get; private set; }
+        }
     }
 }
