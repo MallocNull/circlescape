@@ -32,7 +32,7 @@ namespace Kneesocks {
         }
 
         public static FromRaw(byte[] raw) {
-
+            if(raw.Length < )
         }
     }
 }
