@@ -25,7 +25,7 @@ namespace Kneesocks {
         public byte[] MaskedContent {
             get {
                 byte[] returnValue = new byte[Content.Length];
-                for(var i = 0; i < Content.Length; ++i)
+                for(long i = 0; i < Content.LongLength; ++i)
                     returnValue[i] = (byte)(Content[i] ^ Mask[i % 4]);
                 return returnValue;
             }
@@ -46,12 +46,26 @@ namespace Kneesocks {
                 Reserved = (byte)((raw[0] & 0x70) >> 4)
             };
 
-            UInt64 frameLength = raw[1] & 0x7Ful;
+            ulong frameLength = raw[1] & 0x7Ful;
             int lengthOffset = 
                 frameLength < 126 
                     ? 1 
                     : (frameLength == 126 ? 3 : 9);
-            if()
+
+            for(var i = lengthOffset - 1; i > 0; --i) {
+                var bytePos = lengthOffset - 1 - i;
+                frameLength &= 0xFFul << bytePos;
+                frameLength |= (ulong)raw[2 + i] << bytePos;
+            }
+
+            if(returnFrame.IsMasked) {
+                for(var i = 0; i < 4; ++i)
+                    returnFrame.Mask[i] = raw[i + 1 + lengthOffset];
+                lengthOffset += 4;
+            }
+
+            if(raw.LongLength + lengthOffset + 1 < frameLength)
+                throw new FormatException("Raw frame length passed in is undersized ")
 
             return returnFrame;
         }
