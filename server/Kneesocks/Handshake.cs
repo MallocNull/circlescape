@@ -99,9 +99,9 @@ namespace Kneesocks {
             return new Handshake(statusCode, message);
         }
 
-        public string GetRaw() {
+        public override string ToString() {
             if(Content != null) {
-                SetHeader("Content-Length", Encoding.ASCII.GetByteCount(Content).ToString());
+                SetHeader("Content-Length", Content.ByteLength().ToString());
                 if(GetHeader("Content-Type") == null)
                     SetHeader("Content-Type", "text/plain");
             }

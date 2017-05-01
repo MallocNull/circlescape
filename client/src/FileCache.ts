@@ -14,5 +14,4 @@ class FileCache {
         }
     }
 
-    static 
 }

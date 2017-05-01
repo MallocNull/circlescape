@@ -37,18 +37,19 @@ namespace Kneesocks {
         }
 
         public void Disconnect(string reason = null) {
+            Disconnect(Frame.kClosingReason.Normal, reason);
+        }
+
+        public void Disconnect(Frame.kClosingReason status, string reason = null) {
             Disconnected = true;
             DisconnectReason = reason;
 
             if(Socket.Connected) {
                 Socket.SendTimeout = 1000;
-                if(!Handshaked) {
-                    var raw = Encoding.ASCII.GetBytes(Handshake.DenyRequest().GetRaw());
-                    Stream.Write(raw, 0, raw.Length);
-                    Socket.Close();
-                } else {
-
-                }
+                var raw = Handshaked ? Frame.Closing(status, reason).GetBytes()
+                                     : Handshake.DenyRequest().ToString().GetBytes();
+                Stream.Write(raw, 0, raw.Length);
+                Socket.Close();
             }
 
             OnClose();
