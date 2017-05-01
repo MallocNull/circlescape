@@ -31,6 +31,21 @@ namespace Kneesocks {
             }
         }
 
+        public byte[] GetRaw() {
+            var headerSize = 2L;
+            var bodySize = Content.LongLength;
+            if(bodySize >= 0x7E && bodySize <= 0xFFFF)
+                headerSize += 2;
+            else if(bodySize > 0xFFFF)
+                headerSize += 8;
+            if(IsMasked)
+                headerSize += 4;
+
+            var returnValue = new byte[headerSize + bodySize];
+            
+            return returnValue;
+        }
+
         public static Frame FromRaw(byte[] raw) {
             if(raw.Length < 2)
                 throw new FormatException("Websocket frame cannot be less than two bytes long");
@@ -46,16 +61,16 @@ namespace Kneesocks {
                 Reserved = (byte)((raw[0] & 0x70) >> 4)
             };
 
-            ulong frameLength = raw[1] & 0x7Ful;
+            ulong bodyLength = raw[1] & 0x7Ful;
             int lengthOffset = 
-                frameLength < 126 
+                bodyLength < 126 
                     ? 1 
-                    : (frameLength == 126 ? 3 : 9);
+                    : (bodyLength == 126 ? 3 : 9);
 
             for(var i = lengthOffset - 1; i > 0; --i) {
                 var bytePos = lengthOffset - 1 - i;
-                frameLength &= 0xFFul << bytePos;
-                frameLength |= (ulong)raw[2 + i] << bytePos;
+                bodyLength &= 0xFFul << bytePos;
+                bodyLength |= (ulong)raw[2 + i] << bytePos;
             }
 
             if(returnFrame.IsMasked) {
@@ -64,8 +79,22 @@ namespace Kneesocks {
                 lengthOffset += 4;
             }
 
-            if(raw.LongLength + lengthOffset + 1 < frameLength)
-                throw new FormatException("Raw frame length passed in is undersized ")
+            ulong expectedFrameLength = bodyLength + (uint)lengthOffset + 1;
+            if(expectedFrameLength < (ulong)raw.LongLength)
+                throw new FormatException("Raw frame length ("+ expectedFrameLength +") is less than described size ("+ (ulong)raw.LongLength +")");
+
+            ulong counter = 0;
+            returnFrame.Content = raw.Skip(lengthOffset + 1)
+                                     .TakeWhile(x => counter++ < bodyLength)
+                                     .ToArray();
+
+            if(returnFrame.IsMasked) {
+                counter = 0;
+                returnFrame.Content = 
+                    returnFrame.Content.Select(
+                        x => (byte)(x ^ returnFrame.Mask[counter++ % 4])
+                    ).ToArray();
+            }
 
             return returnFrame;
         }
