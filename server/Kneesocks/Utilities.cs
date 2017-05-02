@@ -65,4 +65,11 @@ namespace Kneesocks {
             }
         }
     }
+
+    public static class NumericExtensions {
+        public static T Unpack<T>(this byte[] bytes, int offset = 0) {
+            sizeof
+            return 0;
+        }
+    }
 }

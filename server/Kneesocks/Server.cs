@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Kneesocks {
-    public class Server {
-
+    public abstract class Server {
+        
     }
 }
