@@ -15,6 +15,7 @@ namespace Kneesocks {
         // a new thread is created
         public int SizeGrowth { get; set; } = 1;
         // maximum amount of connections that a single thread will be assigned
+        // 0 means no limit
         public int MaxSize { get; set; } = 10;
         // maximum number of threads that will be spawned
         // 0 means no limit
@@ -30,46 +31,57 @@ namespace Kneesocks {
 
         private List<ThreadContext> Threads
             = new List<ThreadContext>();
+
+        private UInt64 InternalCounter = 0;
         private Dictionary<UInt64, Connection> Connections
             = new Dictionary<UInt64, Connection>();
-
-        private List<ThreadContext> InvalidThreads
-            = new List<ThreadContext>();
-        private Mutex InvalidThreadsMutex = new Mutex();
 
         public Pool() {
             for(var i = 0; i < InitialCount; ++i)
                 CreateThread();
         }
 
-        public bool AddConnection(Connection connection) {
-            if(InvalidThreads.Count > 0) {
-                foreach(var invalidThread in InvalidThreads)
-                    Threads.RemoveAll(x => Object.ReferenceEquals(invalidThread, x));
+        private void IndexConnection(UInt64 id, Connection connection) {
+            lock(Connections) {
+                if(id == 0)
+                    id = InternalCounter++;
 
-                updateFullThreadCount = true;
-                InvalidThreads.RemoveAll(x => true);
+                Connections.Add(id, connection);
             }
+        }
 
-            foreach(var thread in Threads) {
-                if(thread.Stack.Count < FullThreadSize) {
-                    thread.Stack.AddClient(connection);
+        public bool AddConnection(Connection connection, UInt64 id = 0) {
+            lock(Threads) {
+                foreach(var thread in Threads) {
+                    if(thread.Stack.Count < FullThreadSize) {
+                        thread.Stack.AddClient(connection);
+                        return true;
+                    }
+                }
+
+                if(MaxCount == 0 || Threads.Count < MaxCount) {
+                    CreateThread(connection);
                     return true;
                 }
-            }
-
-            if(MaxCount == 0 || Threads.Count < MaxCount) {
-                CreateThread(connection);
-                return true;
             }
 
             return false;
         }
 
+        public void InvalidateConnection(Connection connection) {
+            lock(Connections) {
+                
+            }
+        }
+
         public void InvalidateThread(Stack<T> stackRef) {
-            var ctx = Threads.FirstOrDefault(x => Object.ReferenceEquals(x.Stack, stackRef));
-            if(ctx != null)
-                InvalidThreads.Add(ctx);
+            lock(Threads) {
+                var ctx = Threads.FirstOrDefault(x => Object.ReferenceEquals(x.Stack, stackRef));
+                if(ctx != null) {
+                    Threads.Remove(ctx);
+                    updateFullThreadCount = true;
+                }
+            }
         }
 
         private ThreadContext CreateThread(Connection initialConnection = null, bool runWithNoClients = false) {
@@ -78,7 +90,7 @@ namespace Kneesocks {
                 Stack = stack,
                 Thread = new Thread(new ThreadStart(stack.ManageStack))
             };
-
+            
             Threads.Add(ctx);
             updateFullThreadCount = true;
             return ctx;
@@ -88,7 +100,7 @@ namespace Kneesocks {
             get {
                 if(updateFullThreadCount) {
                     _fullThreadCount = Math.Min(
-                            MaxSize, 
+                            MaxSize == 0 ? int.MaxValue : MaxSize, 
                             InitialSize + SizeGrowth * (Threads.Count - InitialCount)
                         );
                 }

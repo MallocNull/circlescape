@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Kneesocks {
     public abstract class Connection {
+        public UInt64 Id { get; private set; }
         private TcpClient Socket;
         private NetworkStream Stream;
 
@@ -18,13 +19,15 @@ namespace Kneesocks {
         private Dictionary<string, string> Headers =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        public Connection(TcpClient sock) {
+        protected Connection(UInt64 id, TcpClient sock) {
+            Id = id;
             Socket = sock;
             Socket.ReceiveTimeout = 1;
             Stream = sock.GetStream();
         }
 
-        public Connection(Connection conn) {
+        protected Connection(Connection conn) {
+            Id = conn.Id;
             Socket = conn.Socket;
             Stream = Socket.GetStream();
 
