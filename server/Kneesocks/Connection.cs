@@ -6,8 +6,21 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Kneesocks {
-    public abstract class Connection {
-        public UInt64 Id { get; private set; }
+    public class Connection {
+        public UInt64? _Id = null;
+        public UInt64 Id {
+            get {
+                if(_Id == null)
+                    throw new ArgumentNullException();
+                else
+                    return (UInt64)_Id;
+            }
+            set {
+                if(_Id == null)
+                    _Id = value;
+            }
+        }
+
         private TcpClient Socket;
         private NetworkStream Stream;
 
@@ -19,14 +32,17 @@ namespace Kneesocks {
         private Dictionary<string, string> Headers =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        protected Connection(UInt64 id, TcpClient sock) {
-            Id = id;
+        public Connection(TcpClient sock) {
             Socket = sock;
             Socket.ReceiveTimeout = 1;
             Stream = sock.GetStream();
         }
 
-        protected Connection(Connection conn) {
+        public Connection(UInt64 id, TcpClient sock) : this(sock) {
+            Id = id;
+        }
+
+        public Connection(Connection conn) {
             Id = conn.Id;
             Socket = conn.Socket;
             Stream = Socket.GetStream();
@@ -60,7 +76,7 @@ namespace Kneesocks {
 
         // called after the client successfully handshakes
         public virtual void OnOpen() { }
-        
+
         // called when the thread manager iterates through
         // the thread list and stops on this thread
         public virtual void OnParse() { }

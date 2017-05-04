@@ -52,9 +52,8 @@ namespace Kneesocks {
         public void ManageStack() {
             while(Running && (Count > 0 || RunWithNoClients)) {
                 for(var i = Count - 1; i >= 0 && Running; ++i) {
-                    Clients[i].OnParse();
-
-
+                    var client = Clients[i];
+                    client 
                 }
             }
 

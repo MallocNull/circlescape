@@ -46,6 +46,7 @@ namespace Kneesocks {
                 if(id == 0)
                     id = InternalCounter++;
 
+                connection.Id = id;
                 Connections.Add(id, connection);
             }
         }

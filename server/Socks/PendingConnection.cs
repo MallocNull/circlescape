@@ -8,5 +8,6 @@ using System.Threading.Tasks;
 namespace CircleScape {
     class PendingConnection : Kneesocks.Connection {
         public PendingConnection(UInt32 id, TcpClient sock) : base(id, sock) { }
+        
     }
 }
