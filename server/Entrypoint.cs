@@ -13,7 +13,7 @@ namespace CircleScape {
             server.Start();
 
             while(true) {
-                // physics and game logic processing loop
+                // logic processing loop
             }
         }
     }

@@ -27,27 +27,33 @@ namespace Kneesocks {
         public int Tolerance { get; set; } = 0;
 
         private int _fullThreadCount;
-        private bool updateFullThreadCount = true;
+        private volatile bool updateFullThreadCount = true;
 
         private List<ThreadContext> Threads
             = new List<ThreadContext>();
 
-        private UInt64 InternalCounter = 0;
+        private long InternalCounter = 0;
         private Dictionary<UInt64, Connection> Connections
             = new Dictionary<UInt64, Connection>();
 
         public Pool() {
             for(var i = 0; i < InitialCount; ++i)
-                CreateThread();
+                CreateThread(runWithNoClients: true);
         }
 
         private void IndexConnection(UInt64 id, Connection connection) {
             lock(Connections) {
                 if(id == 0)
-                    id = InternalCounter++;
-
+                    id = (ulong)Interlocked.Increment(ref InternalCounter);
+                
                 connection.Id = id;
                 Connections.Add(id, connection);
+            }
+        }
+
+        public void InvalidateConnection(UInt64 id) {
+            lock(Connections) {
+                Connections.Remove(id);
             }
         }
 
@@ -56,23 +62,19 @@ namespace Kneesocks {
                 foreach(var thread in Threads) {
                     if(thread.Stack.Count < FullThreadSize) {
                         thread.Stack.AddClient(connection);
+                        IndexConnection(id, connection);
                         return true;
                     }
                 }
 
                 if(MaxCount == 0 || Threads.Count < MaxCount) {
                     CreateThread(connection);
+                    IndexConnection(id, connection);
                     return true;
                 }
             }
 
             return false;
-        }
-
-        public void InvalidateConnection(Connection connection) {
-            lock(Connections) {
-                
-            }
         }
 
         public void InvalidateThread(Stack<T> stackRef) {

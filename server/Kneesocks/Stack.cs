@@ -53,7 +53,11 @@ namespace Kneesocks {
             while(Running && (Count > 0 || RunWithNoClients)) {
                 for(var i = Count - 1; i >= 0 && Running; ++i) {
                     var client = Clients[i];
-                    client 
+                    if(client.Handshaked) {
+
+                    } else {
+
+                    }
                 }
             }
 

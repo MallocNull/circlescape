@@ -23,6 +23,8 @@ namespace Kneesocks {
 
         private TcpClient Socket;
         private NetworkStream Stream;
+        private string RawBuffer = "";
+        private List<Frame> FrameBuffer = new List<Frame>();
 
         public bool Disconnected { get; private set; } = false;
         public string DisconnectReason { get; private set; } = null;
@@ -53,6 +55,14 @@ namespace Kneesocks {
             Handshaked = conn.Handshaked;
             RawClientHandshake = conn.RawClientHandshake;
             Headers = conn.Headers;
+        }
+
+        public byte[] Parse() {
+            if(!Handshaked) {
+
+            } else {
+
+            }
         }
 
         public void Disconnect(string reason = null) {
