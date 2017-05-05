@@ -23,7 +23,9 @@ namespace Kneesocks {
 
         private TcpClient Socket;
         private NetworkStream Stream;
-        private string RawBuffer = "";
+
+        ReadBuffer Buffer;
+        private Frame PartialFrame = null;
         private List<Frame> FrameBuffer = new List<Frame>();
 
         public bool Disconnected { get; private set; } = false;
@@ -38,16 +40,23 @@ namespace Kneesocks {
             Socket = sock;
             Socket.ReceiveTimeout = 1;
             Stream = sock.GetStream();
+            Buffer = new ReadBuffer(Stream);
         }
 
         public Connection(UInt64 id, TcpClient sock) : this(sock) {
             Id = id;
         }
 
-        public Connection(Connection conn) {
-            Id = conn.Id;
+        public Connection(Connection conn, bool preserveId = true) {
+            if(preserveId)
+                _Id = conn._Id;
+
             Socket = conn.Socket;
-            Stream = Socket.GetStream();
+            Stream = conn.Stream;
+
+            Buffer = conn.Buffer;
+            PartialFrame = conn.PartialFrame;
+            FrameBuffer = conn.FrameBuffer;
 
             Disconnected = conn.Disconnected;
             DisconnectReason = conn.DisconnectReason;
@@ -57,11 +66,25 @@ namespace Kneesocks {
             Headers = conn.Headers;
         }
 
+        private void StartRead(ulong length) {
+
+        }
+
         public byte[] Parse() {
+            byte[] readBuffer = null;
+            if(Buffer.IsReading) {
+                readBuffer = Buffer.AttemptRead();
+                if(readBuffer == null)
+                    return null;
+            }
+            
             if(!Handshaked) {
+                if(Stream.)
 
+                return null;
             } else {
-
+                
+                OnParse();
             }
         }
 
@@ -85,16 +108,16 @@ namespace Kneesocks {
         }
 
         // called after the client successfully handshakes
-        public virtual void OnOpen() { }
+        protected virtual void OnOpen() { }
 
         // called when the thread manager iterates through
         // the thread list and stops on this thread
-        public virtual void OnParse() { }
+        protected virtual void OnParse() { }
 
         // called when data has been received
-        public virtual void OnReceive(byte[] data) { }
+        protected virtual void OnReceive(byte[] data) { }
 
         // called when the connection is disconnected
-        public virtual void OnClose() { }
+        protected virtual void OnClose() { }
     }
 }

@@ -9,7 +9,6 @@ namespace Kneesocks {
     public class Stack<T> where T : Connection {
         private Pool<T> PoolRef = null;
         private List<Connection> Clients = new List<Connection>();
-        private Mutex ClientsMutex = new Mutex();
         private bool RunWithNoClients = false;
         private bool Running = true;
         private bool _finished = false;
@@ -26,14 +25,10 @@ namespace Kneesocks {
             RunWithNoClients = runWithNoClients;
         }
 
-        public bool AddClient(Connection client) {
-            if(!ClientsMutex.WaitOne(5000))
-                return false;
-
-            Clients.Add(client);
-
-            ClientsMutex.ReleaseMutex();
-            return true;
+        public void AddClient(Connection client) {
+            lock(Clients) {
+                Clients.Add(client);
+            }
         }
 
         public int Count {

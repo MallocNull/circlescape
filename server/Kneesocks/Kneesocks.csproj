@@ -45,6 +45,7 @@
     <Compile Include="Handshake.cs" />
     <Compile Include="Pool.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReadBuffer.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Stack.cs" />
     <Compile Include="Utilities.cs" />

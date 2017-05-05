@@ -32,7 +32,29 @@ namespace Kneesocks {
         public byte[] Mask { get; set; } = new byte[] { 0, 0, 0, 0 };
         public byte Reserved { get; set; } = 0;
 
-        public byte[] Content { get; set; }
+        private int _HeaderLength = 0;
+        public int HeaderLength {
+            get {
+                if(_HeaderLength != 0)
+                    return _HeaderLength;
+
+                int length = 2
+                    + (BodyLength >= 0x7E && BodyLength <= 0xFFFF ? 2 : 0)
+                    + (BodyLength > 0xFFFF                        ? 4 : 0)
+                    + (IsMasked                                   ? 4 : 0);
+
+                return (_HeaderLength = length);
+            }
+        }
+
+        private int _BodyLength = 0;
+        public int BodyLength {
+            get {
+                return Content == null ? _BodyLength : Content.Length;
+            }
+        }
+
+        public byte[] Content { get; set; } = null;
         public byte[] MaskedContent {
             get {
                 long counter = 0;
@@ -41,8 +63,8 @@ namespace Kneesocks {
         }
 
         public byte[] GetBytes() {
-            var headerSize = 2L;
-            var bodySize = Content.LongLength;
+            var headerSize = 2;
+            var bodySize = (UInt64)Content.LongLength;
             var headerLengthFirstByte = (byte)Content.Length;
             if(bodySize >= 0x7E && bodySize <= 0xFFFF) {
                 headerSize += 2;
@@ -55,7 +77,7 @@ namespace Kneesocks {
             if(IsMasked)
                 headerSize += 4;
 
-            var returnValue = new byte[headerSize + bodySize];
+            var returnValue = new byte[(UInt64)headerSize + bodySize];
             returnValue[0] = (byte)(((byte)Opcode % 0x10) 
                                   | ((Reserved % 8) << 4) 
                                   |  (IsFinal ? 0x80 : 0x0));
@@ -76,44 +98,65 @@ namespace Kneesocks {
             return returnValue;
         }
 
-        public static Frame FromBytes(byte[] raw) {
+        public static int HeaderSizeFromBytes(byte[] raw) {
+            if(raw.Length < 2)
+                throw new FormatException("Need first two bytes to analyze");
+
+            var lengthByte = raw[1] & 0x7F;
+            return 2 
+                + ((raw[1] & 0x80) != 0 ? 4: 0)
+                +  (lengthByte == 0x7E ? 2 : 0) 
+                +  (lengthByte == 0x7F ? 4 : 0);
+        }
+
+        public static Frame HeaderFromBytes(byte[] raw) {
             if(raw.Length < 2)
                 throw new FormatException("Websocket frame cannot be less than two bytes long");
 
             var rawOpcode = raw[0] & 0x0F;
             if(!Enum.IsDefined(typeof(kOpcode), rawOpcode))
-                throw new FormatException("Opcode '0x"+ rawOpcode.ToString("X") +"' not understood");
-            
+                throw new ArgumentException("Opcode '0x" + rawOpcode.ToString("X") + "' not understood");
+
             var returnFrame = new Frame {
-                IsFinal = (raw[0] & 0x80) != 0,
-                Opcode = (kOpcode)rawOpcode,
+                IsFinal  = (raw[0] & 0x80) != 0,
+                Opcode   = (kOpcode)rawOpcode,
                 IsMasked = (raw[1] & 0x80) != 0,
                 Reserved = (byte)((raw[0] & 0x70) >> 4)
             };
 
             ulong bodyLength = raw[1] & 0x7Ful;
-            int headerOffset = 
-                bodyLength < 0x7E 
-                    ? 1 
+            int headerOffset =
+                bodyLength < 0x7E
+                    ? 1
                     : (bodyLength == 0x7E ? 3 : 9);
-            
+
             if(raw.Length < headerOffset + 1)
                 throw new FormatException("Websocket frame is smaller than expected header size");
 
             bodyLength = bodyLength < 0x7E ? 0 : bodyLength;
             for(var i = headerOffset - 1; i > 0; --i)
-                bodyLength |= (ulong)raw[2 + i] << (8*(headerOffset - 1 - i));
+                bodyLength |= (ulong)raw[2 + i] << (8 * (headerOffset - 1 - i));
 
-            if(returnFrame.IsMasked) {
+            if(bodyLength > Int32.MaxValue)
+                throw new FormatException("Frame is too large to interpret");
+
+            returnFrame._BodyLength = (int)bodyLength;
+
+            if(returnFrame.IsMasked)
                 Array.Copy(raw, headerOffset + 1, returnFrame.Mask, 0, 4);
-                headerOffset += 4;
-            }
 
-            ulong expectedFrameLength = bodyLength + (uint)headerOffset + 1;
-            if(expectedFrameLength < (ulong)raw.LongLength)
-                throw new FormatException("Raw frame length ("+ (ulong)raw.LongLength + ") is less than described size ("+ expectedFrameLength + ")");
-            
-            Array.Copy(raw, headerOffset + 1, returnFrame.Content, 0L, (long)bodyLength);
+            return returnFrame;
+        }
+
+        public static Frame FromBytes(byte[] raw) {
+            var returnFrame = HeaderFromBytes(raw);
+
+            uint expectedFrameLength = (uint)returnFrame.BodyLength + (uint)returnFrame.HeaderLength;
+            if(expectedFrameLength < (uint)raw.Length)
+                throw new FormatException("Raw frame length ("+ (uint)raw.Length + ") is less than described size ("+ expectedFrameLength + ")");
+
+            returnFrame.Content = new byte[returnFrame.BodyLength];
+            Array.Copy(raw, returnFrame.HeaderLength, returnFrame.Content, 0L, (long)returnFrame.BodyLength);
             if(returnFrame.IsMasked)
                 returnFrame.Content = returnFrame.MaskedContent;
 
