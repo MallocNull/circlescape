@@ -17,6 +17,7 @@ namespace Kneesocks {
 
         public ReadBuffer(NetworkStream source) {
             Source = source;
+            Buffer = new List<byte>();
         }
 
         public TimeSpan ElapsedReadTime {

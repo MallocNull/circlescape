@@ -27,7 +27,7 @@ namespace Kneesocks {
             Service_Unavailable     = 503,
             Gateway_Timeout         = 504
         }
-
+        
         public kStatusCode StatusCode { get; private set; } = kStatusCode.Switching_Protocols;
         protected string StatusCodeText {
             get {
@@ -44,25 +44,23 @@ namespace Kneesocks {
                 throw new FormatException("Header delimeter not found in raw data");
 
             var header = rawData.Substring(0, headerLength);
-            if(!header.StartsWith("HTTP/"))
+            if(!header.StartsWith("GET ") || !header.Contains("HTTP/"))
                 throw new FormatException("Protocol defined in status line not understood");
 
             var lines = header.Split('\n');
             foreach(var line in lines) {
                 string[] parts;
-                if(line.StartsWith("HTTP/")) {
+                if(line.StartsWith("GET ")) {
                     parts = line.Trim().Split(' ');
-                    if(parts.Length < 2)
+                    if(parts.Length < 3)
                         throw new FormatException("Status line in header malformed");
 
-                    int code;
+                    /*int code;
                     if(!int.TryParse(parts[1], out code))
-                        throw new FormatException("Status code sent is not a number");
+                        throw new FormatException("Status code sent is not a number");*/
 
-                    if(!Enum.IsDefined(typeof(kStatusCode), code))
-                        throw new NotSupportedException("Status code not supported");
-
-                    StatusCode = (kStatusCode)code;
+                    /*if(!Enum.IsDefined(typeof(kStatusCode), code))
+                        throw new NotSupportedException("Status code not supported");*/
                 } else {
                     parts = line.Trim().Split(new char[] {':'}, 2);
                     if(parts.Length == 2)
@@ -88,6 +86,8 @@ namespace Kneesocks {
             var key = request.GetHeader("Sec-WebSocket-Key");
             var connectionHash = (key + nonce).SHA1().Base64Encode(false);
 
+            var test = ("dGhlIHNhbXBsZSBub25jZQ==" + nonce).SHA1().Base64Encode(false);
+
             var shake = new Handshake(kStatusCode.Switching_Protocols);
             shake.SetHeader("Upgrade", "websocket")
                  .SetHeader("Connection", "Upgrade")
@@ -97,6 +97,10 @@ namespace Kneesocks {
 
         public static Handshake DenyRequest(kStatusCode statusCode = kStatusCode.Bad_Request, string message = "Handshake failed.") {
             return new Handshake(statusCode, message);
+        }
+
+        public byte[] ToBytes() {
+            return Encoding.ASCII.GetBytes(ToString());
         }
 
         public override string ToString() {

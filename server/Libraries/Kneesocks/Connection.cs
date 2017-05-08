@@ -32,9 +32,7 @@ namespace Kneesocks {
         public string DisconnectReason { get; private set; } = null;
 
         public bool Handshaked { get; private set; } = false;
-        private string RawClientHandshake = "";
-        private Dictionary<string, string> Headers =
-            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        public Handshake ClientHandshake { get; private set; } = null;
 
         public Connection(TcpClient sock) {
             Socket = sock;
@@ -62,30 +60,51 @@ namespace Kneesocks {
             DisconnectReason = conn.DisconnectReason;
 
             Handshaked = conn.Handshaked;
-            RawClientHandshake = conn.RawClientHandshake;
-            Headers = conn.Headers;
-        }
-
-        private void StartRead(ulong length) {
-
+            ClientHandshake = conn.ClientHandshake;
         }
 
         public byte[] Parse() {
             byte[] readBuffer = null;
             if(Buffer.IsReading) {
                 readBuffer = Buffer.AttemptRead();
-                if(readBuffer == null)
+                if(readBuffer == null) {
+                    if(Buffer.ElapsedReadTime.Seconds > 30)
+                        Disconnect(Frame.kClosingReason.ProtocolError, "Timed out waiting for a full response");
+
                     return null;
+                }
             }
             
             if(!Handshaked) {
-                if(Stream.)
-
-                return null;
-            } else {
+                if(!Buffer.IsReading) {
+                    readBuffer = Buffer.AttemptRead("\r\n\r\n");
+                    if(readBuffer == null)
+                        return null;
+                }
                 
-                OnParse();
+                try {
+                    Handshake request = new Handshake(Encoding.ASCII.GetString(readBuffer));
+                    var response = Handshake.AcceptRequest(request).ToBytes();
+                    Stream.Write(response, 0, response.Length);
+                    ClientHandshake = request;
+                    Handshaked = true;
+                } catch(Exception e) {
+                    Disconnect(Frame.kClosingReason.ProtocolError, e.Message);
+                    return null;
+                }
+
+                OnOpen();
+                return null;
             }
+
+            /*if(!Buffer.IsReading) {
+                readBuffer = Buffer.AttemptRead("\r\n\r\n");
+                if(readBuffer == null)
+                    return null;
+            }*/
+
+            OnParse();
+            return null;
         }
 
         public void Disconnect(string reason = null) {

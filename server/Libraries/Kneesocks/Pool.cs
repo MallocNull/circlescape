@@ -93,7 +93,8 @@ namespace Kneesocks {
                 Stack = stack,
                 Thread = new Thread(new ThreadStart(stack.ManageStack))
             };
-            
+
+            ctx.Thread.Start();
             Threads.Add(ctx);
             updateFullThreadCount = true;
             return ctx;
