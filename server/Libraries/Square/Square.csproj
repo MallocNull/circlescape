@@ -40,7 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ByteArrayExtensions.cs" />
+    <Compile Include="ArrayExtensions.cs" />
     <Compile Include="CryptoExtensions.cs" />
     <Compile Include="NumericExtensions.cs" />
     <Compile Include="StringExtensions.cs" />

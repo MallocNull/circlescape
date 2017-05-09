@@ -8,6 +8,7 @@ using Square;
 namespace Kneesocks {
     public class Handshake {
         private const string HttpVersion = "1.1";
+        public bool IsRequest = false;
 
         public enum kStatusCode {
             Switching_Protocols     = 101,
@@ -28,18 +29,20 @@ namespace Kneesocks {
             Service_Unavailable     = 503,
             Gateway_Timeout         = 504
         }
-        
-        public kStatusCode StatusCode { get; private set; } = kStatusCode.Switching_Protocols;
+        public kStatusCode? StatusCode { get; private set; } = null;
         protected string StatusCodeText {
             get {
                 return Enum.GetName(typeof(kStatusCode), StatusCode).Replace('_', ' ');
             }
         }
+
         private Dictionary<string, string> Headers =
             new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         public string Content { get; set; } = null;
 
         public Handshake(string rawData) {
+            IsRequest = true;
+
             var headerLength = rawData.IndexOf("\r\n\r\n");
             if(headerLength == -1)
                 throw new FormatException("Header delimeter not found in raw data");
@@ -55,13 +58,6 @@ namespace Kneesocks {
                     parts = line.Trim().Split(' ');
                     if(parts.Length < 3)
                         throw new FormatException("Status line in header malformed");
-
-                    /*int code;
-                    if(!int.TryParse(parts[1], out code))
-                        throw new FormatException("Status code sent is not a number");*/
-
-                    /*if(!Enum.IsDefined(typeof(kStatusCode), code))
-                        throw new NotSupportedException("Status code not supported");*/
                 } else {
                     parts = line.Trim().Split(new char[] {':'}, 2);
                     if(parts.Length == 2)
@@ -99,10 +95,13 @@ namespace Kneesocks {
         }
 
         public byte[] ToBytes() {
-            return Encoding.ASCII.GetBytes(ToString());
+            return ToString().GetBytes();
         }
 
         public override string ToString() {
+            if(IsRequest)
+                throw new NotSupportedException("Cannot create a request string.");
+
             if(Content != null) {
                 SetHeader("Content-Length", Content.ByteLength().ToString());
                 if(GetHeader("Content-Type") == null)
@@ -113,6 +112,10 @@ namespace Kneesocks {
             foreach(var header in Headers)
                 raw += header.Key.Trim() + ": " + header.Value.Trim() + "\r\n";
             return raw += "\r\n";
+        }
+
+        public bool HasHeader(string name) {
+            return Headers.ContainsKey(name);
         }
 
         public string GetHeader(string name) {

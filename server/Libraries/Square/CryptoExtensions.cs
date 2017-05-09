@@ -26,17 +26,5 @@ namespace Square {
                 return hasher.ComputeHash(bytes);
             }
         }
-
-        /*private static string ParseRawHash(byte[] hash, kHashReturnType type) {
-            switch(type) {
-                case kHashReturnType.BASE64:
-                    return hash.Base64Encode();
-                case kHashReturnType.HEX:
-                    return BitConverter.ToString(hash).Replace("-", "");
-                case kHashReturnType.RAW:
-                default:
-                    return hash;
-            }
-        }*/
     }
 }

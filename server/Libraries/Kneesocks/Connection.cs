@@ -26,7 +26,9 @@ namespace Kneesocks {
         private NetworkStream Stream;
 
         ReadBuffer Buffer;
-        private Frame PartialFrame = null;
+        private byte[] FirstTwoBytes = null;
+        private int ExtraHeaderSize = 2;
+        private byte[] FrameHeader = null;
         private List<Frame> FrameBuffer = new List<Frame>();
 
         public bool Disconnected { get; private set; } = false;
@@ -54,7 +56,9 @@ namespace Kneesocks {
             Stream = conn.Stream;
 
             Buffer = conn.Buffer;
-            PartialFrame = conn.PartialFrame;
+            FirstTwoBytes = conn.FirstTwoBytes;
+            ExtraHeaderSize = conn.ExtraHeaderSize;
+            FrameHeader = conn.FrameHeader;
             FrameBuffer = conn.FrameBuffer;
 
             Disconnected = conn.Disconnected;
@@ -63,13 +67,13 @@ namespace Kneesocks {
             Handshaked = conn.Handshaked;
             ClientHandshake = conn.ClientHandshake;
         }
-
+        
         public byte[] Parse() {
             byte[] readBuffer = null;
             if(Buffer.IsReading) {
                 readBuffer = Buffer.AttemptRead();
                 if(readBuffer == null) {
-                    if(Buffer.ElapsedReadTime.Seconds > 30)
+                    if(Buffer.ElapsedReadTime.Seconds > (Handshaked ? 300 : 30))
                         Disconnect(Frame.kClosingReason.ProtocolError, "Timed out waiting for a full response");
 
                     return null;
@@ -77,7 +81,7 @@ namespace Kneesocks {
             }
             
             if(!Handshaked) {
-                if(!Buffer.IsReading) {
+                if(readBuffer == null) {
                     readBuffer = Buffer.AttemptRead("\r\n\r\n");
                     if(readBuffer == null)
                         return null;
@@ -98,13 +102,48 @@ namespace Kneesocks {
                 return null;
             }
 
+            OnParse();
+
+            if(FirstTwoBytes == null) {
+                if(readBuffer == null) {
+                    readBuffer = Buffer.AttemptRead(2);
+                    if(readBuffer == null)
+                        return null;
+                }
+
+                FirstTwoBytes = readBuffer;
+                ExtraHeaderSize = Frame.HeaderSizeFromBytes(FirstTwoBytes) - 2;
+                readBuffer = null;
+            }
+
+            if(FrameHeader == null) {
+                if(ExtraHeaderSize == 0)
+                    FrameHeader = FirstTwoBytes;
+                else {
+                    if(readBuffer == null) {
+                        readBuffer = Buffer.AttemptRead(ExtraHeaderSize);
+                        if(readBuffer == null)
+                            return null;
+                    }
+
+                    FrameHeader = FirstTwoBytes.Concat(readBuffer).ToArray();
+                }
+
+                readBuffer = null;
+            }
+
+            if(FrameHeader != null) {
+                var check = Frame.HeaderFromBytes()
+
+                if()
+            }
+
             /*if(!Buffer.IsReading) {
                 readBuffer = Buffer.AttemptRead("\r\n\r\n");
                 if(readBuffer == null)
                     return null;
             }*/
 
-            OnParse();
             return null;
         }
 
