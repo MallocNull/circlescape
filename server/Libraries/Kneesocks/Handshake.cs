@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Square;
 
 namespace Kneesocks {
     public class Handshake {
@@ -84,9 +85,7 @@ namespace Kneesocks {
         public static Handshake AcceptRequest(Handshake request) {
             const string nonce = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
             var key = request.GetHeader("Sec-WebSocket-Key");
-            var connectionHash = (key + nonce).SHA1().Base64Encode(false);
-
-            var test = ("dGhlIHNhbXBsZSBub25jZQ==" + nonce).SHA1().Base64Encode(false);
+            var connectionHash = (key + nonce).SHA1().Base64Encode();
 
             var shake = new Handshake(kStatusCode.Switching_Protocols);
             shake.SetHeader("Upgrade", "websocket")

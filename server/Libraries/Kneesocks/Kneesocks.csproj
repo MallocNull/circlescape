@@ -48,7 +48,6 @@
     <Compile Include="ReadBuffer.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Stack.cs" />
-    <Compile Include="Utilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Square\Square.csproj">

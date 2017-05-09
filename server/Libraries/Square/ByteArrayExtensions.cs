@@ -9,5 +9,9 @@ namespace Square {
         public static string Base64Encode(this byte[] bytes) {
             return Convert.ToBase64String(bytes);
         }
+
+        public static string ToHexString(this byte[] bytes) {
+            return BitConverter.ToString(bytes).Replace("-", "");
+        }
     }
 }
