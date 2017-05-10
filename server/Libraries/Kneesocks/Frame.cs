@@ -41,7 +41,7 @@ namespace Kneesocks {
 
                 int length = 2
                     + (BodyLength >= 0x7E && BodyLength <= 0xFFFF ? 2 : 0)
-                    + (BodyLength > 0xFFFF                        ? 4 : 0)
+                    + (BodyLength > 0xFFFF                        ? 8 : 0)
                     + (IsMasked                                   ? 4 : 0);
 
                 return (_HeaderLength = length);
@@ -99,7 +99,7 @@ namespace Kneesocks {
             return returnValue;
         }
 
-        public static int HeaderSizeFromBytes(byte[] raw) {
+        public static int HeaderLengthFromBytes(byte[] raw) {
             if(raw.Length < 2)
                 throw new FormatException("Need first two bytes to analyze");
 
@@ -107,7 +107,7 @@ namespace Kneesocks {
             return 2 
                 + ((raw[1] & 0x80) != 0 ? 4: 0)
                 +  (lengthByte == 0x7E ? 2 : 0) 
-                +  (lengthByte == 0x7F ? 4 : 0);
+                +  (lengthByte == 0x7F ? 8 : 0);
         }
 
         public static Frame HeaderFromBytes(byte[] raw) {
@@ -131,12 +131,12 @@ namespace Kneesocks {
                     ? 1
                     : (bodyLength == 0x7E ? 3 : 9);
 
-            if(raw.Length < headerOffset + 1)
+            if(raw.Length < headerOffset + 1 + (returnFrame.IsMasked ? 4 : 0))
                 throw new FormatException("Websocket frame is smaller than expected header size");
 
-            bodyLength = bodyLength < 0x7E ? 0 : bodyLength;
-            for(var i = headerOffset - 1; i > 0; --i)
-                bodyLength |= (ulong)raw[2 + i] << (8 * (headerOffset - 1 - i));
+            if(bodyLength >= 0x7E)
+                bodyLength = bodyLength == 0x7E ? raw.Subset(2, 2).UnpackUInt16()
+                                                : raw.Subset(2, 8).UnpackUInt64();
 
             if(bodyLength > Int32.MaxValue)
                 throw new FormatException("Frame is too large to interpret");
@@ -153,7 +153,7 @@ namespace Kneesocks {
             var returnFrame = HeaderFromBytes(raw);
 
             uint expectedFrameLength = (uint)returnFrame.BodyLength + (uint)returnFrame.HeaderLength;
-            if(expectedFrameLength < (uint)raw.Length)
+            if((uint)raw.Length < expectedFrameLength)
                 throw new FormatException("Raw frame length ("+ (uint)raw.Length + ") is less than described size ("+ expectedFrameLength + ")");
 
             returnFrame.Content = new byte[returnFrame.BodyLength];

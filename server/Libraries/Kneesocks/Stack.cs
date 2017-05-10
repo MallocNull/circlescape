@@ -11,7 +11,6 @@ namespace Kneesocks {
         private List<Connection> Clients = new List<Connection>();
         private bool RunWithNoClients = false;
         private bool Running = true;
-        private bool _finished = false;
 
         public Stack(Pool<T> poolRef, Connection initialConnection = null) {
             PoolRef = poolRef;
@@ -48,7 +47,13 @@ namespace Kneesocks {
             while(Running && (Count > 0 || RunWithNoClients)) {
                 for(var i = Count - 1; i >= 0 && Running; --i) {
                     var client = Clients[i];
-                    client.Parse();
+                    if(!client.Disconnected)
+                        client.Parse();
+                    else {
+                        lock(Clients) {
+                            Clients.RemoveAt(i);
+                        }
+                    }
                 }
             }
 

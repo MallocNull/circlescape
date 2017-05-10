@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 namespace Kneesocks {
     class ReadBuffer {
+        private const int BufferSize = 1024;
+
         private List<byte> Buffer;
         private int ExpectedLength;
         private string ExpectedString;
@@ -52,21 +54,21 @@ namespace Kneesocks {
             if(!IsReading)
                 return null;
 
+            if(!Source.CanRead)
+                return null;
+
             byte[] returnValue;
             if((returnValue = CheckBuffer()) != null)
                 return returnValue;
             
-            var buffer = new byte[1024];
+            var buffer = new byte[BufferSize];
             while(Source.DataAvailable) {
                 var readAmount = ExpectedString == null
-                        ? Math.Min(1024, ExpectedLength - Buffer.Count)
-                        : 1024;
+                        ? Math.Min(BufferSize, ExpectedLength - Buffer.Count)
+                        : BufferSize;
 
                 var bytesRead = Source.Read(buffer, 0, readAmount);
-                if(bytesRead == readAmount)
-                    Buffer.AddRange(buffer);
-                else
-                    Buffer.AddRange(buffer.Take(readAmount));
+                Buffer.AddRange(bytesRead == BufferSize ? buffer : buffer.Take(bytesRead));
 
                 if((returnValue = CheckBuffer()) != null)
                     return returnValue;
