@@ -10,9 +10,14 @@ namespace CircleScape {
     static class PoolManager {
         private static Pool<PendingConnection> PendingConnectionsPool;
         private static Pool<ActiveConnection> ActiveConnectionsPool;
-        public static Pool<PendingConnection> Pool {
+        public static Pool<PendingConnection> Pending {
             get {
                 return PendingConnectionsPool;
+            }
+        }
+        public static Pool<ActiveConnection> Active {
+            get {
+                return ActiveConnectionsPool;
             }
         }
 

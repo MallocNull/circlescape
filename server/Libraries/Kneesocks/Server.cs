@@ -40,7 +40,7 @@ namespace Kneesocks {
             
             while(Started) {
                 if(Socket.Pending())
-                    ConnectionPool.AddConnection(new Connection(Socket.AcceptTcpClient()));
+                    ConnectionPool.AddConnection((T)new Connection(Socket.AcceptTcpClient()));
 
                 Thread.Sleep(100);
             }

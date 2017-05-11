@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Square;
+using System.IO;
 
 namespace Kneesocks {
     public class Connection {
@@ -29,7 +30,10 @@ namespace Kneesocks {
         private byte[] FirstTwoBytes = null;
         private int ExtraHeaderSize = 0;
         private byte[] FrameHeader = null;
-        private List<Frame> FrameBuffer = new List<Frame>();
+        private List<Frame> ReceiveFrameBuffer = new List<Frame>();
+        private List<Frame> SendFrameBuffer = new List<Frame>();
+
+        private DateTime LastPing;
 
         public bool Disconnected { get; private set; } = false;
         public string DisconnectReason { get; private set; } = null;
@@ -59,7 +63,7 @@ namespace Kneesocks {
             FirstTwoBytes = conn.FirstTwoBytes;
             ExtraHeaderSize = conn.ExtraHeaderSize;
             FrameHeader = conn.FrameHeader;
-            FrameBuffer = conn.FrameBuffer;
+            ReceiveFrameBuffer = conn.ReceiveFrameBuffer;
 
             Disconnected = conn.Disconnected;
             DisconnectReason = conn.DisconnectReason;
@@ -67,28 +71,90 @@ namespace Kneesocks {
             Handshaked = conn.Handshaked;
             ClientHandshake = conn.ClientHandshake;
         }
+
+        private const int MaximumFrameSize = 0xFFFFF;
+        private void _Send(byte[] message, bool isFinal = true, bool singleFrame = false, bool first = false) {
+            int frameCount = singleFrame ? 0 : (message.Length / MaximumFrameSize);
+            for(var i = 0; i <= frameCount; ++i) {
+                SendFrameBuffer.Add(new Frame {
+                    IsFinal = (i == frameCount && isFinal) ? true : false,
+                    IsMasked = false,
+                    Opcode = (i == 0 || (singleFrame && first)) ? Frame.kOpcode.BinaryFrame : Frame.kOpcode.Continuation,
+                    Content = message.Subset(i * (MaximumFrameSize + 1), MaximumFrameSize)
+                });
+            }
+        }
+
+        public void Send(byte[] message) {
+            lock(SendFrameBuffer) {
+                _Send(message);
+            }
+        }
         
-        public void ReadIfNotNull(ref byte[] buffer, int length) {
+        private void _Send(Stream stream, bool startingFrame = true) {
+            if(!Socket.Connected)
+                return;
+
+            bool firstRead = true;
+            byte[] byteBuffer = new byte[MaximumFrameSize];
+            while(true) {
+                var bytesRead = stream.Read(byteBuffer, 0, MaximumFrameSize);
+
+                if(stream.Position == stream.Length) {
+                    _Send(bytesRead == MaximumFrameSize ? byteBuffer : byteBuffer.Take(bytesRead).ToArray(), true, true, firstRead);
+                    return;
+                } else {
+                    _Send(bytesRead == MaximumFrameSize ? byteBuffer : byteBuffer.Take(bytesRead).ToArray(), false, true, firstRead);
+                }
+
+                firstRead = false;
+            }
+        }
+
+        public void Send(Stream stream) {
+            lock(SendFrameBuffer) {
+                _Send(stream);
+            }
+        }
+
+        public void Send(byte[] preamble, Stream stream) {
+            lock(SendFrameBuffer) {
+                _Send(preamble, false);
+                _Send(stream, false);
+            }
+        }
+        
+        private void ReadIfNotNull(ref byte[] buffer, int length) {
             buffer = buffer == null ? Buffer.AttemptRead(length)
                                     : buffer;
         }
 
-        public void ReadIfNotNull(ref byte[] buffer, string terminator) {
+        private void ReadIfNotNull(ref byte[] buffer, string terminator) {
             buffer = buffer == null ? Buffer.AttemptRead(terminator)
                                     : buffer;
         }
 
         public void Parse() {
-            if(!Stream.CanRead) {
-                Disconnected = true;
-                return;
+            if(Handshaked) {
+                lock(SendFrameBuffer) {
+                    if(SendFrameBuffer.Count > 0) {
+                        foreach(var frame in SendFrameBuffer) {
+                            var frameBytes = frame.GetBytes();
+                            Stream.Write(frameBytes, 0, frameBytes.Length);
+                        }
+
+                        SendFrameBuffer = new List<Frame>();
+                    }
+                }
             }
+
+            OnParse();
 
             byte[] readBuffer = null;
             if(Buffer.IsReading) {
                 readBuffer = Buffer.AttemptRead();
                 if(readBuffer == null) {
-                    if(Buffer.ElapsedReadTime.Seconds > (Handshaked ? 300 : 30))
+                    if((!Handshaked || (Handshaked && FirstTwoBytes != null)) && Buffer.ElapsedReadTime.Seconds > (Handshaked ? 300 : 30))
                         Disconnect(Frame.kClosingReason.ProtocolError, "Timed out waiting for a full response");
 
                     return;
@@ -106,6 +172,7 @@ namespace Kneesocks {
                     Stream.Write(response, 0, response.Length);
                     ClientHandshake = request;
                     Handshaked = true;
+                    LastPing = DateTime.UtcNow;
                 } catch(Exception e) {
                     Disconnect(Frame.kClosingReason.ProtocolError, e.Message);
                     return;
@@ -114,8 +181,6 @@ namespace Kneesocks {
                 OnOpen();
                 return;
             }
-
-            OnParse();
 
             if(FirstTwoBytes == null) {
                 ReadIfNotNull(ref readBuffer, 2);
@@ -165,22 +230,38 @@ namespace Kneesocks {
                     return;
                 }
 
-                FrameBuffer.Add(tempFrame);
+                ReceiveFrameBuffer.Add(tempFrame);
                 FirstTwoBytes = null;
                 ExtraHeaderSize = 0;
                 FrameHeader = null;
 
                 if(tempFrame.IsFinal) {
+                    switch(tempFrame.Opcode) {
+                        case Frame.kOpcode.Ping:
+                            LastPing = DateTime.Now;
+
+                            tempFrame.Opcode = Frame.kOpcode.Pong;
+                            var pingBuffer = tempFrame.GetBytes();
+                            Stream.Write(pingBuffer, 0, pingBuffer.Length);
+                            break;
+
+                        case Frame.kOpcode.Pong:
+                            LastPing = DateTime.Now;
+                            break;
+
+                        case Frame.kOpcode.Close:
+                            Disconnect(Frame.kClosingReason.Normal, "Connection closed.");
+                            break;
+                    }
+
                     byte[] byteBuffer = new byte[0];
-                    foreach(var frame in FrameBuffer)
+                    foreach(var frame in ReceiveFrameBuffer)
                         byteBuffer = byteBuffer.Concat(frame.Content).ToArray();
 
-                    FrameBuffer = new List<Frame>();
+                    ReceiveFrameBuffer = new List<Frame>();
                     OnReceive(byteBuffer);
                 }
             }
-
-            return;
         }
 
         public void Disconnect(string reason = null) {
@@ -194,7 +275,7 @@ namespace Kneesocks {
             if(Socket.Connected) {
                 Socket.SendTimeout = 1000;
                 var raw = Handshaked ? Frame.Closing(status, reason).GetBytes()
-                                     : Handshake.DenyRequest().ToString().GetBytes();
+                                     : Handshake.DenyRequest(message: reason).ToString().GetBytes();
                 Stream.Write(raw, 0, raw.Length);
                 Socket.Close();
             }

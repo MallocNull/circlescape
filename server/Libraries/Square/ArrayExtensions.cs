@@ -7,10 +7,14 @@ using System.Threading.Tasks;
 namespace Square {
     public static class ArrayExtensions {
         public static T[] Subset<T>(this T[] arr, int offset, int count = -1) {
-            if(count < 0)
-                return arr.Skip(offset).ToArray();
-            else
-                return arr.Skip(offset).Take(count).ToArray();
+            var arrEnum = arr.AsEnumerable();
+
+            if(offset > 0)
+                arrEnum = arrEnum.Skip(offset);
+            if(count > 0 && count < arr.Length)
+                arrEnum = arr.Take(count);
+
+            return arrEnum.ToArray();
         }
 
         public static T[] Range<T>(this T[] arr, int start, int end) {

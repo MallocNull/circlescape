@@ -9,10 +9,13 @@ using CircleScape.DAL;
 namespace CircleScape {
     class Entrypoint {
         static void Main(string[] args) {
-            var server = new Kneesocks.Server<PendingConnection>(6770, PoolManager.Pool);
+            var server = new Kneesocks.Server<PendingConnection>(6770, PoolManager.Pending);
             server.Start();
 
             while(true) {
+                var send = Console.ReadLine();
+                PoolManager.Pending.Broadcast(Encoding.UTF8.GetBytes(send));
+
                 // logic processing loop
             }
         }

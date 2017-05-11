@@ -33,15 +33,15 @@ namespace Kneesocks {
             = new List<ThreadContext>();
 
         private long InternalCounter = 0;
-        private Dictionary<UInt64, Connection> Connections
-            = new Dictionary<UInt64, Connection>();
+        private Dictionary<UInt64, T> Connections
+            = new Dictionary<UInt64, T>();
 
         public Pool() {
             for(var i = 0; i < InitialCount; ++i)
                 CreateThread(runWithNoClients: true);
         }
 
-        private void IndexConnection(UInt64 id, Connection connection) {
+        private void IndexConnection(UInt64 id, T connection) {
             lock(Connections) {
                 if(id == 0)
                     id = (ulong)Interlocked.Increment(ref InternalCounter);
@@ -57,7 +57,14 @@ namespace Kneesocks {
             }
         }
 
-        public bool AddConnection(Connection connection, UInt64 id = 0) {
+        public void Broadcast(byte[] message) {
+            lock(Connections) {
+                foreach(var conn in Connections)
+                    conn.Value.Send(message);
+            }
+        }
+
+        public bool AddConnection(T connection, UInt64 id = 0) {
             lock(Threads) {
                 foreach(var thread in Threads) {
                     if(thread.Stack.Count < FullThreadSize) {
@@ -87,7 +94,7 @@ namespace Kneesocks {
             }
         }
 
-        private ThreadContext CreateThread(Connection initialConnection = null, bool runWithNoClients = false) {
+        private ThreadContext CreateThread(T initialConnection = null, bool runWithNoClients = false) {
             var stack = new Stack<T>(this, runWithNoClients, initialConnection);
             var ctx = new ThreadContext {
                 Stack = stack,

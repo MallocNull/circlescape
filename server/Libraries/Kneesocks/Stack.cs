@@ -8,23 +8,23 @@ using System.Threading;
 namespace Kneesocks {
     public class Stack<T> where T : Connection {
         private Pool<T> PoolRef = null;
-        private List<Connection> Clients = new List<Connection>();
+        private List<T> Clients = new List<T>();
         private bool RunWithNoClients = false;
         private bool Running = true;
 
-        public Stack(Pool<T> poolRef, Connection initialConnection = null) {
+        public Stack(Pool<T> poolRef, T initialConnection = null) {
             PoolRef = poolRef;
             if(initialConnection != null)
                 Clients.Add(initialConnection);
         }
 
-        public Stack(Pool<T> poolRef, bool runWithNoClients, Connection initialConnection = null)
+        public Stack(Pool<T> poolRef, bool runWithNoClients, T initialConnection = null)
             : this(poolRef, initialConnection) 
         {
             RunWithNoClients = runWithNoClients;
         }
 
-        public void AddClient(Connection client) {
+        public void AddClient(T client) {
             lock(Clients) {
                 Clients.Add(client);
             }
@@ -42,19 +42,38 @@ namespace Kneesocks {
 
         public bool Finished { get; private set; }
 
+        public bool UnlistConnection(Connection connection) {
+            lock(Clients) {
+                foreach(var conn in Clients) {
+
+                }
+            }
+        }
+
         // USED FOR THREADING -- DO NOT CALL
         public void ManageStack() {
             while(Running && (Count > 0 || RunWithNoClients)) {
-                for(var i = Count - 1; i >= 0 && Running; --i) {
-                    var client = Clients[i];
-                    if(!client.Disconnected)
-                        client.Parse();
-                    else {
-                        lock(Clients) {
+                lock(Clients) {
+                    for(var i = Count - 1; i >= 0 && Running; --i) {
+                        var client = Clients[i];
+                        var connected = !client.Disconnected;
+
+                        if(connected) {
+                            try {
+                                client.Parse();
+                            } catch {
+                                connected = false;
+                            }
+                        }
+
+                        if(!connected) {
+                            PoolRef.InvalidateConnection(client.Id);
                             Clients.RemoveAt(i);
                         }
                     }
                 }
+
+                Thread.Sleep(10);
             }
 
             Finished = true;

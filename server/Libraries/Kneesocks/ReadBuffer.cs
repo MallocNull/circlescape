@@ -24,7 +24,7 @@ namespace Kneesocks {
 
         public TimeSpan ElapsedReadTime {
             get {
-                return DateTime.Now - StartTime;
+                return DateTime.UtcNow - StartTime;
             }
         }
 
@@ -84,7 +84,7 @@ namespace Kneesocks {
             IsReading = true;
             ExpectedLength = length;
             ExpectedString = null;
-            StartTime = DateTime.Now;
+            StartTime = DateTime.UtcNow;
 
             return AttemptRead();
         }
@@ -95,7 +95,7 @@ namespace Kneesocks {
 
             IsReading = true;
             ExpectedString = terminator;
-            StartTime = DateTime.Now;
+            StartTime = DateTime.UtcNow;
 
             return AttemptRead();
         }
