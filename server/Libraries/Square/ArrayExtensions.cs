@@ -31,7 +31,7 @@ namespace Square {
             return BitConverter.ToString(bytes).Replace("-", "");
         }
 
-        public static string ToString(this byte[] bytes, bool isUtf8 = true) {
+        public static string GetString(this byte[] bytes, bool isUtf8 = true) {
             return isUtf8 ? Encoding.UTF8.GetString(bytes)
                           : Encoding.ASCII.GetString(bytes);
         }

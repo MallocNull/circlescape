@@ -26,6 +26,7 @@ namespace Kneesocks {
         // 0 means never redistribute
         public int Tolerance { get; set; } = 0;
 
+        private bool Disposed = false;
         private int _fullThreadCount;
         private volatile bool updateFullThreadCount = true;
 
@@ -41,42 +42,59 @@ namespace Kneesocks {
                 CreateThread(runWithNoClients: true);
         }
 
-        private void IndexConnection(UInt64 id, T connection) {
-            lock(Connections) {
-                if(id == 0)
-                    id = (ulong)Interlocked.Increment(ref InternalCounter);
-                
-                connection.Id = id;
-                Connections.Add(id, connection);
+        public T this[UInt64 id] {
+            get {
+                if(HasConnection(id))
+                    return Connections[id];
+                else return null;
             }
         }
 
-        public void InvalidateConnection(UInt64 id) {
+        public bool HasConnection(UInt64 id) {
+            return Connections.ContainsKey(id);
+        }
+
+        private void IndexConnection(T connection) {
+            lock(Connections) {
+                if(connection.IsIdNull)
+                    connection.Id = (ulong)Interlocked.Increment(ref InternalCounter);
+                
+                Connections.Add(connection.Id, connection);
+            }
+        }
+
+        internal void InvalidateConnection(UInt64 id) {
             lock(Connections) {
                 Connections.Remove(id);
             }
         }
 
         public void Broadcast(byte[] message) {
+            if(Disposed)
+                return;
+
             lock(Connections) {
                 foreach(var conn in Connections)
                     conn.Value.Send(message);
             }
         }
 
-        public bool AddConnection(T connection, UInt64 id = 0) {
+        public bool AddConnection(T connection) {
+            if(Disposed)
+                return false;
+
             lock(Threads) {
                 foreach(var thread in Threads) {
                     if(thread.Stack.Count < FullThreadSize) {
                         thread.Stack.AddClient(connection);
-                        IndexConnection(id, connection);
+                        IndexConnection(connection);
                         return true;
                     }
                 }
 
                 if(MaxCount == 0 || Threads.Count < MaxCount) {
                     CreateThread(connection);
-                    IndexConnection(id, connection);
+                    IndexConnection(connection);
                     return true;
                 }
             }
@@ -84,7 +102,7 @@ namespace Kneesocks {
             return false;
         }
 
-        public void InvalidateThread(Stack<T> stackRef) {
+        internal void InvalidateThread(Stack<T> stackRef) {
             lock(Threads) {
                 var ctx = Threads.FirstOrDefault(x => Object.ReferenceEquals(x.Stack, stackRef));
                 if(ctx != null) {
@@ -118,6 +136,37 @@ namespace Kneesocks {
 
                 return _fullThreadCount;
             }
+        }
+
+        public void Dispose() {
+            if(Disposed)
+                return;
+
+            Disposed = true;
+
+            lock(Threads) {
+                foreach(var thread in Threads)
+                    thread.Stack.StopThread();
+            }
+
+            while(true) {
+                Thread.Sleep(100);
+
+                lock(Threads) {
+                    if(Threads.Count == 0)
+                        break;
+                }
+            }
+
+            lock(Connections) {
+                foreach(var conn in Connections) {
+                    conn.Value.Disconnect(Frame.kClosingReason.Normal, "Server shutting down.");
+                }
+            }
+        }
+
+        ~Pool() {
+            Dispose();
         }
 
         class ThreadContext {

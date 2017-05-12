@@ -7,11 +7,11 @@ using System.Net.Sockets;
 using System.Net;
 
 namespace Kneesocks {
-    public class Server<T> where T : Connection {
+    public class Server<T> where T : Connection, new() {
         private TcpListener Socket;
         private Thread Listener = null;
         private Pool<T> ConnectionPool = null;
-        private bool Started = false;
+        public bool Started { get; private set; } = false;
         public UInt16 Port { get; private set; }
 
         public Server(UInt16 port, Pool<T> pool) {
@@ -39,8 +39,11 @@ namespace Kneesocks {
             Socket.Start();
             
             while(Started) {
-                if(Socket.Pending())
-                    ConnectionPool.AddConnection((T)new Connection(Socket.AcceptTcpClient()));
+                if(Socket.Pending()) {
+                    var templatedConnection = new T();
+                    templatedConnection.Initialize(Socket.AcceptTcpClient());
+                    ConnectionPool.AddConnection(templatedConnection);
+                }
 
                 Thread.Sleep(100);
             }

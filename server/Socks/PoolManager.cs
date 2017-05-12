@@ -32,5 +32,10 @@ namespace CircleScape {
 
             ActiveConnectionsPool = new Pool<ActiveConnection>();
         }
+
+        public static void Dispose() {
+            PendingConnectionsPool.Dispose();
+            ActiveConnectionsPool.Dispose();
+        }
     }
 }

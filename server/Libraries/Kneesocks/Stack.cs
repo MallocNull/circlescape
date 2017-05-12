@@ -6,11 +6,13 @@ using System.Text;
 using System.Threading;
 
 namespace Kneesocks {
-    public class Stack<T> where T : Connection {
+    internal class Stack<T> where T : Connection {
         private Pool<T> PoolRef = null;
         private List<T> Clients = new List<T>();
         private bool RunWithNoClients = false;
         private bool Running = true;
+
+        public bool Finished { get; private set; } = false;
 
         public Stack(Pool<T> poolRef, T initialConnection = null) {
             PoolRef = poolRef;
@@ -36,31 +38,26 @@ namespace Kneesocks {
             }
         }
 
-        public void StopThread() {
+        internal void StopThread() {
             Running = false;
         }
 
-        public bool Finished { get; private set; }
-
-        public bool UnlistConnection(Connection connection) {
-            lock(Clients) {
-                foreach(var conn in Clients) {
-
-                }
-            }
+        private bool CheckIfConnected(T client) {
+            return !client.Disconnected && !client.OutsidePool;
         }
-
-        // USED FOR THREADING -- DO NOT CALL
+        
         public void ManageStack() {
             while(Running && (Count > 0 || RunWithNoClients)) {
                 lock(Clients) {
                     for(var i = Count - 1; i >= 0 && Running; --i) {
                         var client = Clients[i];
-                        var connected = !client.Disconnected;
+                        var connected = CheckIfConnected(client);
 
                         if(connected) {
                             try {
                                 client.Parse();
+                                if(CheckIfConnected(client))
+                                    connected = false;
                             } catch {
                                 connected = false;
                             }

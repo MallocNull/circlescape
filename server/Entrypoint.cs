@@ -18,6 +18,9 @@ namespace CircleScape {
 
                 // logic processing loop
             }
+
+            server.Stop();
+            PoolManager.Dispose();
         }
     }
 }
