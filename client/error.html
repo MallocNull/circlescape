@@ -24,12 +24,22 @@
                 font-style: italic;
             }
 
-            #content {
+            .content {
                 width: 25%;
                 min-width: 300px;
                 max-width: 600px;
                 margin: 0 auto;
                 padding: 30px 0;
+            }
+
+            @media screen and (max-width: 480px) {
+                .content {
+                    width: 75%;
+                }
+            }
+
+            .hidden {
+                display: none;
             }
 
             ul {
@@ -66,15 +76,22 @@
             window.onload = function() {
                 var url = window.location.href;
                 url = url.substr(url.lastIndexOf("?") + 1);
-                var features = url.split("&")[0].split("=")[1];
+                var params = url.split("&");
+                var features = params[0].split("=")[1];
 
-                for(var i = 1; i <= features.length; ++i)
-                    document.getElementById("supchk"+ i).className = features[i-1] == "1" ? "mark check" : "mark cross";
+                if(params.length >= 2) {
+                    document.getElementById("noSupport").className = "content hidden";
+                    document.getElementById("error").className = "content";
+                    document.getElementById("errorText").innerText = decodeURIComponent(params[0].split("=")[1]);
+                } else {
+                    for(var i = 1; i <= features.length; ++i)
+                        document.getElementById("supchk"+ i).className = features[i-1] == "1" ? "mark check" : "mark cross";
+                }
             }
         </script>
     </head>
     <body>
-        <div id="content">
+        <div class="content" id="noSupport">
             <h2>
                 Your browser does not support the required features to run this application.
             </h2>
@@ -93,6 +110,14 @@
                 Please upgrade your browser to the most recent version or install a modern browser, 
                 such as <a href="https://www.mozilla.org">Mozilla Firefox</a> or <a href="https://www.google.com/chrome/">Google Chrome</a>.
             </p>
+        </div>
+
+        <div class="content hidden" id="error">
+            <h2>An error occurred.</h2>
+
+            <p><i>Details: <span id="errorText"></span></i></p>
+
+            <p>Please report this error to <a href="mailto:aleco@aroltd.com">aleco@aroltd.com</a>.
         </div>
     </body>
 </html>

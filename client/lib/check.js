@@ -23,13 +23,18 @@ window.onload = function() {
     if(!window.indexedDB)
         support.idb = false;
 
-    if(!support.anim || !support.canvas || !support.webgl || !support.idb) {
-        window.location.href = "error.html?err="+ (+support.anim) 
-                                             +""+ (+support.canvas) 
-                                             +""+ (+support.webgl) 
-                                             +""+ (+support.idb);
+    var supported = true;
+    for(var i in support)
+        supported = supported && support[i];
+
+    if(!supported) {
+        var supportStr = "";
+        for(var i in support)
+            supportStr += ""+ (+support[i]);
+
+        window.location.href = "error.html?err="+ supportStr;
         return;
     }
 
-    Entrypoint.Main();
+    Entrypoint.Start();
 }
