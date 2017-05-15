@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Kneesocks {
-    class ReadBuffer {
+    internal class ReadBuffer {
         private const int BufferSize = 1024;
 
         private List<byte> Buffer;
