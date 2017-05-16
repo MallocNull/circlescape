@@ -26,7 +26,7 @@ class FileCache {
         };
     }
 
-    public static GetHash(fileName: string, success: (hash: string)=>void, error: (error: string)=>void): void {
+    public static GetMeta(fileName: string, success: (meta: FileMeta)=>void, error: (error: string)=>void): void {
         var query = FileCache.DB.transaction("metadata");
         var store = query.objectStore("metadata");
         var request = store.get(fileName);
@@ -40,10 +40,10 @@ class FileCache {
         };
     }
 
-    public static SetHash(fileName: string, hash: string) {
+    public static SetMeta(meta: FileMeta) {
         var query = FileCache.DB.transaction("metadata", "readwrite");
         var store = query.objectStore("metadata");
-        store.put({Name: fileName, Hash: hash});
+        store.put(meta);
     }
 
     public static GetFile(fileName: string, success: (data: Uint8Array)=>void, error: (error: string)=>void): void {
@@ -65,4 +65,8 @@ class FileCache {
         var store = query.objectStore("files");
         store.put(data, fileName);
     }
+}
+
+class FileMeta {
+
 }
