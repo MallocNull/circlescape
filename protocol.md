@@ -10,7 +10,7 @@ All references to the 'byte' in this document refers to individual 8-bit octets,
 
 Because the body of the packet is a sequence of many different regions of byte data that is not delimited, it is necessary for the header of the packet to determine boundaries for the regions of data.
 
-* The first byte is the packet id, the necessary ones of which are defined in the _BODY_ section.
+* The first byte is the packet id, the necessary ones of which are defined in the [_Packet IDs_](#packet-ids) section.
 * The second byte is the number of byte regions in the packet.
 * The bytes following the second byte are a list of binary length segments, each of which correspond to the number of bytes in its respective region. They each follow this format:
     * If length is less than 254, the length of the region is stored in a single byte.
@@ -25,7 +25,7 @@ The message body immediately follows the header with no separator, and consists 
 
 ### Numeric Packing
 
-All numbers, unless otherwise specified here or in the _BODY_ section, are the string representation of a base 10 number. Common exceptions below:
+All numbers, unless otherwise specified, are the string representation of a base 10 number. Common exceptions are listed below:
 
 * User IDs: 8 bytes, integer, unsigned
 * Co-ordinates:  8 bytes, double-precision float
