@@ -11,6 +11,8 @@ namespace CircleScape {
     class PendingConnection : Connection {
         private DateTime ConnectionOpened;
 
+
+
         protected override void OnOpen() {
             ConnectionOpened = DateTime.UtcNow;
         }

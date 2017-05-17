@@ -6,10 +6,14 @@ using System.Text;
 using System.Threading.Tasks;
 using CircleScape.DAL;
 using System.Numerics;
+using Square;
 
 namespace CircleScape {
     class Entrypoint {
         static void Main(string[] args) {
+            var a = Square.Random.NextPrime(512 / 8);
+            Console.WriteLine(a.ToString("X"));
+
             var server = new Kneesocks.Server<PendingConnection>(6770, PoolManager.Pending);
             server.Start();
 

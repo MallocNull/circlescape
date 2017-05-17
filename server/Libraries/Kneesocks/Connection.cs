@@ -41,8 +41,6 @@ namespace Kneesocks {
         private List<Frame> SendFrameBuffer = new List<Frame>();
         private const int MaximumSendFrameSize = 0xFFFFF;
 
-        private Random Random = new Random();
-
         protected const int PingInterval    = 30;
         protected const int TimeoutInterval = 120;
         private byte[] PingData = Encoding.ASCII.GetBytes("woomy!");

@@ -65,6 +65,7 @@
       <HintPath>packages\System.Data.SQLite.Linq.1.0.105.0\lib\net46\System.Data.SQLite.Linq.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.Xml.Linq" />
@@ -96,6 +97,8 @@
     <Compile Include="DAL\Users.cs">
       <DependentUpon>ScapeDb.tt</DependentUpon>
     </Compile>
+    <Compile Include="Encryption\KeyExchange.cs" />
+    <Compile Include="Encryption\Cipher.cs" />
     <Compile Include="Socks\ActiveConnection.cs" />
     <Compile Include="Entrypoint.cs" />
     <Compile Include="Socks\PendingConnection.cs" />
