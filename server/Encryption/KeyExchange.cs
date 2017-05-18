@@ -17,5 +17,7 @@ namespace CircleScape.Encryption {
             Secret = RNG.NextPrime(512 / 8);
             Modulus = RNG.NextPrime(512 / 8);
         }
+
+
     }
 }
