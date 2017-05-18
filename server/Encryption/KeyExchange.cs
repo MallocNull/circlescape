@@ -4,14 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
+using Square;
 
 namespace CircleScape.Encryption {
     class KeyExchange {
         private BigInteger Secret;
-        public BigInteger Generator { get; private set; }
+        public BigInteger Generator { get; private set; } = 2;
         public BigInteger Modulus { get; private set; }
-        public BigInteger PrivateKey { get; private set; }
+        public BigInteger PrivateKey { get; private set; } = BigInteger.MinusOne;
 
-        // https://security.stackexchange.com/questions/45963/diffie-hellman-key-exchange-in-plain-english/45971#45971
+        public KeyExchange() {
+            Secret = RNG.NextPrime(512 / 8);
+            Modulus = RNG.NextPrime(512 / 8);
+        }
     }
 }

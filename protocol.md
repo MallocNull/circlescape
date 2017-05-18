@@ -34,10 +34,14 @@ All numbers, unless otherwise specified, are the string representation of a base
 
 #### Server to Client
 
-0. Login/registration request. 
+0. Diffie-Hellman key exchange
+| Region |     |     | Length |
+| ------ | --- | --- | ------ |
+| test | a | b | c |
 
 #### Client to Server
 
+0. Diffie-Hellman key exchange
 
 
 ## Sockstamps

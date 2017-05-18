@@ -32,7 +32,5 @@ namespace CircleScape.Encryption {
                 cipher[x] = state[(state[i] + state[j]) % 256];
             }
         }
-
-        // http://bradconte.com/rc4_c
     }
 }

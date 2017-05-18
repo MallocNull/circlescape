@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Numerics;
 
 namespace Square {
-    public static class Random {
+    public static class RNG {
         private static System.Random RandCtx = new System.Random();
 
         public static int Next() {

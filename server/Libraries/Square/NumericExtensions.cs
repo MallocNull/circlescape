@@ -56,7 +56,7 @@ namespace Square {
             if(absValue < 25) return true;
 
             for(var i = 0; i < iterations; ++i) {
-                var rand = Random.NextBigInt(2, absValue - 2);
+                var rand = RNG.NextBigInt(2, absValue - 2);
                 if(!BigInteger.ModPow(rand, absValue - 1, absValue).IsOne) return false;
             }
 
