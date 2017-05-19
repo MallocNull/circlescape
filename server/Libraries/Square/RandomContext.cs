@@ -7,7 +7,7 @@ using System.Numerics;
 
 namespace Square {
     public static class RNG {
-        private static System.Random RandCtx = new System.Random();
+        private static Random RandCtx = new Random();
 
         public static int Next() {
             lock(RandCtx) {

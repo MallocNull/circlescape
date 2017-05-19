@@ -1,3 +1,12 @@
+<style type="text/css">
+.right { text-align: right; } 
+.center { text-align: center; } 
+.left { text-align: left; } 
+table { margin-right: 8px; }
+td { text-align: center; }
+.flex { display: flex; flex-wrap: wrap; }
+</style>
+
 # PROTOCOL DEFINITION
 
 Messages communicated between the client and server follow the same format, but have different meanings depending on which end is the recipient. A message's intent is determined by its packet ID, a unique identifier that tells the client or server how it should react to the received message. A message id that incites bidirectional communication between the client and server should typically be associated with the same message id on the client as on the server, so as to avoid confusion.
@@ -29,66 +38,227 @@ All numbers, unless otherwise specified, are the string representation of a base
 
 * User IDs: 8 bytes, integer, unsigned
 * Co-ordinates:  8 bytes, double-precision float
+* Big Int: Hex string, variable size
 
 ### Packet IDs
 
-A packet ID may have a specific "direction" of communication, in that an endpoint may either act as a _requester_ or a _responder_. A _requester_ is an endpoint that drives all of the communication on that specific packet ID, while the _responder_ is responsible for providing a timely response to the requests. A _responder_ for a specific packet ID should never send that packet ID unsolicited; either the packet will be ignored or the other endpoint will close the connect. Any packet ID marked as bidirectional may be initiated by either endpoint at any time.
+A packet ID may have a specific "direction" of communication, in that an endpoint may either act as a _requester_ or a _responder_. A _requester_ is an endpoint that drives all of the communication on that specific packet ID, while the _responder_ is responsible for providing a timely response to the requests it receives. A _responder_ for a specific packet ID should never send that packet ID unsolicited; either the packet will be ignored or the other endpoint will close the connection. Any packet ID marked as bidirectional may be initiated by either endpoint at any time.
 
 #### Server to Client
 
-<table>
- <thead>
-  <th colspan="100">
-   <center>
+<div class="flex">
+<!--
+ <table class="float">
+  <thead>
+   <th colspan="100" class="center">
     ID 0: Key Exchange<br />
     Requester
-   </center>
-  </th>
- </thead>
- <thead>
-  <th colspan="2">#</th>
-  <th>Region</th>
-  <th>Type</th>
-  <th>Enum</th>
- </thead>
- <tr style="text-align: center;">
-  <td colspan="2">1</td>
-  <td>Step</td>
-  <td>Byte</td>
+   </th>
+  </thead>
+  <thead>
+   <th colspan="2" class="right">#</th>
+   <th>Region</th>
+   <th>Type</th>
+  </thead>
+  <tr>
   <td><i>s &isin; [0, 2]</i></td>
- </tr>
- <tr style="text-align: center;">
-  <td><i>s = 0</i></td>
-  <td>2</td>
-  <td>Generator</td>
-  <td>Byte</td>
-  <td></td>
- </tr>
-</table>
+   <td class="right">1</td>
+   <td>Step</td>
+   <td>Uint8</td>
+  </tr>
+  <tr>
+   <td><i>s = 0</i></td>
+   <td class="right">2</td>
+   <td>Generator</td>
+   <td>Big Int</td>
+  </tr>
+  <tr>
+   <td><i>s = 0</i></td>
+   <td class="right">3</td>
+   <td>Modulus</td>
+   <td>Big Int</td>
+  </tr>
+  <tr>
+   <td><i>s = 1</i></td>
+   <td class="right">2</td>
+   <td>Server Key</td>
+   <td>Big Int</td>
+  </tr>
+ </table>
+-->
+ <table>
+  <thead>
+   <th colspan="100" class="center">
+    ID 0: Key Exchange<br />
+    Requester
+   </th>
+  </thead>
+  <thead>
+   <th>#</th>
+   <th>Region</th>
+   <th>Type</th>
+  </thead>
+  <tr>
+   <td>1</td>
+   <td>Generator</td>
+   <td>Big Int</td>
+  </tr>
+  <tr>
+   <td>2</td>
+   <td>Modulus</td>
+   <td>Big Int</td>
+  </tr>
+  <tr>
+   <td>3</td>
+   <td>Server Key</td>
+   <td>Big Int</td>
+  </tr>
+ </table>
+
+ <table>
+  <thead>
+   <th colspan="100" class="center">
+     ID 1: Login Attempt<br />
+     [Encrypted] Responder
+   </th>
+  </thead>
+  <thead>
+   <th>#</th>
+   <th>Region</th>
+   <th>Type</th>
+  </thead>
+  <tr>
+   <td class="center">1</td>
+   <td>Check Const</td>
+   <td>String</td>
+  </tr>
+  <tr>
+   <td class="center">2</td>
+   <td>Succeeded</td>
+   <td>Boolean</td>
+  </tr>
+  <tr> 
+   <td class="center">3</td>
+   <td>Message</td>
+   <td>String</td>
+  </tr>
+ </table>
+
+ <table>
+  <thead>
+   <th colspan="100" class="center">
+     ID 2: Registration Attempt<br />
+     [Encrypted] Responder
+   </th>
+  </thead>
+  <thead>
+   <th>#</th>
+   <th>Region</th>
+   <th>Type</th>
+  </thead>
+  <tr>
+   <td class="center">1</td>
+   <td>Check Const</td>
+   <td>String</td>
+  </tr>
+  <tr>
+   <td class="center">2</td>
+   <td>Succeeded</td>
+   <td>Boolean</td>
+  </tr>
+  <tr>
+   <td class="center">3</td>
+   <td>Message</td>
+   <td>String</td>
+  </tr>
+ </table>
+</div>
 
 #### Client to Server
 
-<table>
- <thead>
-  <th colspan="100">
-   <center>
-    ID 0: Key Exchange<br />
-    Responder
-   </center>
-  </th>
- </thead>
- <thead>
-  <th>#</th>
-  <th>Region</th>
-  <th></th>
-  <th></th>
-  <th></th>
-  <th>Type</th>
- </thead>
- <tr>
-  <td>1</td>
- </tr>
-</table>
+<div class="flex">
+ <table>
+  <thead>
+   <th colspan="100" class="center">
+     ID 0: Key Exchange<br />
+     Responder
+   </th>
+  </thead>
+  <thead>
+   <th>#</th>
+   <th>Region</th>
+   <th>Type</th>
+  </thead>
+  <tr>
+   <td class="center">1</td>
+   <td>Client Key</td>
+   <td>Big Int</td>
+  </tr>
+ </table>
+ 
+ <table>
+  <thead>
+   <th colspan="100" class="center">
+     ID 1: Login Attempt<br />
+     [Encrypted] Requester
+   </th>
+  </thead>
+  <thead>
+   <th>#</th>
+   <th>Region</th>
+   <th>Type</th>
+  </thead>
+  <tr>
+   <td class="center">1</td>
+   <td>Check Const</td>
+   <td>String</td>
+  </tr>
+  <tr>
+   <td class="center">2</td>
+   <td>Username</td>
+   <td>String</td>
+  </tr>
+  <tr>
+   <td class="center">3</td>
+   <td>Password</td>
+   <td>String</td>
+  </tr>
+ </table>
+
+ <table>
+  <thead>
+   <th colspan="100" class="center">
+     ID 2: Registration Attempt<br />
+     [Encrypted] Requester
+   </th>
+  </thead>
+  <thead>
+   <th>#</th>
+   <th>Region</th>
+   <th>Type</th>
+  </thead>
+  <tr>
+   <td class="center">1</td>
+   <td>Check Const</td>
+   <td>String</td>
+  </tr>
+  <tr>
+   <td class="center">2</td>
+   <td>Username</td>
+   <td>String</td>
+  </tr>
+  <tr>
+   <td class="center">3</td>
+   <td>Password</td>
+   <td>String</td>
+  </tr>
+  <tr>
+   <td class="center">4</td>
+   <td>Email</td>
+   <td>String</td>
+  </tr>
+ </table>
+</div>
 
 ## Sockstamps
 

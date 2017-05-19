@@ -69,12 +69,12 @@ namespace Kneesocks {
             var headerLengthFirstByte = (byte)Content.Length;
             if(bodySize >= 0x7E && bodySize <= 0xFFFF) {
                 headerSize += 2;
-                headerLengthFirstByte = 126;
+                headerLengthFirstByte = 0x7e;
             } else if(bodySize > 0xFFFF) {
                 headerSize += 8;
-                headerLengthFirstByte = 127;
+                headerLengthFirstByte = 0x7f;
             }
-            var headerLengthSize = (int)headerSize - 1;
+            var headerLengthSize = headerSize - 1;
             if(IsMasked)
                 headerSize += 4;
 
@@ -105,9 +105,9 @@ namespace Kneesocks {
 
             var lengthByte = raw[1] & 0x7F;
             return 2 
-                + ((raw[1] & 0x80) != 0 ? 4: 0)
-                +  (lengthByte == 0x7E ? 2 : 0) 
-                +  (lengthByte == 0x7F ? 8 : 0);
+                + ((raw[1] & 0x80) != 0 ? 4 : 0)
+                +  (lengthByte == 0x7E  ? 2 : 0)
+                +  (lengthByte == 0x7F  ? 8 : 0);
         }
 
         public static Frame HeaderFromBytes(byte[] raw) {

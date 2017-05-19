@@ -11,9 +11,6 @@ using Square;
 namespace CircleScape {
     class Entrypoint {
         static void Main(string[] args) {
-            var a = Square.RNG.NextPrime(512 / 8);
-            Console.WriteLine(a.ToString("X"));
-
             var server = new Kneesocks.Server<PendingConnection>(6770, PoolManager.Pending);
             server.Start();
 

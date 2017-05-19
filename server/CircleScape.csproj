@@ -99,6 +99,7 @@
     </Compile>
     <Compile Include="Encryption\KeyExchange.cs" />
     <Compile Include="Encryption\Cipher.cs" />
+    <Compile Include="Socks\Packet.cs" />
     <Compile Include="Socks\ActiveConnection.cs" />
     <Compile Include="Entrypoint.cs" />
     <Compile Include="Socks\PendingConnection.cs" />

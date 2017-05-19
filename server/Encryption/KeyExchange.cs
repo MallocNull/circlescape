@@ -18,6 +18,9 @@ namespace CircleScape.Encryption {
             Modulus = RNG.NextPrime(512 / 8);
         }
 
+        public Packet GenerateInitialPacket() {
 
+            return 
+        }
     }
 }
