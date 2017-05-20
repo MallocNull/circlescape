@@ -67,8 +67,7 @@ namespace Square {
             return minValue + (randomNumber % delta);
         }
 
-        public static BigInteger NextBigInt(int byteCount) {
-            return BigInteger.Abs(new BigInteger(NextBytes(byteCount)));
-        }
+        public static BigInteger NextBigInt(int byteCount)
+            => BigInteger.Abs(new BigInteger(NextBytes(byteCount)));
     }
 }

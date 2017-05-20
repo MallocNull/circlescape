@@ -50,9 +50,7 @@ namespace Kneesocks {
 
         private int _BodyLength = 0;
         public int BodyLength {
-            get {
-                return Content == null ? _BodyLength : Content.Length;
-            }
+            get => Content == null ? _BodyLength : Content.Length;
         }
 
         public byte[] Content { get; set; } = null;

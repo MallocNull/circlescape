@@ -14,9 +14,7 @@ namespace CircleScape {
         }
         
         private static Packet ErrorPacket {
-            get {
-                return new Packet { IsLegal = false };
-            }
+            get => new Packet { IsLegal = false };
         }
 
         public static Packet FromRaw(byte[] raw) {
@@ -53,7 +51,7 @@ namespace CircleScape {
 
             if(headerPtr + regionLengths.Sum(x => x) < raw.Length)
                 return ErrorPacket;
-
+             
             long bodyPtr = headerPtr;
             foreach(var regionLength in regionLengths) {
                 // FLAG this could fail if one region exceeds 2^31-1 in size, check later
@@ -68,10 +66,10 @@ namespace CircleScape {
         public kId Id { get; private set; } = kId.KeyExchange;
         public bool IsLegal { get; private set; } = true;
         public int RegionCount {
-            get {
-                return Regions.Count;
-            }
+            get => Regions.Count;
         }
+
+        private Packet() { }
 
         public Packet(kId id, params object[] regions) {
             Id = id;
@@ -85,9 +83,7 @@ namespace CircleScape {
         }
 
         public Region this[int i] {
-            get {
-                return new Region(Regions[i]);
-            }
+            get => new Region(Regions[i]);
         }
 
         public byte[] GetBytes() {
@@ -112,24 +108,22 @@ namespace CircleScape {
 
             return header.Concat(body).ToArray();
         }
-    }
 
-    class Region {
-        public byte[] Data { get; private set; }
+        public class Region {
+            public byte[] Data { get; private set; }
 
-        public Region(byte[] data) {
-            Data = data;
-        }
+            public Region(byte[] data) {
+                Data = data;
+            }
 
-        public static implicit operator byte[](Region region) {
-            return region.Data;
-        }
+            public static implicit operator byte[] (Region region) => region.Data;
 
-        public static implicit operator string(Region region) {
-            try {
-                return Encoding.UTF8.GetString(region.Data);
-            } catch {
-                return Encoding.ASCII.GetString(region.Data);
+            public static implicit operator string(Region region) {
+                try {
+                    return Encoding.UTF8.GetString(region.Data);
+                } catch {
+                    return Encoding.ASCII.GetString(region.Data);
+                }
             }
         }
     }

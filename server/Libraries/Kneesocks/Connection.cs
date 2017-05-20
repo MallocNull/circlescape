@@ -25,9 +25,7 @@ namespace Kneesocks {
             }
         }
         internal bool IsIdNull {
-            get {
-                return _Id == null;
-            }
+            get => _Id == null;
         }
 
         private TcpClient Socket = null;
@@ -47,9 +45,7 @@ namespace Kneesocks {
         private DateTime LastPing;
         private bool AwaitingPingResponse = false;
         private TimeSpan TimeSinceLastPing {
-            get {
-                return DateTime.UtcNow - LastPing;
-            }
+            get => DateTime.UtcNow - LastPing;
         }
 
         internal bool OutsidePool = false;
@@ -322,13 +318,9 @@ namespace Kneesocks {
             }
         }
 
-        public void RemoveFromPool() {
-            OutsidePool = true;
-        }
+        public void RemoveFromPool() => OutsidePool = true;
 
-        public void Disconnect(string reason = null) {
-            Disconnect(Frame.kClosingReason.Normal, reason);
-        }
+        public void Disconnect(string reason = null) => Disconnect(Frame.kClosingReason.Normal, reason);
 
         public void Disconnect(Frame.kClosingReason status, string reason = null) {
             Disconnected = true;

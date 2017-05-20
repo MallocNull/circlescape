@@ -50,9 +50,7 @@ namespace Kneesocks {
             }
         }
 
-        public bool HasConnection(UInt64 id) {
-            return Connections.ContainsKey(id);
-        }
+        public bool HasConnection(UInt64 id) => Connections.ContainsKey(id);
 
         private void IndexConnection(T connection) {
             lock(Connections) {

@@ -33,18 +33,13 @@ namespace Kneesocks {
         }
 
         public int Count {
-            get {
-                return Clients.Count;
-            }
+            get => Clients.Count;
         }
 
-        internal void StopThread() {
-            Running = false;
-        }
+        internal void StopThread() => Running = false;
 
-        private bool CheckIfConnected(T client) {
-            return !client.Disconnected && !client.OutsidePool;
-        }
+        private bool CheckIfConnected(T client) 
+            => !client.Disconnected && !client.OutsidePool;
         
         public void ManageStack() {
             while(Running && (Count > 0 || RunWithNoClients)) {

@@ -23,9 +23,7 @@ namespace Kneesocks {
         }
 
         public TimeSpan ElapsedReadTime {
-            get {
-                return DateTime.UtcNow - StartTime;
-            }
+            get => DateTime.UtcNow - StartTime;
         }
 
         private byte[] CheckBuffer() {

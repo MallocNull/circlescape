@@ -1,12 +1,3 @@
-<style type="text/css">
-.right { text-align: right; } 
-.center { text-align: center; } 
-.left { text-align: left; } 
-table { margin-right: 8px; }
-td { text-align: center; }
-.flex { display: flex; flex-wrap: wrap; }
-</style>
-
 # PROTOCOL DEFINITION
 
 Messages communicated between the client and server follow the same format, but have different meanings depending on which end is the recipient. A message's intent is determined by its packet ID, a unique identifier that tells the client or server how it should react to the received message. A message id that incites bidirectional communication between the client and server should typically be associated with the same message id on the client as on the server, so as to avoid confusion.
@@ -46,7 +37,7 @@ A packet ID may have a specific "direction" of communication, in that an endpoin
 
 #### Server to Client
 
-<div class="flex">
+<div style="display: flex; flex-wrap: wrap;">
 <!--
  <table class="float">
   <thead>
@@ -86,7 +77,7 @@ A packet ID may have a specific "direction" of communication, in that an endpoin
   </tr>
  </table>
 -->
- <table>
+ <table style="margin-right: 8px; margin-bottom: 8px;">
   <thead>
    <th colspan="100" class="center">
     ID 0: Key Exchange<br />
@@ -115,7 +106,7 @@ A packet ID may have a specific "direction" of communication, in that an endpoin
   </tr>
  </table>
 
- <table>
+ <table style="margin-right: 8px; margin-bottom: 8px;">
   <thead>
    <th colspan="100" class="center">
      ID 1: Login Attempt<br />
@@ -144,7 +135,7 @@ A packet ID may have a specific "direction" of communication, in that an endpoin
   </tr>
  </table>
 
- <table>
+ <table style="margin-right: 8px; margin-bottom: 8px;">
   <thead>
    <th colspan="100" class="center">
      ID 2: Registration Attempt<br />
@@ -176,8 +167,8 @@ A packet ID may have a specific "direction" of communication, in that an endpoin
 
 #### Client to Server
 
-<div class="flex">
- <table>
+<div style="display: flex; flex-wrap: wrap;">
+ <table style="margin-right: 8px; margin-bottom: 8px;">
   <thead>
    <th colspan="100" class="center">
      ID 0: Key Exchange<br />
@@ -196,7 +187,7 @@ A packet ID may have a specific "direction" of communication, in that an endpoin
   </tr>
  </table>
  
- <table>
+ <table style="margin-right: 8px; margin-bottom: 8px;">
   <thead>
    <th colspan="100" class="center">
      ID 1: Login Attempt<br />
@@ -225,7 +216,7 @@ A packet ID may have a specific "direction" of communication, in that an endpoin
   </tr>
  </table>
 
- <table>
+ <table style="margin-right: 8px; margin-bottom: 8px;">
   <thead>
    <th colspan="100" class="center">
      ID 2: Registration Attempt<br />

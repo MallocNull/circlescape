@@ -8,37 +8,29 @@ using System.Globalization;
 
 namespace Square {
     public static class NumericExtensions {
-        public static byte[] Pack(this Single value) {
-            return BitConverter.GetBytes(value).HostToNetworkOrder();
-        }
+        public static byte[] Pack(this Single value)
+            => BitConverter.GetBytes(value).HostToNetworkOrder();
 
-        public static byte[] Pack(this Double value) {
-            return BitConverter.GetBytes(value).HostToNetworkOrder();
-        }
+        public static byte[] Pack(this Double value)
+            => BitConverter.GetBytes(value).HostToNetworkOrder();
 
-        public static byte[] Pack(this Int16 value) {
-            return BitConverter.GetBytes(value).HostToNetworkOrder();
-        }
+        public static byte[] Pack(this Int16 value)
+            => BitConverter.GetBytes(value).HostToNetworkOrder();
 
-        public static byte[] Pack(this UInt16 value) {
-            return BitConverter.GetBytes(value).HostToNetworkOrder();
-        }
+        public static byte[] Pack(this UInt16 value)
+            => BitConverter.GetBytes(value).HostToNetworkOrder();
 
-        public static byte[] Pack(this Int32 value) {
-            return BitConverter.GetBytes(value).HostToNetworkOrder();
-        }
+        public static byte[] Pack(this Int32 value)
+            => BitConverter.GetBytes(value).HostToNetworkOrder();
 
-        public static byte[] Pack(this UInt32 value) {
-            return BitConverter.GetBytes(value).HostToNetworkOrder();
-        }
+        public static byte[] Pack(this UInt32 value)
+            => BitConverter.GetBytes(value).HostToNetworkOrder();
 
-        public static byte[] Pack(this Int64 value) {
-            return BitConverter.GetBytes(value).HostToNetworkOrder();
-        }
+        public static byte[] Pack(this Int64 value)
+            => BitConverter.GetBytes(value).HostToNetworkOrder();
 
-        public static byte[] Pack(this UInt64 value) {
-            return BitConverter.GetBytes(value).HostToNetworkOrder();
-        }
+        public static byte[] Pack(this UInt64 value)
+            => BitConverter.GetBytes(value).HostToNetworkOrder();
 
         public static bool IsDivisibleBy(this BigInteger value, BigInteger dividend) {
             if(value.IsZero) return false;
@@ -63,12 +55,10 @@ namespace Square {
             return true;
         }
 
-        public static string ToHexString(this BigInteger value) {
-            return value.ToString("X").ToLower();
-        }
+        public static string ToHexString(this BigInteger value)
+            => value.ToString("X").ToLower();
 
-        public static BigInteger HexStringToBigInt(this string value) {
-            return BigInteger.Parse(value, NumberStyles.HexNumber);
-        }
+        public static BigInteger HexStringToBigInt(this string value)
+            => BigInteger.Parse(value, NumberStyles.HexNumber);
     }
 }

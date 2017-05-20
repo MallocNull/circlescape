@@ -31,9 +31,7 @@ namespace Kneesocks {
         }
         public kStatusCode? StatusCode { get; private set; } = null;
         protected string StatusCodeText {
-            get {
-                return Enum.GetName(typeof(kStatusCode), StatusCode).Replace('_', ' ');
-            }
+            get => Enum.GetName(typeof(kStatusCode), StatusCode).Replace('_', ' ');
         }
 
         private Dictionary<string, string> Headers =
@@ -90,13 +88,10 @@ namespace Kneesocks {
             return shake;
         }
 
-        public static Handshake DenyRequest(kStatusCode statusCode = kStatusCode.Bad_Request, string message = "Handshake failed.") {
-            return new Handshake(statusCode, message);
-        }
+        public static Handshake DenyRequest(kStatusCode statusCode = kStatusCode.Bad_Request, string message = "Handshake failed.")
+            => new Handshake(statusCode, message);
 
-        public byte[] ToBytes() {
-            return ToString().GetBytes();
-        }
+        public byte[] ToBytes() => ToString().GetBytes();
 
         public override string ToString() {
             if(IsRequest)
@@ -114,9 +109,7 @@ namespace Kneesocks {
             return raw += "\r\n";
         }
 
-        public bool HasHeader(string name) {
-            return Headers.ContainsKey(name);
-        }
+        public bool HasHeader(string name) => Headers.ContainsKey(name);
 
         public string GetHeader(string name) {
             if(Headers.ContainsKey(name))

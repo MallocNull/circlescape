@@ -6,15 +6,13 @@ using System.Threading.Tasks;
 
 namespace Square {
     public static class StringExtensions {
-        public static byte[] GetBytes(this string str, bool isUtf8 = true) {
-            return isUtf8 ? Encoding.UTF8.GetBytes(str)
-                          : Encoding.ASCII.GetBytes(str);
-        }
+        public static byte[] GetBytes(this string str, bool isUtf8 = true)
+            => isUtf8 ? Encoding.UTF8.GetBytes(str)
+                      : Encoding.ASCII.GetBytes(str);
 
-        public static int ByteLength(this string str, bool isUtf8 = true) {
-            return isUtf8 ? Encoding.UTF8.GetByteCount(str)
-                          : Encoding.ASCII.GetByteCount(str);
-        }
+        public static int ByteLength(this string str, bool isUtf8 = true)
+            => isUtf8 ? Encoding.UTF8.GetByteCount(str)
+                      : Encoding.ASCII.GetByteCount(str);
 
         public static string Base64Encode(this string str, bool isUtf8 = true) {
             var raw =
@@ -29,8 +27,7 @@ namespace Square {
                           : Encoding.ASCII.GetString(raw);
         }
 
-        public static byte[] Base64DecodeRaw(this string str) {
-            return Convert.FromBase64String(str);
-        }
+        public static byte[] Base64DecodeRaw(this string str)
+            => Convert.FromBase64String(str);
     }
 }
