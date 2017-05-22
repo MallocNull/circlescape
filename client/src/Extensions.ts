@@ -3,19 +3,19 @@
 // ** STRING EXTENSIONS ** \\
 
 interface String {
-    ReplaceAll(needle: string[], replace: string, ignoreCase?: boolean): string;
-    ReplaceAll(needle: string[], replace: string[], ignoreCase?: boolean): string;
-    ReplaceAll(needle: string, replace: string, ignoreCase?: boolean): string;
-    Contains(needle: string, ignoreCase?: boolean): boolean;
+    replaceAll(needle: string[], replace: string, ignoreCase?: boolean): string;
+    replaceAll(needle: string[], replace: string[], ignoreCase?: boolean): string;
+    replaceAll(needle: string, replace: string, ignoreCase?: boolean): string;
+    contains(needle: string, ignoreCase?: boolean): boolean;
 
-    StripCharacters(chars: string): string;
+    stripCharacters(chars: string): string;
 
-    HasUnicodeCharacters(): boolean;
-    ToByteArray(): Uint8Array;
-    ByteLength(): number;
+    hasUnicodeCharacters(): boolean;
+    toByteArray(): Uint8Array;
+    byteLength(): number;
 }
 
-String.prototype.ReplaceAll = function(needle: any, replace: any, ignoreCase: boolean = false): string {
+String.prototype.replaceAll = function(needle: any, replace: any, ignoreCase: boolean = false): string {
     if((typeof needle) == "string")
         return this.replace(new RegExp(needle.replace(/([\/\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g,"\\$&"),(ignoreCase?"gi":"g")),(typeof(replace)=="string")?replace.replace(/\$/g,"$$$$"):replace);
     else {
@@ -30,13 +30,13 @@ String.prototype.ReplaceAll = function(needle: any, replace: any, ignoreCase: bo
     }
 };
 
-String.prototype.Contains = function(needle: string, ignoreCase: boolean = false): boolean {
+String.prototype.contains = function(needle: string, ignoreCase: boolean = false): boolean {
     return ignoreCase
         ? this.toLowerCase().indexOf(needle.toLowerCase()) != -1
         : this.indexOf(needle) != -1;
 };
 
-String.prototype.StripCharacters = function(chars: string) {
+String.prototype.stripCharacters = function(chars: string) {
     var copy = this;
     if(chars != "")
         copy = copy.replaceAll(chars.split(""), "");
@@ -44,18 +44,18 @@ String.prototype.StripCharacters = function(chars: string) {
     return copy;
 };
 
-String.prototype.HasUnicodeCharacters = function() {
+String.prototype.hasUnicodeCharacters = function() {
     for(var i = 0; i < this.length; i++) {
         if(this.charCodeAt(i) > 127) return true;
     }
     return false;
 };
 
-String.prototype.ByteLength = function() {
+String.prototype.byteLength = function() {
     return utf8.encode(this).length;
 };
 
-String.prototype.ToByteArray = function() {
+String.prototype.toByteArray = function() {
     var str = utf8.encode(this);
     var ret = new Uint8Array(str.length);
     for(var i = 0; i < str.length; i++)
@@ -73,7 +73,8 @@ interface DateConstructor {
 
 interface Date {
     toUnixTime(): number;
-    toDateTimeString(): string;
+    /*ToDateTimeString(): string;
+    ToTimeString(): string;*/
 }
 
 Date.unixNow = function() {
@@ -84,13 +85,13 @@ Date.prototype.toUnixTime = function() {
     return Math.floor(this.getTime()/1000);
 };
 
-Date.prototype.toDateTimeString = function() {
+/*Date.prototype.ToDateTimeString = function() {
     return this.toDateString() +" @ "+ this.getHours().zeroPad() +":"+ this.getMinutes().zeroPad() +":"+ this.getSeconds().zeroPad();
 };
 
-Date.prototype.toTimeString = function() {
+Date.prototype.ToTimeString = function() {
     return this.getHours().zeroPad() +":"+ this.getMinutes().zeroPad() +":"+ this.getSeconds().zeroPad();
-};
+};*/
 
 
 // ** NUMBER EXTENSIONS ** \\
@@ -119,18 +120,17 @@ Number.prototype.packBytes = function(bytes: number) {
 
 interface Uint8Array {
     unpackBytes(): number;
-    toString(): string;
 }
 
-Uint8Array.prototype.unpackBytes = function() {
+Uint8Array.prototype.unpackBytes = function(): number {
     var ret = 0;
     for(var i = 0; i < this.length; i++)
         ret = ret | ((this[i] & 0xFF) << 8*(this.length - 1 - i));
     return ret;
 };
 
-Uint8Array.prototype.toString = function() {
-    var chunkSize = 10000;
+Uint8Array.prototype.toString = function(): string {
+    var chunkSize = 4096;
     var raw = "";
     for(var i = 0;; i++) {
         if(this.length < chunkSize*i) break;

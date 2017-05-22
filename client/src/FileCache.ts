@@ -1,7 +1,7 @@
 class FileCache {
-    private static DB: IDBDatabase = null;
+    private static dbHandle: IDBDatabase = null;
 
-    public static Initialize(success: ()=>void, error: (error: string)=>void): void {
+    public static initCache(success: ()=>void, error: (error: string)=>void): void {
         var request = window.indexedDB.open("fileCache", 2);
 
         request.onupgradeneeded = (event: any) => {
@@ -21,13 +21,13 @@ class FileCache {
         };
 
         request.onsuccess = (event: any) => {
-            FileCache.DB = request.result;
+            FileCache.dbHandle = request.result;
             success();
         };
     }
 
-    public static GetMeta(fileName: string, success: (meta: FileMeta)=>void, error: (error: string)=>void): void {
-        var query = FileCache.DB.transaction("metadata");
+    public static getMeta(fileName: string, success: (meta: FileMeta)=>void, error: (error: string)=>void): void {
+        var query = FileCache.dbHandle.transaction("metadata");
         var store = query.objectStore("metadata");
         var request = store.get(fileName);
 
@@ -40,14 +40,14 @@ class FileCache {
         };
     }
 
-    public static SetMeta(meta: FileMeta) {
-        var query = FileCache.DB.transaction("metadata", "readwrite");
+    public static setMeta(meta: FileMeta) {
+        var query = FileCache.dbHandle.transaction("metadata", "readwrite");
         var store = query.objectStore("metadata");
         store.put(meta);
     }
 
-    public static GetFile(fileName: string, success: (data: Uint8Array)=>void, error: (error: string)=>void): void {
-        var query = FileCache.DB.transaction("files");
+    public static getFile(fileName: string, success: (data: Uint8Array)=>void, error: (error: string)=>void): void {
+        var query = FileCache.dbHandle.transaction("files");
         var store = query.objectStore("files");
         var request = store.get(fileName);
 
@@ -60,8 +60,8 @@ class FileCache {
         };
     }
 
-    public static SetFile(fileName: string, data: Uint8Array) {
-        var query = FileCache.DB.transaction("files", "readwrite");
+    public static setFile(fileName: string, data: Uint8Array) {
+        var query = FileCache.dbHandle.transaction("files", "readwrite");
         var store = query.objectStore("files");
         store.put(data, fileName);
     }

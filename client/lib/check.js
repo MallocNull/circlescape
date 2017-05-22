@@ -36,5 +36,5 @@ window.onload = function() {
         return;
     }
 
-    Entrypoint.Start();
+    Entrypoint.start();
 }

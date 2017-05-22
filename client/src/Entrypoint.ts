@@ -2,35 +2,35 @@
 /// <reference path="Utilities.ts" />
 
 class Entrypoint {
-    private static InitStatus = {
-        FileCache: false
+    private static initStatus = {
+        fileCache: false
     }
 
-    private static InitCheck(): void {
+    private static initCheck(): void {
         var done = true;
-        for(var i in Entrypoint.InitStatus)
-            done = done && Entrypoint.InitStatus[i];
+        for(var i in Entrypoint.initStatus)
+            done = done && Entrypoint.initStatus[i];
 
         if(done)
-            Entrypoint.Initialized();
+            Entrypoint.ready();
     }
 
-    public static Start(): void {
-        FileCache.Initialize(
+    public static start(): void {
+        FileCache.initCache(
             // SUCCESS 
             () => { 
-                Entrypoint.InitStatus.FileCache = true;
-                this.InitCheck();
+                Entrypoint.initStatus.fileCache = true;
+                this.initCheck();
             },         
 
             // FAILURE
             (error: string) => { 
-                CriticalStop.Redirect(error);
+                CriticalStop.redirect(error);
             } 
         ); 
     }
 
-    private static Initialized(): void {
+    private static ready(): void {
 
     }
 }
