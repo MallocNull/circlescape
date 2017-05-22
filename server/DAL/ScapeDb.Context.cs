@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace CircleScape.DAL
+namespace Server.DAL
 {
     using System;
     using System.Data.Entity;

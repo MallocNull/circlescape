@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="ArrayExtensions.cs" />
     <Compile Include="CryptoExtensions.cs" />
+    <Compile Include="General.cs" />
     <Compile Include="NumericExtensions.cs" />
     <Compile Include="RandomContext.cs" />
     <Compile Include="StringExtensions.cs" />

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Square;
 using Kneesocks;
 
-namespace CircleScape {
+namespace Server {
     class PendingConnection : Connection {
         private DateTime ConnectionOpened;
 

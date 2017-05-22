@@ -4,11 +4,11 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CircleScape.DAL;
+using Server.DAL;
 using System.Numerics;
 using Square;
 
-namespace CircleScape {
+namespace Server {
     class Entrypoint {
         static void Main(string[] args) {
             var server = new Kneesocks.Server<PendingConnection>(6770, PoolManager.Pending);

@@ -3,34 +3,48 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Numerics;
+using Square;
 
-namespace CircleScape.Encryption {
+namespace Server.Encryption {
     class Cipher {
+        private byte[] Key = new byte[512 / 8];
+        private byte[] State = new byte[256];
 
-        static void ksa(byte[] state, byte[] key) {
-            int i, j = 0, t;
-            for(i = 0; i < 256; ++i)
-                state[i] = (byte)i;
+        public Cipher(BigInteger key) {
+            int i = 0, j = 0;
+            State = State.Select(x => (byte)i++).ToArray();
+            Key = Key.Select(x => (byte)0).ToArray();
+            Array.Copy(key.ToByteArray(), Key, Key.Length);
 
-            for(i = 0; i < 256; ++i) {
-                j = (j + state[i] + key[i % key.Length]) % 256;
-                t = state[i];
-                state[i] = state[j];
-                state[j] = (byte)t;
+            for(i = 0; i < State.Length; ++i) {
+                j = (j + State[i] + Key[i % Key.Length]) % 256;
+                Utils.Swap(ref State[i], ref State[j]);
             }
+
+            GenerateStream(1024);
         }
 
-        static void prga(byte[] state, byte[] cipher) {
-            int i = 0, j = 0, x, t;
+        private byte[] GenerateStream(long length) {
+            var stream = new byte[length];
+            int i = 0, j = 0;
 
-            for(x = 0; x < cipher.Length; ++x) {
+            for(long x = 0; x < length; ++x) {
                 i = (i + 1) % 256;
-                j = (j + state[i]) % 256;
-                t = state[i];
-                state[i] = state[j];
-                state[j] = (byte)t;
-                cipher[x] = state[(state[i] + state[j]) % 256];
+                j = (j + State[i]) % 256;
+                Utils.Swap(ref State[i], ref State[j]);
+                stream[x] = State[(State[i] + State[j]) % 256];
             }
+
+            return stream;
+        }
+
+        public byte[] Parse(byte[] data) {
+            var stream = GenerateStream(data.LongLength);
+            for(long i = 0; i < data.LongLength; ++i)
+                data[i] ^= stream[i];
+
+            return data;
         }
     }
 }

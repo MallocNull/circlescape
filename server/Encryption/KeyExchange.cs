@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Numerics;
 using Square;
 
-namespace CircleScape.Encryption {
+namespace Server.Encryption {
     class KeyExchange {
         private BigInteger Secret;
         public BigInteger Generator { get; private set; } = 2;

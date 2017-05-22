@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Square;
 
-namespace CircleScape {
+namespace Server {
     class Packet {
         public enum kId {
             KeyExchange = 0,
