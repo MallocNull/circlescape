@@ -10,11 +10,6 @@ class Packet {
         return this._id;
     }
 
-    private _isLegal: boolean = true;
-    public get isLegal(): boolean {
-        return this._isLegal;
-    }
-
     private _regions: Uint8Array[] = [];
     public get regions(): Uint8Array[] {
         return this._regions;
@@ -28,9 +23,50 @@ class Packet {
     public getRegionString(region: number): string {
         return this.getRegion(region).toString();
     }
+    public addRegion(data: Uint8Array): void {
+        this._regions.push(data);
+    }
+
+    public Packet(id: kPacketId, regions: any[]) {
+        this._id = id;
+        regions.forEach(region => {
+            if(typeof region == "string")
+                this._regions.push((<string>region).toByteArray());
+            else if(region instanceof Uint8Array)
+                this._regions.push(region);
+        });
+    }
+
+    public static fromBytes(bytes: Uint8Array): Packet {
+        var packet = new Packet;
+        packet._id = bytes[0];
+        var regionCount = bytes[1];
+        var regionLengths = [];
+        var ptr = 2;
+        for(var i = 0; i < regionCount; ++i) {
+            if(bytes[ptr] < 0xFE)
+                regionLengths.push(bytes[ptr]);
+            else if(bytes[ptr] == 0xFE) {
+                regionLengths.push(bytes.unpackUint16(ptr + 1));
+                ptr += 2;
+            } else {
+                regionLengths.push(bytes.unpackUint32(ptr + 1));
+                ptr += 4;
+            }
+
+            ++ptr;
+        }
+
+        for(var i = 0; i < regionCount; ++i) {
+            packet.regions.push(bytes.subarray(ptr, ptr + regionLengths[i]));
+            ptr += regionLengths[i];
+        }
+
+        return packet;
+    }
 
     public getBytes(): Uint8Array {
-        var headerSize = 1, bodySize = 0;
+        var headerSize = 2, bodySize = 0;
         this._regions.forEach(region => {
             bodySize += region.byteLength;
 
@@ -42,10 +78,26 @@ class Packet {
         });
 
         var buffer = new Uint8Array(headerSize + bodySize);
-        var headerPtr = 1, bodyPtr = 0;
+        var headerPtr = 2, bodyPtr = headerSize;
         buffer[0] = this._id % 256;
+        buffer[1] = this._regions.length;
         this._regions.forEach(region => {
-            
+            var regionLength = region.byteLength;
+            if(regionLength < 0xFE)
+                buffer[headerPtr] = regionLength;
+            else if(regionLength >= 0xFE && regionLength <= 0xFFFF) {
+                buffer[headerPtr] = 0xFE;
+                buffer.set(regionLength.packUint16(), headerPtr + 1);
+                headerPtr += 2;
+            } else {
+                buffer[headerPtr] = 0xFF;
+                buffer.set(regionLength.packUint32(), headerPtr + 1);
+                headerPtr += 4;
+            }
+            ++headerPtr;
+
+            buffer.set(region, bodyPtr);
+            bodyPtr += regionLength;
         });
         
         return buffer;

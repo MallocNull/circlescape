@@ -91,15 +91,17 @@ namespace Server {
                 return null;
 
             var header = new List<byte>();
+            header.Add((byte)Id);
+            header.Add((byte)RegionCount);
             IEnumerable<byte> body = new byte[0];
             foreach(var region in Regions) {
-                if(region.Length < 254)
+                if(region.Length < 0xFE)
                     header.Add((byte)region.Length);
                 else if(region.Length <= 0xFFFF) {
-                    header.Add(254);
+                    header.Add(0xFE);
                     header.AddRange(((UInt16)region.Length).Pack());
                 } else {
-                    header.Add(255);
+                    header.Add(0xFF);
                     header.AddRange(region.Length.Pack());
                 }
 

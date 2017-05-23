@@ -27,7 +27,7 @@ The message body immediately follows the header with no separator, and consists 
 
 All numbers, unless otherwise specified, are the string representation of a base 10 number. Common exceptions are listed below:
 
-* User IDs: 8 bytes, integer, unsigned
+* User IDs: Hex string, 8 bytes unsigned
 * Co-ordinates:  8 bytes, double-precision float
 * Big Int: Hex string, variable size
 
@@ -255,7 +255,7 @@ A packet ID may have a specific "direction" of communication, in that an endpoin
 
 Because epoch time is not standardized across systems, an intermediate layer of date/time transmission must be used between the client and server so as to handle time dependent interactions. Therefore, a "sockstamp" will be used in place of the context-dependent implementations of epoch time.
 
-A sockstamp is a sequence of six bytes that represent a fully qualified date and time on the Gregorian calendar. For the best use of space without obfuscating the data too much, the year's lower four bits and the four bits signifying the month are shared in the same byte, but no other components are joined.
+A sockstamp is a sequence of six bytes that represent a fully qualified UTC date and time on the Gregorian calendar. For the best use of space without obfuscating the data too much, the year's lower four bits and the four bits signifying the month are shared in the same byte, but no other components are joined.
 
 The 12 bits signifying the year are an unsigned quanitity, and indicate the number of years since 0 AD; any date prior to the year of Christ's birth cannot be represented in this format, but this should never be necessary. The effective range of years that can be expressed by this format is 1 AD to 4095 AD. Because the year 0 AD is not a legal year in the Gregorian calendar, this value should never be zero.
 

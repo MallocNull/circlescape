@@ -41,10 +41,7 @@ namespace Square {
         }
 
         public static byte[] NetworkToHostOrder(this byte[] bytes) {
-            if(BitConverter.IsLittleEndian)
-                return bytes.Reverse().ToArray();
-            else
-                return bytes;
+            return bytes.HostToNetworkOrder();
         }
 
         public static Single UnpackFloat(this byte[] bytes)

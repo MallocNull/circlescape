@@ -2,18 +2,17 @@ class FileCache {
     private static dbHandle: IDBDatabase = null;
 
     public static initCache(success: ()=>void, error: (error: string)=>void): void {
-        var request = window.indexedDB.open("fileCache", 2);
+        var request = window.indexedDB.open("fileCache", 3);
 
         request.onupgradeneeded = (event: any) => {
             var db: IDBDatabase = event.target.result;
-            if(db.objectStoreNames.contains("hashes"))
-                db.deleteObjectStore("hashes");
 
-            if(!db.objectStoreNames.contains("files"))
-                db.createObjectStore("files", {keyPath: "Name", autoIncrement: false});
+            var stores = db.objectStoreNames;
+            for(var i in stores)
+                db.deleteObjectStore(stores[i]);
 
-            if(!db.objectStoreNames.contains("metadata"))
-                db.createObjectStore("metadata", {keyPath: "Name", autoIncrement: false});
+            db.createObjectStore("files", {keyPath: "name", autoIncrement: false});
+            db.createObjectStore("metadata", {keyPath: "name", autoIncrement: false});
         };
 
         request.onerror = (event: any) => {
@@ -36,7 +35,7 @@ class FileCache {
         };
 
         request.onerror = (event: any) => {
-            error(event);
+            error("Could not get metadata for file "+ fileName);
         };
     }
 
@@ -46,27 +45,29 @@ class FileCache {
         store.put(meta);
     }
 
-    public static getFile(fileName: string, success: (data: Uint8Array)=>void, error: (error: string)=>void): void {
+    public static getFile(fileName: string, success: (name: string, data: Uint8Array)=>void, error: (error: string)=>void): void {
         var query = FileCache.dbHandle.transaction("files");
         var store = query.objectStore("files");
         var request = store.get(fileName);
 
         request.onsuccess = () => {
-            success(request.result);
+            success(request.result.name, request.result.data);
         };
 
         request.onerror = (event: any) => {
-            error(event);
+            error("Could not get contents for file "+ fileName);
         };
     }
 
     public static setFile(fileName: string, data: Uint8Array) {
         var query = FileCache.dbHandle.transaction("files", "readwrite");
         var store = query.objectStore("files");
-        store.put(data, fileName);
+        store.put({name: fileName, data: data});
     }
 }
 
 class FileMeta {
-
+    name: string;
+    type: string;
+    hash: string;
 }
