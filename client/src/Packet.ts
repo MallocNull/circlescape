@@ -30,18 +30,24 @@ class Packet {
     }
 
     public getBytes(): Uint8Array {
-        var messageSize = 1;
+        var headerSize = 1, bodySize = 0;
         this._regions.forEach(region => {
-            messageSize += region.byteLength + 1;
+            bodySize += region.byteLength;
+
+            ++headerSize;
             if(region.byteLength >= 254 && region.byteLength <= 0xFFFF)
-                messageSize += 2;
+                headerSize += 2;
             else
-                messageSize += 4;
+                headerSize += 4;
         });
 
-        var buffer = new Uint8Array(messageSize);
+        var buffer = new Uint8Array(headerSize + bodySize);
+        var headerPtr = 1, bodyPtr = 0;
+        buffer[0] = this._id % 256;
         this._regions.forEach(region => {
             
         });
+        
+        return buffer;
     }
 }
