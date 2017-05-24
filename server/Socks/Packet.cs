@@ -74,25 +74,29 @@ namespace Server {
         public Packet(kId id, params object[] regions) {
             Id = id;
 
-            foreach(var region in regions) {
-                if(region.GetType() == typeof(byte[]))
-                    Regions.Add((byte[])region);
-                else if(region.GetType() == typeof(string))
-                    Regions.Add(((string)region).GetBytes());
-            }
+            foreach(var region in regions)
+                AddRegion(region);
         }
 
         public Region this[int i] {
             get => new Region(Regions[i]);
         }
 
+        public void AddRegion(object region) {
+            if(region.GetType() == typeof(byte[]))
+                Regions.Add((byte[])region);
+            else if(region.GetType() == typeof(string))
+                Regions.Add(((string)region).GetBytes());
+        }
+
         public byte[] GetBytes() {
             if(!IsLegal)
                 return null;
 
-            var header = new List<byte>();
-            header.Add((byte)Id);
-            header.Add((byte)RegionCount);
+            var header = new List<byte> {
+                (byte)Id,
+                (byte)RegionCount
+            };
             IEnumerable<byte> body = new byte[0];
             foreach(var region in Regions) {
                 if(region.Length < 0xFE)

@@ -23,17 +23,17 @@ class Packet {
     public getRegionString(region: number): string {
         return this.getRegion(region).toString();
     }
-    public addRegion(data: Uint8Array): void {
-        this._regions.push(data);
+    public addRegion(region: object): void {
+        if(typeof region == "string")
+            this._regions.push((<string>region).toByteArray());
+        else if(region instanceof Uint8Array)
+            this._regions.push(region);
     }
 
     public Packet(id: kPacketId, regions: any[]) {
         this._id = id;
         regions.forEach(region => {
-            if(typeof region == "string")
-                this._regions.push((<string>region).toByteArray());
-            else if(region instanceof Uint8Array)
-                this._regions.push(region);
+            this.addRegion(region);
         });
     }
 
