@@ -1,6 +1,3 @@
-/// <reference path="FileCache.ts" />
-/// <reference path="Utilities.ts" />
-
 class Entrypoint {
     private static initStatus = {
         fileCache: false
@@ -16,6 +13,8 @@ class Entrypoint {
     }
 
     public static start(): void {
+        Connection.open();
+
         FileCache.initCache(
             // SUCCESS 
             () => { 

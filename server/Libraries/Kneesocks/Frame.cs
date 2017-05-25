@@ -85,9 +85,13 @@ namespace Kneesocks {
                                  | (IsMasked ? 0x80 : 0x0));
 
             if(headerLengthFirstByte >= 0x7E) {
-                var upperBound = headerLengthFirstByte == 0x7E ? 2 : 8;
-                for(var i = 0; i < upperBound; ++i)
-                    returnValue[2 + i] |= (byte)((bodySize >> (8*(upperBound - i))) & 0xFF);
+                var lengthBytes = 
+                    headerLengthFirstByte == 0x7E 
+                        ? ((UInt16)bodySize).Pack() 
+                        : bodySize.Pack();
+
+                for(var i = 0; i < lengthBytes.Length; ++i)
+                    returnValue[2 + i] = lengthBytes[i];
             }
 
             if(IsMasked)

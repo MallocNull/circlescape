@@ -1,5 +1,3 @@
-/// <reference path="def/UTF8.d.ts" />
-
 // ** STRING EXTENSIONS ** \\
 
 interface String {
@@ -162,6 +160,8 @@ interface Uint8Array {
     
     unpackFloat(offset?: number): number;
     unpackDouble(offset?: number): number;
+
+    toHexString(): string;
 }
 
 Uint8Array.prototype.unpackInt16 = function(offset: number = 0): number {
@@ -202,4 +202,34 @@ Uint8Array.prototype.toString = function(): string {
         raw += String.fromCharCode.apply(null, this.subarray(chunkSize*i, chunkSize*i + chunkSize));
     }
     return utf8.decode(raw);
+}
+
+Uint8Array.prototype.toHexString = function(): string {
+    var ret = "";
+    for(var i = 0; i < this.byteLength; ++i) {
+        var byte = this[i].toString(16);
+        if(byte.length < 2)
+         byte = "0"+ byte;
+
+        ret += byte +" ";
+    }
+
+    return ret.trim();
+}
+
+
+// ** BIGINT EXTENSIONS ** \\
+
+interface bigInt {
+    toByteArray(): Uint8Array;
+}
+
+bigInt.prototype.toByteArray = function(): Uint8Array {
+    var hexString: string = this.toString(16);
+    var byteCount = Math.ceil(hexString.length / 2);
+    var byteArray = new Uint8Array(byteCount);
+
+    for(var i = 0; i < byteCount; ++i) {
+        byteArray[i] = parseInt(hexString.substr(Math.max(0, hexString.length - 2*(i+1)), hexString.length - 2*i), 16);
+    }
 }

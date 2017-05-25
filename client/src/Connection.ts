@@ -13,6 +13,7 @@ class Connection {
 
         // FLAG replace hard coded url with one loaded from a config file
         Connection.sock = new WebSocket("ws://localhost:6770");
+        Connection.sock.binaryType = "arraybuffer";
 
         Connection.onOpenFunc = onOpen;
         Connection.sock.onopen = Connection.onOpen;
@@ -28,8 +29,10 @@ class Connection {
     }
 
     private static onMessage(event: any): void {
-        var msg = Packet.fromBytes(event.data);
+        var raw = new Uint8Array(event.data);
+        var msg = Packet.fromBytes(raw);
         console.log(msg);
+        console.log(msg[1].toString());
 
         switch(msg.id) {
             case kPacketId.KeyExchange:

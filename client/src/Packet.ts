@@ -23,18 +23,26 @@ class Packet {
     public getRegionString(region: number): string {
         return this.getRegion(region).toString();
     }
-    public addRegion(region: object): void {
+    public addRegion(region: object): Packet {
         if(typeof region == "string")
             this._regions.push((<string>region).toByteArray());
         else if(region instanceof Uint8Array)
             this._regions.push(region);
+
+        this[this.regionCount-1] = this._regions[this.regionCount-1];
+        return this;
     }
 
-    public Packet(id: kPacketId, regions: any[]) {
-        this._id = id;
+    private constructor() {}
+
+    public static create(id: kPacketId, regions: any[]): Packet {
+        var packet = new Packet;
+        packet._id = id;
         regions.forEach(region => {
-            this.addRegion(region);
+            packet.addRegion(region);
         });
+
+        return packet;
     }
 
     public static fromBytes(bytes: Uint8Array): Packet {
@@ -58,7 +66,7 @@ class Packet {
         }
 
         for(var i = 0; i < regionCount; ++i) {
-            packet.regions.push(bytes.subarray(ptr, ptr + regionLengths[i]));
+            packet.addRegion(bytes.subarray(ptr, ptr + regionLengths[i]));
             ptr += regionLengths[i];
         }
 

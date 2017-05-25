@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Kneesocks;
 using System.Net.Sockets;
 
-namespace Server {
+namespace CircleScape {
     static class PoolManager {
         private static Pool<PendingConnection> PendingConnectionsPool;
         private static Pool<ActiveConnection> ActiveConnectionsPool;

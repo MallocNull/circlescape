@@ -156,13 +156,13 @@ namespace Kneesocks {
         }
         
         private void ReadIfNotNull(ref byte[] buffer, int length) {
-            buffer = buffer == null ? Buffer.AttemptRead(length)
-                                    : buffer;
+            buffer = buffer ?? Buffer.AttemptRead(length)
+;
         }
 
         private void ReadIfNotNull(ref byte[] buffer, string terminator) {
-            buffer = buffer == null ? Buffer.AttemptRead(terminator)
-                                    : buffer;
+            buffer = buffer ?? Buffer.AttemptRead(terminator)
+;
         }
         
         internal void Parse() {

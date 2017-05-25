@@ -8,8 +8,10 @@ class FileCache {
             var db: IDBDatabase = event.target.result;
 
             var stores = db.objectStoreNames;
+            /*
             for(var i in stores)
-                db.deleteObjectStore(stores[i]);
+                db.deleteObjectStore(i);
+            */
 
             db.createObjectStore("files", {keyPath: "name", autoIncrement: false});
             db.createObjectStore("metadata", {keyPath: "name", autoIncrement: false});

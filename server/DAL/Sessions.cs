@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Server.DAL
+namespace CircleScape.DAL
 {
     using System;
     using System.Collections.Generic;

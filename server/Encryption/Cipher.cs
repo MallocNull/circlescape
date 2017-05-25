@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Numerics;
 using Square;
 
-namespace Server.Encryption {
+namespace CircleScape.Encryption {
     class Cipher {
         private byte[] Key = new byte[512 / 8];
         private byte[] State = new byte[256];

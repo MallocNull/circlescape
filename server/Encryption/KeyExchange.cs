@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Numerics;
 using Square;
 
-namespace Server.Encryption {
+namespace CircleScape.Encryption {
     class KeyExchange {
         private BigInteger Secret;
         public BigInteger Generator { get; private set; } = 2;
@@ -22,7 +22,12 @@ namespace Server.Encryption {
         }
 
         public Packet GenerateRequestPacket() {
-            return new Packet(Packet.kId.KeyExchange, Generator.ToHexString(), Modulus.ToHexString(), BigInteger.ModPow(Generator, Secret, Modulus).ToHexString());
+            return new Packet(
+                Packet.kId.KeyExchange, 
+                Generator.ToHexString(), 
+                Modulus.ToHexString(), 
+                BigInteger.ModPow(Generator, Secret, Modulus).ToHexString()
+            );
         }
 
         public BigInteger ParseResponsePacket(Packet packet) {

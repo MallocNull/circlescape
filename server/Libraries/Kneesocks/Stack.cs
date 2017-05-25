@@ -51,8 +51,7 @@ namespace Kneesocks {
                         if(connected) {
                             try {
                                 client.Parse();
-                                if(CheckIfConnected(client))
-                                    connected = false;
+                                connected = CheckIfConnected(client);
                             } catch {
                                 connected = false;
                             }

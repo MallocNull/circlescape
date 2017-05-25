@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Square;
 
-namespace Server {
+namespace CircleScape {
     class Packet {
         public enum kId {
             KeyExchange = 0,
@@ -17,7 +17,7 @@ namespace Server {
             get => new Packet { IsLegal = false };
         }
 
-        public static Packet FromRaw(byte[] raw) {
+        public static Packet FromBytes(byte[] raw) {
             if(raw.Length < 3)
                 return ErrorPacket;
 
@@ -82,11 +82,13 @@ namespace Server {
             get => new Region(Regions[i]);
         }
 
-        public void AddRegion(object region) {
+        public Packet AddRegion(object region) {
             if(region.GetType() == typeof(byte[]))
                 Regions.Add((byte[])region);
             else if(region.GetType() == typeof(string))
                 Regions.Add(((string)region).GetBytes());
+
+            return this;
         }
 
         public byte[] GetBytes() {

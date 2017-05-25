@@ -6,15 +6,21 @@ using System.Text;
 using System.Threading.Tasks;
 using Square;
 using Kneesocks;
+using CircleScape.Encryption;
 
-namespace Server {
+namespace CircleScape {
     class PendingConnection : Connection {
         private DateTime ConnectionOpened;
+        private KeyExchange Key;
+        private Cipher Encryptor;
 
 
 
         protected override void OnOpen() {
             ConnectionOpened = DateTime.UtcNow;
+            Key = new KeyExchange();
+
+            Send(Key.GenerateRequestPacket().GetBytes());
         }
 
         protected override void OnParse() {
@@ -24,6 +30,24 @@ namespace Server {
         }
 
         protected override void OnReceive(byte[] data) {
+            var packet = Packet.FromBytes(data);
+            if(!packet.IsLegal) {
+                Disconnect(Frame.kClosingReason.ProtocolError, "Packet received was not legal.");
+                return;
+            }
+
+            switch(packet.Id) {
+                case Packet.kId.KeyExchange:
+                    Key.ParseResponsePacket(packet);
+                    if(!Key.Succeeded) {
+                        Disconnect(Frame.kClosingReason.ProtocolError, "Could not exchange keys.");
+                        return;
+                    }
+
+                    Encryptor = new Cipher(Key.PrivateKey);
+                    break;
+            }
+
             Console.WriteLine(Id + " says " + data.GetString());
         }
     }
