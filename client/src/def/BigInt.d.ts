@@ -24,13 +24,13 @@ declare class bigInt {
 
     public divide(x: any): bigInt;
     public divmod(x: any): bigInt;
-    public eq(x: any): bigInt;
-    public equals(x: any): bigInt;
+    public eq(x: any): boolean;
+    public equals(x: any): boolean;
     
-    public geq(x: any): bigInt;
-    public greater(x: any): bigInt;
-    public greaterOrEquals(x: any): bigInt;
-    public gt(x: any): bigInt;
+    public geq(x: any): boolean;
+    public greater(x: any): boolean;
+    public greaterOrEquals(x: any): boolean;
+    public gt(x: any): boolean;
 
     public isDivisibleBy(x: any): boolean;
     public isEven(): boolean;
@@ -42,10 +42,10 @@ declare class bigInt {
     public isUnit(): boolean;
     public isZero(): boolean;
 
-    public leq(x: any): bigInt;
-    public lesser(x: any): bigInt;
-    public lesserOrEquals(x: any): bigInt;
-    public lt(x: any): bigInt;
+    public leq(x: any): boolean;
+    public lesser(x: any): boolean;
+    public lesserOrEquals(x: any): boolean;
+    public lt(x: any): boolean;
 
     public minus(x: any): bigInt;
     public mod(x: any): bigInt;
@@ -53,10 +53,10 @@ declare class bigInt {
     public modPow(exp: any, mod: any): bigInt;
     public multiply(x: any): bigInt;
 
-    public neq(x: any): bigInt;
+    public neq(x: any): boolean;
     public next(): bigInt;
     public not(): bigInt;
-    public notEquals(x: any): bigInt;
+    public notEquals(x: any): boolean;
     
     public or(x: any): bigInt;
     public over(x: any): bigInt;

@@ -11,14 +11,14 @@ using CircleScape.Encryption;
 namespace CircleScape {
     class PendingConnection : Connection {
         private DateTime ConnectionOpened;
-        private KeyExchange Key;
+        private Key Key;
         private Cipher Encryptor;
 
 
 
         protected override void OnOpen() {
             ConnectionOpened = DateTime.UtcNow;
-            Key = new KeyExchange();
+            Key = new Key();
 
             Send(Key.GenerateRequestPacket().GetBytes());
         }

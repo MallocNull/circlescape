@@ -21,6 +21,10 @@ class Connection {
         Connection.sock.onclose = Connection.onClose;
     }
 
+    public static send(msg: Packet) {
+        Connection.sock.send(msg.getBytes());
+    }
+
     private static onOpen(event: any): void {
         Connection._isOpen = true;
         
@@ -32,11 +36,12 @@ class Connection {
         var raw = new Uint8Array(event.data);
         var msg = Packet.fromBytes(raw);
         console.log(msg);
-        console.log(msg[1].toString());
 
         switch(msg.id) {
             case kPacketId.KeyExchange:
-                
+                var response = Key.generateResponsePacket(msg);
+                Connection.send(response);
+                console.log(response);
                 break;
             case kPacketId.LoginAttempt:
 

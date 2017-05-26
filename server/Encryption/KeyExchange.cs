@@ -7,7 +7,7 @@ using System.Numerics;
 using Square;
 
 namespace CircleScape.Encryption {
-    class KeyExchange {
+    class Key {
         private BigInteger Secret;
         public BigInteger Generator { get; private set; } = 2;
         public BigInteger Modulus { get; private set; }
@@ -16,7 +16,7 @@ namespace CircleScape.Encryption {
             get => !PrivateKey.IsZero;
         }
 
-        public KeyExchange() {
+        public Key() {
             Secret = RNG.NextPrime(512 / 8);
             Modulus = RNG.NextPrime(512 / 8);
         }

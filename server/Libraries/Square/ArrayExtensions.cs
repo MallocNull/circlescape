@@ -12,7 +12,7 @@ namespace Square {
             if(offset > 0)
                 arrEnum = arrEnum.Skip(offset);
             if(count > 0 && count < arr.Length)
-                arrEnum = arr.Take(count);
+                arrEnum = arrEnum.Take(count);
 
             return arrEnum.ToArray();
         }

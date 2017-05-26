@@ -79,9 +79,9 @@ class Packet {
             bodySize += region.byteLength;
 
             ++headerSize;
-            if(region.byteLength >= 254 && region.byteLength <= 0xFFFF)
+            if(region.byteLength >= 0xFE && region.byteLength <= 0xFFFF)
                 headerSize += 2;
-            else
+            else if(region.byteLength > 0xFFFF)
                 headerSize += 4;
         });
 

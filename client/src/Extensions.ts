@@ -221,15 +221,19 @@ Uint8Array.prototype.toHexString = function(): string {
 // ** BIGINT EXTENSIONS ** \\
 
 interface bigInt {
-    toByteArray(): Uint8Array;
+    toByteArray(byteCount: number): Uint8Array;
 }
 
-bigInt.prototype.toByteArray = function(): Uint8Array {
+bigInt.prototype.toByteArray = function(byteCount: number): Uint8Array {
     var hexString: string = this.toString(16);
-    var byteCount = Math.ceil(hexString.length / 2);
+    var loopCount = Math.ceil(hexString.length / 2);
     var byteArray = new Uint8Array(byteCount);
 
-    for(var i = 0; i < byteCount; ++i) {
-        byteArray[i] = parseInt(hexString.substr(Math.max(0, hexString.length - 2*(i+1)), hexString.length - 2*i), 16);
+    loopCount = Math.min(loopCount, byteCount);
+    for(var i = 0; i < loopCount; ++i) {
+        var byte = hexString.substring(Math.max(0, hexString.length - 2*(i+1)), hexString.length - 2*i);
+        byteArray[i] = parseInt(byte, 16);
     }
+
+    return byteArray;
 }

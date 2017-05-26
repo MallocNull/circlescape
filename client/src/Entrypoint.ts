@@ -13,7 +13,7 @@ class Entrypoint {
     }
 
     public static start(): void {
-        Connection.open();
+        Key.init();
 
         FileCache.initCache(
             // SUCCESS 
@@ -27,6 +27,8 @@ class Entrypoint {
                 CriticalStop.redirect(error);
             } 
         ); 
+        
+        Connection.open();
     }
 
     private static ready(): void {

@@ -1,3 +1,5 @@
-class RenderContext {
+class Rendering {
+    private static context: WebGLRenderingContext;
+
     
 }

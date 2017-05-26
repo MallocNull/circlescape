@@ -22,13 +22,14 @@ namespace CircleScape {
                 return ErrorPacket;
 
             Packet packet = new Packet();
-            if(!Enum.IsDefined(typeof(kId), raw[0]))
+            if(!Enum.IsDefined(typeof(kId), (int)raw[0]))
                 return ErrorPacket;
             packet.Id = (kId)raw[0];
             var regionCount = raw[1];
             var regionLengths = new List<uint>();
             var headerPtr = 2;
             for(var i = 0; i < regionCount; ++i) {
+                regionLengths.Add(0);
                 var first = raw[headerPtr];
                 if(first < 254) {
                     regionLengths[i] = first;
@@ -49,7 +50,7 @@ namespace CircleScape {
                     return ErrorPacket;
             }
 
-            if(headerPtr + regionLengths.Sum(x => x) < raw.Length)
+            if(headerPtr + regionLengths.Sum(x => x) > raw.Length)
                 return ErrorPacket;
              
             long bodyPtr = headerPtr;
@@ -125,6 +126,9 @@ namespace CircleScape {
             }
 
             public static implicit operator byte[] (Region region) => region.Data;
+            public string Bytes {
+                get => this;
+            }
 
             public static implicit operator string(Region region) {
                 try {
@@ -132,6 +136,9 @@ namespace CircleScape {
                 } catch {
                     return Encoding.ASCII.GetString(region.Data);
                 }
+            }
+            public string Str {
+                get => this;
             }
         }
     }

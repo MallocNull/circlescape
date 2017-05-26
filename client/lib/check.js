@@ -13,13 +13,33 @@ window.onload = function() {
 
     // check for webgl support
     var canvas = document.getElementById("cs");
-    if(!(canvas.getContext("webgl") || canvas.getContext("experimental-webgl")))
-        support.webgl = false;
+    Rendering.context = canvas.getContext("webgl");
+    if(!Rendering.context) {
+        Rendering.context = canvas.getContext("experimental-webgl");
+        if(!Rendering.context)
+            support.webgl = false;
+    }
+
+    // check for animation frame support
+    window.requestAnimationFrame = window.requestAnimationFrame 
+                                || window.webkitRequestAnimationFrame 
+                                || window.mozRequestAnimationFrame 
+                                || window.oRequestAnimationFrame 
+                                || window.msRequestAnimationFrame;
+    if(!window.requestAnimationFrame)
+        support.anim = false;
 
     // check for indexedDB support
-    window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
-    window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBransaction;
-    window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
+    window.indexedDB       = window.indexedDB 
+                          || window.mozIndexedDB 
+                          || window.webkitIndexedDB 
+                          || window.msIndexedDB;
+    window.IDBTransaction  = window.IDBTransaction 
+                          || window.webkitIDBTransaction 
+                          || window.msIDBransaction;
+    window.IDBKeyRange     = window.IDBKeyRange 
+                          || window.webkitIDBKeyRange 
+                          || window.msIDBKeyRange;
     if(!window.indexedDB)
         support.idb = false;
 
