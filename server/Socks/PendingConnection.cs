@@ -47,6 +47,12 @@ namespace CircleScape {
 
                     Encryptor = new Cipher(Key.PrivateKey);
                     break;
+                case Packet.kId.LoginAttempt:
+
+                    break;
+                default:
+                    Disconnect(Frame.kClosingReason.ProtocolError, "Packet ID could not be understood at this time.");
+                    break;
             }
 
             Console.WriteLine(Id + " says " + data.GetString());

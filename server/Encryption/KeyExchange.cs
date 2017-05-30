@@ -9,7 +9,7 @@ using System.Globalization;
 
 namespace CircleScape.Encryption {
     class Key {
-        private BigInteger Secret;
+        private readonly static BigInteger Secret = RNG.NextPrime(512 / 8);
         public BigInteger Generator { get; private set; } = 2;
         public BigInteger Modulus { get; private set; }
         public BigInteger PrivateKey { get; private set; } = BigInteger.Zero;
@@ -18,7 +18,6 @@ namespace CircleScape.Encryption {
         }
 
         public Key() {
-            Secret = RNG.NextPrime(512 / 8);
             Modulus = RNG.NextPrime(512 / 8);
         }
 

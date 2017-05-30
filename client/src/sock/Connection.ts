@@ -54,7 +54,7 @@ class Connection {
                     CriticalStop.redirect("Could not establish an encrypted connection with the server.");
                 break;
             case kPacketId.LoginAttempt:
-
+                
                 break;
             case kPacketId.RegistrationAttempt:
 

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Square;
 using System.IO;
+using System.Net;
 
 namespace Kneesocks {
     public class Connection {
@@ -54,6 +55,12 @@ namespace Kneesocks {
 
         public bool Handshaked { get; private set; } = false;
         public Handshake ClientHandshake { get; private set; } = null;
+
+        public IPAddress IP {
+            get {
+                return ((IPEndPoint)Socket.Client.RemoteEndPoint).Address;
+            }
+        }
 
         public void Initialize(TcpClient sock) {
             if(Initialized)
