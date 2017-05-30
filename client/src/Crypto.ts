@@ -18,7 +18,7 @@ class Key {
         var modulus = new bigInt(request[1].toString(), 16);
         var serverKey = new bigInt(request[2].toString(), 16);
 
-        Key._privateKey = serverKey.modPow(Key.secret, modulus);
+        Key._privateKey = serverKey.modPow(serverKey, modulus);
         return Packet.create(kPacketId.KeyExchange, [generator.modPow(Key.secret, modulus).toString(16)]);
     }
 }

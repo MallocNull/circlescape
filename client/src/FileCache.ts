@@ -7,11 +7,14 @@ class FileCache {
         request.onupgradeneeded = (event: any) => {
             var db: IDBDatabase = event.target.result;
 
-            var stores = db.objectStoreNames;
-            /*
-            for(var i in stores)
-                db.deleteObjectStore(i);
-            */
+            if(db.objectStoreNames.contains("files"))
+                db.deleteObjectStore("files");
+
+            if(db.objectStoreNames.contains("metadata"))
+                db.deleteObjectStore("metadata");
+
+            if(db.objectStoreNames.contains("hashes"))
+                db.deleteObjectStore("hashes");
 
             db.createObjectStore("files", {keyPath: "name", autoIncrement: false});
             db.createObjectStore("metadata", {keyPath: "name", autoIncrement: false});

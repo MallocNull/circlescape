@@ -14,8 +14,6 @@ namespace CircleScape {
         private Key Key;
         private Cipher Encryptor;
 
-
-
         protected override void OnOpen() {
             ConnectionOpened = DateTime.UtcNow;
             Key = new Key();
