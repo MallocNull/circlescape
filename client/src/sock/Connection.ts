@@ -34,14 +34,24 @@ class Connection {
 
     private static onMessage(event: any): void {
         var raw = new Uint8Array(event.data);
-        var msg = Packet.fromBytes(raw);
-        console.log(msg);
+        var msg: Packet;
+        try { 
+            msg = !Cipher.ready ? Packet.fromBytes(raw)
+                                : Packet.fromBytes(Cipher.parse(raw));
+        } catch(e) {
+            close();
+            return;
+        }
 
+        console.log(msg);
         switch(msg.id) {
             case kPacketId.KeyExchange:
                 var response = Key.generateResponsePacket(msg);
-                Connection.send(response);
-                console.log(response);
+                if(Key.succeeded) {
+                    Cipher.init(Key.privateKey);
+                    Connection.send(response);
+                } else
+                    CriticalStop.redirect("Could not establish an encrypted connection with the server.");
                 break;
             case kPacketId.LoginAttempt:
 
@@ -54,6 +64,7 @@ class Connection {
 
     private static onClose(event: any): void {
         Connection._isOpen = false;
+        Cipher.close();
 
         if(Connection.onCloseFunc)
             Connection.onCloseFunc();

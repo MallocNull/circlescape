@@ -27,7 +27,7 @@ namespace Square {
             => Convert.ToBase64String(bytes);
 
         public static string ToHexString(this byte[] bytes)
-            => BitConverter.ToString(bytes).Replace("-", "");
+            => BitConverter.ToString(bytes).Replace("-", " ");
 
         public static string GetString(this byte[] bytes, bool isUtf8 = true)
             => isUtf8 ? Encoding.UTF8.GetString(bytes)

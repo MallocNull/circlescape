@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 using Square;
+using System.Globalization;
 
 namespace CircleScape.Encryption {
     class Key {
@@ -31,12 +32,12 @@ namespace CircleScape.Encryption {
         }
 
         public BigInteger ParseResponsePacket(Packet packet) {
-            if(packet.Id == Packet.kId.KeyExchange && packet.RegionCount != 1)
+            if(packet.Id != Packet.kId.KeyExchange || packet.RegionCount != 1)
                 return -1;
 
-            if(!BigInteger.TryParse(packet[0], out BigInteger ClientKey))
+            if(!BigInteger.TryParse(packet[0], NumberStyles.HexNumber, NumberFormatInfo.InvariantInfo, out BigInteger ClientKey))
                 return -1;
-            
+
             return (PrivateKey = BigInteger.ModPow(ClientKey, Secret, Modulus));
         }
     }

@@ -12,7 +12,7 @@ namespace CircleScape {
     class PendingConnection : Connection {
         private DateTime ConnectionOpened;
         private Key Key;
-        private Cipher Encryptor;
+        public Cipher Encryptor { get; private set; } = null;
 
         protected override void OnOpen() {
             ConnectionOpened = DateTime.UtcNow;
@@ -28,7 +28,10 @@ namespace CircleScape {
         }
 
         protected override void OnReceive(byte[] data) {
-            var packet = Packet.FromBytes(data);
+            Packet packet = 
+                Encryptor == null ? Packet.FromBytes(data)
+                                  : Packet.FromBytes(Encryptor.Parse(data));
+
             if(!packet.IsLegal) {
                 Disconnect(Frame.kClosingReason.ProtocolError, "Packet received was not legal.");
                 return;
