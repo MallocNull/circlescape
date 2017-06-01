@@ -80,27 +80,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DAL\ScapeDb.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ScapeDb.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="DAL\ScapeDb.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ScapeDb.tt</DependentUpon>
-    </Compile>
-    <Compile Include="DAL\ScapeDb.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ScapeDb.edmx</DependentUpon>
-    </Compile>
-    <Compile Include="DAL\Sessions.cs">
-      <DependentUpon>ScapeDb.tt</DependentUpon>
-    </Compile>
-    <Compile Include="DAL\Users.cs">
-      <DependentUpon>ScapeDb.tt</DependentUpon>
-    </Compile>
+    <Compile Include="DAL\ScapeDb.cs" />
+    <Compile Include="DAL\Session.cs" />
+    <Compile Include="DAL\User.cs" />
     <Compile Include="Encryption\KeyExchange.cs" />
     <Compile Include="Encryption\Cipher.cs" />
     <Compile Include="Socks\Packet.cs" />
@@ -113,13 +95,6 @@
   <ItemGroup>
     <None Include="App.config">
       <SubType>Designer</SubType>
-    </None>
-    <EntityDeploy Include="DAL\ScapeDb.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>ScapeDb.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <None Include="DAL\ScapeDb.edmx.diagram">
-      <DependentUpon>ScapeDb.edmx</DependentUpon>
     </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
@@ -136,16 +111,6 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="DAL\ScapeDb.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>ScapeDb.edmx</DependentUpon>
-      <LastGenOutput>ScapeDb.Context.cs</LastGenOutput>
-    </Content>
-    <Content Include="DAL\ScapeDb.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>ScapeDb.edmx</DependentUpon>
-      <LastGenOutput>ScapeDb.cs</LastGenOutput>
-    </Content>
     <Content Include="Fodyweavers.xml">
       <SubType>Designer</SubType>
       <DependentUpon>App.config</DependentUpon>
@@ -172,7 +137,8 @@
     <Error Condition="!Exists('packages\Costura.Fody.1.4.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Costura.Fody.1.4.0\build\Costura.Fody.targets'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>COPY "$(ProjectDir)scape.db" "$(TargetDir)"</PostBuildEvent>
+    <PostBuildEvent>COPY "$(ProjectDir)scape.db" "$(TargetDir)"
+XCOPY "$(ProjectDir)Assets" "$(TargetDir)" /Y</PostBuildEvent>
   </PropertyGroup>
   <Import Project="packages\Fody.2.0.4\build\dotnet\Fody.targets" Condition=" '$(Configuration)' == 'Release' " />
   <Import Project="packages\Costura.Fody.1.4.0\build\Costura.Fody.targets" Condition=" '$(Configuration)' == 'Release' " />

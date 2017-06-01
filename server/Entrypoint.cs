@@ -11,6 +11,9 @@ using Square;
 namespace CircleScape {
     class Entrypoint {
         static void Main(string[] args) {
+            var db = new Database();
+            var users = db.Users.ToList();
+
             var server = new Kneesocks.Server<PendingConnection>(6770, PoolManager.Pending);
             server.Start();
 
