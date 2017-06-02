@@ -1,21 +1,18 @@
-namespace CircleScape.DAL
-{
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity.Spatial;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.Spatial;
 
-    public partial class Session
-    {
+namespace CircleScape.DAL {
+    public partial class Session {
         public long Id { get; set; }
 
+        [Index("SessionUserId")]
         public long UserId { get; set; }
+        public virtual User User { get; set; }
 
         [Required]
-        [StringLength(2147483647)]
         public string IpAddress { get; set; }
-
-        public virtual User User { get; set; }
     }
 }
