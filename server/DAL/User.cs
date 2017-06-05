@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.Entity.Spatial;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CircleScape.DAL {
     public partial class User {
@@ -14,16 +15,10 @@ namespace CircleScape.DAL {
         [Required]
         public string Password { get; set; }
 
-        public long? Joined { get; set; }
-
-        public long? LastLogin { get; set; }
-
         [Required]
-        public string JoinedIp { get; set; }
-        
-        public string LastIp { get; set; }
-        
-        public virtual ICollection<Session> Sessions { get; set; }
-        public virtual ICollection<Item> Items { get; set; }
+        public DateTime Joined { get; set; }
+        public DateTime? LastLogin { get; set; }
+
+        public virtual ICollection<Origin> Origins { get; set; }
     }
 }

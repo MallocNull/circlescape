@@ -1,18 +1,18 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.Entity.Spatial;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace CircleScape.DAL {
     public partial class Session {
         public long Id { get; set; }
 
-        [Index("SessionUserId")]
-        public long UserId { get; set; }
+        [ForeignKey("User")]
+        public int UserId { get; set; }
         public virtual User User { get; set; }
 
-        [Required]
-        public string IpAddress { get; set; }
+
     }
 }

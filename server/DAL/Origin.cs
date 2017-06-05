@@ -6,17 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace CircleScape.DAL {
-    public class Item {
+    public partial class Origin {
         public long Id { get; set; }
 
-        [Index("ItemItemDefinitionId")]
-        public long DefinitionId { get; set; }
-        public virtual ItemDefinition Definition { get; set; }
-
-        [Index("ItemUserId")]
+        [ForeignKey("User")]
         public long UserId { get; set; }
         public virtual User User { get; set; }
 
-        public long Quantity { get; set; }
+        public string Ip { get; set; } 
     }
 }
