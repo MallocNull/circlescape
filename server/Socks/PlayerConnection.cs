@@ -4,12 +4,12 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using Square;
 using Kneesocks;
+using Square;
 using CircleScape.Encryption;
 
 namespace CircleScape {
-    class PendingConnection : Connection {
+    class PlayerConnection : Connection {
         private DateTime ConnectionOpened;
         private Key Key;
         public Cipher Encryptor { get; private set; } = null;

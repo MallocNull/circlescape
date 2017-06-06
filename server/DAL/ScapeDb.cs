@@ -18,6 +18,7 @@ namespace CircleScape.DAL {
 
         public DbSet<User> Users { get; set; }
         public DbSet<Origin> Origins { get; set; }
+        public DbSet<Session> Sessions { get; set; }
 
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder) {

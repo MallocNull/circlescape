@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CircleScape.DAL {
-    class Server {
-        public int Id { get; set; }
+namespace Square.INI {
+    public class SectionRules {
 
     }
 }

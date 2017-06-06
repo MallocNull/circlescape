@@ -71,7 +71,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DAL\Origin.cs" />
     <Compile Include="DAL\ScapeDb.cs" />
+    <Compile Include="DAL\Session.cs" />
     <Compile Include="DAL\User.cs" />
     <Compile Include="Encryption\KeyExchange.cs" />
     <Compile Include="Encryption\Cipher.cs" />
@@ -80,11 +82,10 @@
       <DependentUpon>201706040437361_Initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Socks\MasterConnection.cs" />
     <Compile Include="Socks\Packet.cs" />
-    <Compile Include="Socks\ActiveConnection.cs" />
     <Compile Include="Entrypoint.cs" />
-    <Compile Include="Socks\PendingConnection.cs" />
-    <Compile Include="Socks\PoolManager.cs" />
+    <Compile Include="Socks\PlayerConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -92,8 +93,8 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="connectionStrings.config">
-      <SubType>Designer</SubType>
       <DependentUpon>App.config</DependentUpon>
+      <SubType>Designer</SubType>
     </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>

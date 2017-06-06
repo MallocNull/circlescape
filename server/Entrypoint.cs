@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 //using CircleScape.DAL;
 using System.Numerics;
 using Square;
+using System.Net;
 
 namespace CircleScape {
     class Entrypoint {
         static void Main(string[] args) {
-            var server = new Kneesocks.Server<PendingConnection>(6770, PoolManager.Pending);
+            var server = new Kneesocks.Server<PlayerConnection>(6770, PoolManager.Pending);
             server.Start();
 
             /*while(true) {

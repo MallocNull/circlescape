@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,6 +14,14 @@ namespace CircleScape.DAL {
         public long UserId { get; set; }
         public virtual User User { get; set; }
 
-        public string Ip { get; set; } 
+        protected string RawIp { get; set; }
+        public IPAddress Ip {
+            get {
+                return IPAddress.Parse(RawIp);
+            }
+            set {
+                RawIp = value.ToString();
+            }
+        }
     }
 }

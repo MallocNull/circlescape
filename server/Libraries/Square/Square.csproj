@@ -44,11 +44,16 @@
     <Compile Include="ArrayExtensions.cs" />
     <Compile Include="CryptoExtensions.cs" />
     <Compile Include="General.cs" />
+    <Compile Include="INI\Instance.cs" />
+    <Compile Include="INI\Section.cs" />
+    <Compile Include="INI\SectionRules.cs" />
+    <Compile Include="INI\SettingsFile.cs" />
     <Compile Include="NumericExtensions.cs" />
     <Compile Include="RandomContext.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

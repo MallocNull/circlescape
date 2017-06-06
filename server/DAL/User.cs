@@ -20,5 +20,6 @@ namespace CircleScape.DAL {
         public DateTime? LastLogin { get; set; }
 
         public virtual ICollection<Origin> Origins { get; set; }
+        public virtual Session Session { get; set; }
     }
 }
