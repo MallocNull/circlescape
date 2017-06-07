@@ -7,19 +7,12 @@ using System.Net.Sockets;
 using System.Net;
 
 namespace Kneesocks {
-    public class Server<T> where T : Connection, new() {
-        private TcpListener Socket;
-        private Thread Listener = null;
-        private Pool<T> ConnectionPool = null;
-        public bool Started { get; private set; } = false;
-        public UInt16 Port { get; private set; }
-
-        public Server(UInt16 port, Pool<T> pool) {
-            Port = port;
-            Socket = new TcpListener(IPAddress.Any, port);
-            Listener = new Thread(new ThreadStart(ListenThread));
-            ConnectionPool = pool;
-        }
+    public abstract class Server {
+        protected TcpListener Socket;
+        protected Thread Listener = null;
+        public bool Started { get; protected set; } = false;
+        public UInt16 Port { get; protected set; }
+        public object Configuration { get; protected set; }
 
         public void Start() {
             if(!Started) {
@@ -34,13 +27,26 @@ namespace Kneesocks {
                 Listener.Join();
             }
         }
+    }
 
-        private void ListenThread() {
+    public class Server<T> : Server where T : Connection, new() {
+        protected Pool<T> ConnectionPool = null;
+
+        public Server(UInt16 port, Pool<T> pool, object config = null) {
+            Port = port;
+            Socket = new TcpListener(IPAddress.Any, port);
+            Listener = new Thread(new ThreadStart(ListenThread));
+            ConnectionPool = pool;
+            Configuration = config;
+        }
+
+        protected void ListenThread() {
             Socket.Start();
             
             while(Started) {
                 if(Socket.Pending()) {
                     var templatedConnection = new T();
+                    templatedConnection.Server = this;
                     templatedConnection.Initialize(Socket.AcceptTcpClient());
                     ConnectionPool.AddConnection(templatedConnection);
                 }

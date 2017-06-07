@@ -11,6 +11,7 @@ using System.Net;
 namespace CircleScape {
     class Entrypoint {
         static void Main(string[] args) {
+            foreach()
             var server = new Kneesocks.Server<PlayerConnection>(6770, PoolManager.Pending);
             server.Start();
 

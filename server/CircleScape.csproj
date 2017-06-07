@@ -71,6 +71,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration.cs" />
     <Compile Include="DAL\Origin.cs" />
     <Compile Include="DAL\ScapeDb.cs" />
     <Compile Include="DAL\Session.cs" />
@@ -140,7 +141,8 @@
     <Error Condition="!Exists('packages\Costura.Fody.1.4.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Costura.Fody.1.4.0\build\Costura.Fody.targets'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>XCOPY "$(ProjectDir)Assets" "$(TargetDir)" /Y</PostBuildEvent>
+    <PostBuildEvent>XCOPY "$(ProjectDir)Assets" "$(TargetDir)" /Y /E
+COPY "$(ProjectDir)config.ini" "$(TargetDir)" /Y</PostBuildEvent>
   </PropertyGroup>
   <Import Project="packages\Fody.2.0.4\build\dotnet\Fody.targets" Condition=" '$(Configuration)' == 'Release' " />
   <Import Project="packages\Costura.Fody.1.4.0\build\Costura.Fody.targets" Condition=" '$(Configuration)' == 'Release' " />

@@ -31,6 +31,7 @@ namespace Kneesocks {
 
         private TcpClient Socket = null;
         private NetworkStream Stream = null;
+        public Server Server { get; internal set; }
 
         ReadBuffer Buffer;
         private byte[] FirstTwoBytes = null;
@@ -93,6 +94,7 @@ namespace Kneesocks {
 
             Socket = conn.Socket;
             Stream = conn.Stream;
+            Server = conn.Server;
 
             Buffer = conn.Buffer;
             FirstTwoBytes = conn.FirstTwoBytes;

@@ -48,6 +48,7 @@
     <Compile Include="INI\Section.cs" />
     <Compile Include="INI\SectionRules.cs" />
     <Compile Include="INI\SettingsFile.cs" />
+    <Compile Include="INI\Value.cs" />
     <Compile Include="NumericExtensions.cs" />
     <Compile Include="RandomContext.cs" />
     <Compile Include="StringExtensions.cs" />

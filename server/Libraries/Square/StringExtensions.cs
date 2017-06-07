@@ -29,5 +29,14 @@ namespace Square {
 
         public static byte[] Base64DecodeRaw(this string str)
             => Convert.FromBase64String(str);
+
+        public static bool StartsWith(this string str, params string[] strings) {
+            foreach(var checkString in strings) {
+                if(str.StartsWith(checkString))
+                    return true;
+            }
+
+            return false;
+        }
     }
 }
