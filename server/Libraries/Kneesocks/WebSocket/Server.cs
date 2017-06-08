@@ -6,7 +6,7 @@ using System.Threading;
 using System.Net.Sockets;
 using System.Net;
 
-namespace Kneesocks {
+namespace Kneesocks.WebSocket {
     public abstract class Server {
         protected TcpListener Socket;
         protected Thread Listener = null;
@@ -45,8 +45,9 @@ namespace Kneesocks {
             
             while(Started) {
                 if(Socket.Pending()) {
-                    var templatedConnection = new T();
-                    templatedConnection.Server = this;
+                    var templatedConnection = new T() {
+                        Server = this
+                    };
                     templatedConnection.Initialize(Socket.AcceptTcpClient());
                     ConnectionPool.AddConnection(templatedConnection);
                 }

@@ -22,8 +22,8 @@ namespace Square.INI {
                 : false;
         }
 
-        public static implicit operator int(Value value) {
-            return Int32.TryParse(value.Raw, out int retval)
+        public static implicit operator Int32(Value value) {
+            return Int32.TryParse(value.Raw, out Int32 retval)
                 ? retval
                 : 0;
         }

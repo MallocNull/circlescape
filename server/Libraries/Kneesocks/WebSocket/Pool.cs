@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace Kneesocks {
+namespace Kneesocks.WebSocket {
     public class Pool<T> where T : Connection {
         // number of threads that should be started when the pool is created
         // these threads will run for as long as the pool exists

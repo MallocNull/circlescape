@@ -141,7 +141,8 @@
     <Error Condition="!Exists('packages\Costura.Fody.1.4.0\build\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Costura.Fody.1.4.0\build\Costura.Fody.targets'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>XCOPY "$(ProjectDir)Assets" "$(TargetDir)" /Y /E
+    <PostBuildEvent>mkdir "$(TargetDir)Assets"
+XCOPY "$(ProjectDir)Assets" "$(TargetDir)Assets" /Y /E
 COPY "$(ProjectDir)config.ini" "$(TargetDir)" /Y</PostBuildEvent>
   </PropertyGroup>
   <Import Project="packages\Fody.2.0.4\build\dotnet\Fody.targets" Condition=" '$(Configuration)' == 'Release' " />

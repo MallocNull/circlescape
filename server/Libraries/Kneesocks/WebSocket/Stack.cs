@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-namespace Kneesocks {
+namespace Kneesocks.WebSocket {
     internal class Stack<T> where T : Connection {
         private Pool<T> PoolRef = null;
         private List<T> Clients = new List<T>();
@@ -64,7 +64,8 @@ namespace Kneesocks {
                     }
                 }
 
-                Thread.Sleep(10);
+                // TODO consider changing this later
+                Thread.Sleep(1);
             }
 
             Finished = true;

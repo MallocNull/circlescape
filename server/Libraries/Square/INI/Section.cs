@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Square.INI {
     public class Section : IEnumerable<Instance> {
-        private List<Instance> Instances;
+        private List<Instance> Instances = new List<Instance>();
 
         internal Section() { }
 

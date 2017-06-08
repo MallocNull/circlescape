@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Kneesocks;
+using Kneesocks.WebSocket;
 using Square;
 
 namespace CircleScape.Socks {

@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Kneesocks {
+namespace Kneesocks.WebSocket {
     internal class ReadBuffer {
         private const int BufferSize = 1024;
 

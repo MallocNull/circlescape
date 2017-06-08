@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using Kneesocks;
+using Kneesocks.WebSocket;
 using Square;
 using CircleScape.Encryption;
 
