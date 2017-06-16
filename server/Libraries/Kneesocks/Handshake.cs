@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Square;
 
-namespace Kneesocks.WebSocket {
+namespace Kneesocks {
     public class Handshake {
         private const string HttpVersion = "1.1";
         public bool IsRequest = false;

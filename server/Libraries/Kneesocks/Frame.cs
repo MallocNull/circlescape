@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Square;
 
-namespace Kneesocks.WebSocket {
+namespace Kneesocks {
     public class Frame {
         public enum kClosingReason {
             Normal          = 1000,

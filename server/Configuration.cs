@@ -41,9 +41,9 @@ namespace CircleScape {
             return Settings[section];
         }
 
-        public static Section General {
+        public static Instance General {
             get {
-                return Settings["General"];
+                return Settings["General"][0];
             }
         }
 

@@ -6,7 +6,7 @@ using System.Threading;
 using System.Net.Sockets;
 using System.Net;
 
-namespace Kneesocks.WebSocket {
+namespace Kneesocks {
     public abstract class Server {
         protected TcpListener Socket;
         protected Thread Listener = null;

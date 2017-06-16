@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-namespace Kneesocks.WebSocket {
+namespace Kneesocks {
     internal class Stack<T> where T : Connection {
         private Pool<T> PoolRef = null;
         private List<T> Clients = new List<T>();

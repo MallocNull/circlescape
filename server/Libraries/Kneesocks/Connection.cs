@@ -8,7 +8,7 @@ using Square;
 using System.IO;
 using System.Net;
 
-namespace Kneesocks.WebSocket {
+namespace Kneesocks {
     public class Connection {
         private bool Initialized = false;
 

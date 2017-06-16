@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Numerics;
 using Square;
 using System.Net;
-using Kneesocks.WebSocket;
+using Kneesocks;
 
 namespace CircleScape {
     class Entrypoint {

@@ -40,14 +40,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="WebSocket\Connection.cs" />
-    <Compile Include="WebSocket\Frame.cs" />
-    <Compile Include="WebSocket\Handshake.cs" />
-    <Compile Include="WebSocket\Pool.cs" />
+    <Compile Include="Connection.cs" />
+    <Compile Include="Frame.cs" />
+    <Compile Include="Handshake.cs" />
+    <Compile Include="Pool.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WebSocket\ReadBuffer.cs" />
-    <Compile Include="WebSocket\Server.cs" />
-    <Compile Include="WebSocket\Stack.cs" />
+    <Compile Include="ReadBuffer.cs" />
+    <Compile Include="Server.cs" />
+    <Compile Include="Stack.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Square\Square.csproj">
@@ -55,9 +55,7 @@
       <Name>Square</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="UDP\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
