@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
-using Square;
+using Glove;
 using System.Globalization;
 
-namespace CircleScape.Encryption {
+namespace SockScape.Encryption {
     class Key {
         private readonly static BigInteger Secret = RNG.NextPrime(512 / 8);
         public BigInteger Generator { get; private set; } = 2;

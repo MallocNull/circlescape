@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Numerics;
 using System.Globalization;
 
-namespace Square {
+namespace Glove {
     public static class NumericExtensions {
         public static byte[] Pack(this Single value)
             => BitConverter.GetBytes(value).HostToNetworkOrder();

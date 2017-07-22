@@ -50,9 +50,9 @@
     <Compile Include="Stack.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Square\Square.csproj">
+    <ProjectReference Include="..\Square\Glove.csproj">
       <Project>{054f172e-9683-40bc-8bdd-7671340ec193}</Project>
-      <Name>Square</Name>
+      <Name>Glove</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

@@ -125,9 +125,9 @@
       <Project>{347353f6-cecd-4895-8717-2b5394ac71cc}</Project>
       <Name>Kneesocks</Name>
     </ProjectReference>
-    <ProjectReference Include="Libraries\Square\Square.csproj">
+    <ProjectReference Include="Libraries\Square\Glove.csproj">
       <Project>{054f172e-9683-40bc-8bdd-7671340ec193}</Project>
-      <Name>Square</Name>
+      <Name>Glove</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

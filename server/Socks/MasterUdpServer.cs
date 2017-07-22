@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CircleScape.Socks {
+namespace SockScape.Socks {
     static class MasterUdpServer {
         private static UdpClient Sock;
         private static Thread ListeningThread = null;

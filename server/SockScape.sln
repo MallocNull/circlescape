@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CircleScape", "CircleScape.csproj", "{438DBAC1-BA37-40BB-9CCE-0FE1F23C6DC5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SockScape", "SockScape.csproj", "{438DBAC1-BA37-40BB-9CCE-0FE1F23C6DC5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kneesocks", "Libraries\Kneesocks\Kneesocks.csproj", "{347353F6-CECD-4895-8717-2B5394AC71CC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Square", "Libraries\Square\Square.csproj", "{054F172E-9683-40BC-8BDD-7671340EC193}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glove", "Libraries\Glove\Glove.csproj", "{054F172E-9683-40BC-8BDD-7671340EC193}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

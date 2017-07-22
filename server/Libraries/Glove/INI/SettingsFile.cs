@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Square.INI {
+namespace Glove.INI {
     public class SettingsFile {
         private Dictionary<string, Section> Sections 
             = new Dictionary<string, Section>(StringComparer.OrdinalIgnoreCase);

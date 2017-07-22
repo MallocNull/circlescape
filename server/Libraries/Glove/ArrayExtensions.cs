@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Square {
+namespace Glove {
     public static class ArrayExtensions {
         public static T[] Subset<T>(this T[] arr, int offset, int count = -1) {
             var arrEnum = arr.AsEnumerable();

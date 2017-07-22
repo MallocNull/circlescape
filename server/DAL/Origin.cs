@@ -6,7 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CircleScape.DAL {
+namespace SockScape.DAL {
     public partial class Origin {
         public long Id { get; set; }
 

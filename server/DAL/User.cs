@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CircleScape.DAL {
+namespace SockScape.DAL {
     public partial class User {
         public long Id { get; set; }
 

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Square.INI {
+namespace Glove.INI {
     public class Section : IEnumerable<Instance> {
         private List<Instance> Instances = new List<Instance>();
 

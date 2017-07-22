@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Square {
+namespace Glove {
     public static class StringExtensions {
         public static byte[] GetBytes(this string str, bool isUtf8 = true)
             => isUtf8 ? Encoding.UTF8.GetBytes(str)

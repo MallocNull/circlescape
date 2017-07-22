@@ -5,7 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CircleScape {
+namespace SockScape {
     static class ServerList {
         public static Dictionary<int, IPEndPoint> Servers { get; private set; } 
             = new Dictionary<int, IPEndPoint>();

@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 //using CircleScape.DAL;
 using System.Numerics;
-using Square;
+using Glove;
 using System.Net;
 using Kneesocks;
 
-namespace CircleScape {
+namespace SockScape {
     class Entrypoint {
         static void Main(string[] args) {
             

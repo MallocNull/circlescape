@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Kneesocks;
-using Square;
+using Glove;
 
-namespace CircleScape.Socks {
+namespace SockScape.Socks {
     class MasterConnection : Connection {
 
     }

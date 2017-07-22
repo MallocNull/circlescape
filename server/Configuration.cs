@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Square.INI;
+using Glove.INI;
 
-namespace CircleScape {
+namespace SockScape {
     public static class Configuration {
         private static SettingsFile Settings;
 

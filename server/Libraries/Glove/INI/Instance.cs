@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Square.INI {
+namespace Glove.INI {
     public class Instance : IEnumerable<KeyValuePair<string, Value>> {
         private Dictionary<string, Value> Data 
             = new Dictionary<string, Value>(StringComparer.OrdinalIgnoreCase);

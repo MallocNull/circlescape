@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Square.INI {
+namespace Glove.INI {
     public class SectionRules {
         public string Name { get; set; }
         public bool Required { get; set; } = true;

@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Square {
+namespace Glove {
     public static class CryptoExtensions {
         public static byte[] SHA1(this string str)
             => Encoding.UTF8.GetBytes(str).SHA1();

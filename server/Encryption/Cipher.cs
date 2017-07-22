@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
-using Square;
+using Glove;
 
-namespace CircleScape.Encryption {
+namespace SockScape.Encryption {
     class Cipher {
         private byte[] Key = new byte[512 / 8];
         private byte[] State = new byte[256];

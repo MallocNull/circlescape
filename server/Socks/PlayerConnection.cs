@@ -5,10 +5,10 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Kneesocks;
-using Square;
-using CircleScape.Encryption;
+using Glove;
+using SockScape.Encryption;
 
-namespace CircleScape {
+namespace SockScape {
     class PlayerConnection : Connection {
         private DateTime ConnectionOpened;
         private Key Key;

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 
-namespace Square {
+namespace Glove {
     public static class RNG {
         private static Random RandCtx = new Random();
 

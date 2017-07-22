@@ -1,4 +1,4 @@
-namespace CircleScape.Migrations
+namespace SockScape.Migrations
 {
     using System;
     using System.Data.Entity.Migrations;

@@ -1,11 +1,11 @@
-namespace CircleScape.Migrations
+namespace SockScape.Migrations
 {
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<CircleScape.DAL.ScapeDb>
+    internal sealed class Configuration : DbMigrationsConfiguration<SockScape.DAL.ScapeDb>
     {
         public Configuration()
         {
@@ -13,7 +13,7 @@ namespace CircleScape.Migrations
             AutomaticMigrationsEnabled = false;
         }
 
-        protected override void Seed(CircleScape.DAL.ScapeDb context)
+        protected override void Seed(SockScape.DAL.ScapeDb context)
         {
             //  This method will be called after migrating to the latest version.
 
