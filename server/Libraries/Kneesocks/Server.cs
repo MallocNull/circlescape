@@ -49,7 +49,9 @@ namespace Kneesocks {
                         Server = this
                     };
                     templatedConnection.Initialize(Socket.AcceptTcpClient());
-                    ConnectionPool.AddConnection(templatedConnection);
+
+                    if(!ConnectionPool.AddConnection(templatedConnection))
+                        templatedConnection.Disconnect("Connection pooler rejected connection.");
                 }
 
                 Thread.Sleep(100);

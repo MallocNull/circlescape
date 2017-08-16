@@ -23,7 +23,8 @@ namespace SockScape {
                     InitialCount = 3,
                     InitialSize = 3,
                     SizeGrowth = 3,
-                    MaxSize = 100
+                    MaxSize = 100,
+                    MaxTotal = server["Max Users"] ?? Configuration.General["Max Users"]
                 };
 
                 pools.Add(server["Id"], pool);

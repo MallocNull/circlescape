@@ -32,7 +32,7 @@ namespace SockScape {
                 Encryptor == null ? Packet.FromBytes(data)
                                   : Packet.FromBytes(Encryptor.Parse(data));
 
-            if(!packet.IsLegal) {
+            if(packet == null) {
                 Disconnect(Frame.kClosingReason.ProtocolError, "Packet received was not legal.");
                 return;
             }

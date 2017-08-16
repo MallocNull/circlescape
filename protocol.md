@@ -10,9 +10,10 @@ All references to the 'byte' in this document refers to individual 8-bit octets,
 
 Because the body of the packet is a sequence of many different regions of byte data that is not delimited, it is necessary for the header of the packet to determine boundaries for the regions of data.
 
-* The first byte is the packet id, the meanings of which are defined in the [_Packet IDs_](#packet-ids) section.
-* The second byte is the number of byte regions in the packet.
-* The bytes following the second byte are a list of binary length segments, each of which correspond to the number of bytes in its respective region. They each follow this format:
+* The first four bytes will always be 0xF0, 0x9F, 0xA6, 0x91. If this is not set properly, the endpoint must close the connection.
+* The fifth byte is the packet id, the meanings of which are defined in the [_Packet IDs_](#packet-ids) section.
+* The sixth byte is the number of byte regions in the packet.
+* The bytes following the sixth byte are a list of binary length segments, each of which correspond to the number of bytes in its respective region. They each follow this format:
     * If length is less than 254, the length of the region is stored in a single byte.
     * If length is greater than or equal to 254 but less than 65,536, the first byte of the lenght segment should be 254 and the following two bytes is the length of the region.
     * If length is greater than or equal to 65,536, the first byte of the length segment should be 255 and the following four bytes is the length of the region.
@@ -37,219 +38,180 @@ A packet ID may have a specific "direction" of communication, in that an endpoin
 
 #### Server to Client
 
-<div style="display: flex; flex-wrap: wrap;">
-<!--
- <table class="float">
-  <thead>
-   <th colspan="100" class="center">
-    ID 0: Key Exchange<br />
-    Requester
-   </th>
-  </thead>
-  <thead>
-   <th colspan="2" class="right">#</th>
-   <th>Region</th>
-   <th>Type</th>
-  </thead>
-  <tr>
-  <td><i>s &isin; [0, 2]</i></td>
-   <td class="right">1</td>
-   <td>Step</td>
-   <td>Uint8</td>
-  </tr>
-  <tr>
-   <td><i>s = 0</i></td>
-   <td class="right">2</td>
-   <td>Generator</td>
-   <td>Big Int</td>
-  </tr>
-  <tr>
-   <td><i>s = 0</i></td>
-   <td class="right">3</td>
-   <td>Modulus</td>
-   <td>Big Int</td>
-  </tr>
-  <tr>
-   <td><i>s = 1</i></td>
-   <td class="right">2</td>
-   <td>Server Key</td>
-   <td>Big Int</td>
-  </tr>
- </table>
--->
- <table style="margin-right: 8px; margin-bottom: 8px;">
-  <thead>
-   <th colspan="100" class="center">
-    ID 0: Key Exchange<br />
-    Requester
-   </th>
-  </thead>
-  <thead>
-   <th>#</th>
-   <th>Region</th>
-   <th>Type</th>
-  </thead>
-  <tr>
-   <td>1</td>
-   <td>Generator</td>
-   <td>Big Int</td>
-  </tr>
-  <tr>
-   <td>2</td>
-   <td>Modulus</td>
-   <td>Big Int</td>
-  </tr>
-  <tr>
-   <td>3</td>
-   <td>Server Key</td>
-   <td>Big Int</td>
-  </tr>
- </table>
-
- <table style="margin-right: 8px; margin-bottom: 8px;">
-  <thead>
-   <th colspan="100" class="center">
-     ID 1: Login Attempt<br />
-     [Encrypted] Responder
-   </th>
-  </thead>
-  <thead>
-   <th>#</th>
-   <th>Region</th>
-   <th>Type</th>
-  </thead>
-  <tr>
-   <td class="center">1</td>
-   <td>Check Const</td>
-   <td>String</td>
-  </tr>
-  <tr>
-   <td class="center">2</td>
-   <td>Succeeded</td>
-   <td>Boolean</td>
-  </tr>
-  <tr> 
-   <td class="center">3</td>
-   <td>Message</td>
-   <td>String</td>
-  </tr>
- </table>
-
- <table style="margin-right: 8px; margin-bottom: 8px;">
-  <thead>
-   <th colspan="100" class="center">
-     ID 2: Registration Attempt<br />
-     [Encrypted] Responder
-   </th>
-  </thead>
-  <thead>
-   <th>#</th>
-   <th>Region</th>
-   <th>Type</th>
-  </thead>
-  <tr>
-   <td class="center">1</td>
-   <td>Check Const</td>
-   <td>String</td>
-  </tr>
-  <tr>
-   <td class="center">2</td>
-   <td>Succeeded</td>
-   <td>Boolean</td>
-  </tr>
-  <tr>
-   <td class="center">3</td>
-   <td>Message</td>
-   <td>String</td>
-  </tr>
- </table>
-</div>
+TODO: populate
 
 #### Client to Server
 
-<div style="display: flex; flex-wrap: wrap;">
- <table style="margin-right: 8px; margin-bottom: 8px;">
-  <thead>
-   <th colspan="100" class="center">
-     ID 0: Key Exchange<br />
-     Responder
-   </th>
-  </thead>
-  <thead>
-   <th>#</th>
-   <th>Region</th>
-   <th>Type</th>
-  </thead>
-  <tr>
-   <td class="center">1</td>
-   <td>Client Key</td>
-   <td>Big Int</td>
-  </tr>
- </table>
- 
- <table style="margin-right: 8px; margin-bottom: 8px;">
-  <thead>
-   <th colspan="100" class="center">
-     ID 1: Login Attempt<br />
-     [Encrypted] Requester
-   </th>
-  </thead>
-  <thead>
-   <th>#</th>
-   <th>Region</th>
-   <th>Type</th>
-  </thead>
-  <tr>
-   <td class="center">1</td>
-   <td>Check Const</td>
-   <td>String</td>
-  </tr>
-  <tr>
-   <td class="center">2</td>
-   <td>Username</td>
-   <td>String</td>
-  </tr>
-  <tr>
-   <td class="center">3</td>
-   <td>Password</td>
-   <td>String</td>
-  </tr>
- </table>
+TODO: populate
 
- <table style="margin-right: 8px; margin-bottom: 8px;">
-  <thead>
-   <th colspan="100" class="center">
-     ID 2: Registration Attempt<br />
-     [Encrypted] Requester
-   </th>
-  </thead>
-  <thead>
-   <th>#</th>
-   <th>Region</th>
-   <th>Type</th>
-  </thead>
-  <tr>
-   <td class="center">1</td>
-   <td>Check Const</td>
-   <td>String</td>
-  </tr>
-  <tr>
-   <td class="center">2</td>
-   <td>Username</td>
-   <td>String</td>
-  </tr>
-  <tr>
-   <td class="center">3</td>
-   <td>Password</td>
-   <td>String</td>
-  </tr>
-  <tr>
-   <td class="center">4</td>
-   <td>Email</td>
-   <td>String</td>
-  </tr>
- </table>
-</div>
+## Master/Slave Servers
+
+To keep track of the status of multiple servers from a centralized point that the client may query, each server must be able to communicate with a "master" server that will record and dispense information regarding all servers to clients. All servers that report to the master server will hereby be refered to as "slave" servers. 
+
+Communication between master and slave servers will be done over a UDP connection on a port that is defined by the master server's configuration. The protocol used for this communication is identical to the protocol defined for standard client/server communication; however, the [_Packet IDs_](#TODO) are defined differently.
+
+Communication between the master server and clients will be done over a WebSocket connection on a port that is defined by the master server's configuration. The protocol used for this communication is identical to the protocol defined for standard client/server communication; however, the [_Packet IDs_](#TODO) are defined differently.
+
+### Master/Slave Packet IDs
+
+#### Master to Slave
+
+<table style="margin-right: 8px; margin-bottom: 8px;">
+ <thead>
+  <th colspan="100" class="center">
+   ID 0: Key Exchange<br />
+   Requester
+  </th>
+ </thead>
+ <thead>
+  <th>#</th>
+  <th>Region</th>
+  <th>Type</th>
+ </thead>
+ <tr>
+  <td>1</td>
+  <td>Generator</td>
+  <td>Big Int</td>
+ </tr>
+ <tr>
+  <td>2</td>
+  <td>Modulus</td>
+  <td>Big Int</td>
+ </tr>
+ <tr>
+  <td>3</td>
+  <td>Server Key</td>
+  <td>Big Int</td>
+ </tr>
+</table>
+
+<table style="margin-right: 8px; margin-bottom: 8px;">
+ <thead>
+  <th colspan="100" class="center">
+    ID 1: Login Attempt<br />
+    [Encrypted] Responder
+  </th>
+ </thead>
+ <thead>
+  <th>#</th>
+  <th>Region</th>
+  <th>Type</th>
+ </thead>
+ <tr>
+  <td class="center">1</td>
+  <td>Succeeded</td>
+  <td>Boolean</td>
+ </tr>
+ <tr> 
+  <td class="center">2</td>
+  <td>Message</td>
+  <td>String</td>
+ </tr>
+</table>
+
+<table style="margin-right: 8px; margin-bottom: 8px;">
+ <thead>
+  <th colspan="100" class="center">
+    ID 2: Registration Attempt<br />
+    [Encrypted] Responder
+  </th>
+ </thead>
+ <thead>
+  <th>#</th>
+  <th>Region</th>
+  <th>Type</th>
+ </thead>
+ <tr>
+  <td class="center">1</td>
+  <td>Succeeded</td>
+  <td>Boolean</td>
+ </tr>
+ <tr>
+  <td class="center">2</td>
+  <td>Message</td>
+  <td>String</td>
+ </tr>
+</table>
+
+#### Slave to Master
+
+<table style="margin-right: 8px; margin-bottom: 8px;">
+ <thead>
+  <th colspan="100" class="center">
+    ID 0: Key Exchange<br />
+    Responder
+  </th>
+ </thead>
+ <thead>
+  <th>#</th>
+  <th>Region</th>
+  <th>Type</th>
+ </thead>
+ <tr>
+  <td class="center">1</td>
+  <td>Client Key</td>
+  <td>Big Int</td>
+ </tr>
+</table>
+
+<table style="margin-right: 8px; margin-bottom: 8px;">
+ <thead>
+  <th colspan="100" class="center">
+    ID 1: Login Attempt<br />
+    [Encrypted] Requester
+  </th>
+ </thead>
+ <thead>
+  <th>#</th>
+  <th>Region</th>
+  <th>Type</th>
+ </thead>
+ <tr>
+  <td class="center">1</td>
+  <td>Username</td>
+  <td>String</td>
+ </tr>
+ <tr>
+  <td class="center">2</td>
+  <td>Password</td>
+  <td>String</td>
+ </tr>
+</table>
+
+<table style="margin-right: 8px; margin-bottom: 8px;">
+ <thead>
+  <th colspan="100" class="center">
+    ID 2: Registration Attempt<br />
+    [Encrypted] Requester
+  </th>
+ </thead>
+ <thead>
+  <th>#</th>
+  <th>Region</th>
+  <th>Type</th>
+ </thead>
+ <tr>
+  <td class="center">1</td>
+  <td>Username</td>
+  <td>String</td>
+ </tr>
+ <tr>
+  <td class="center">2</td>
+  <td>Password</td>
+  <td>String</td>
+ </tr>
+ <tr>
+  <td class="center">3</td>
+  <td>Email</td>
+  <td>String</td>
+ </tr>
+</table>
+
+### Master/Client Packet IDs
+
+#### Master to Client
+
+#### Client to Master
 
 ## Sockstamps
 

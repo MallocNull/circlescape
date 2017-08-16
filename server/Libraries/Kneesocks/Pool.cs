@@ -20,6 +20,9 @@ namespace Kneesocks {
         // maximum number of threads that will be spawned
         // 0 means no limit
         public int MaxCount { get; set; } = 0;
+        // maximum amount of total connections in the pool
+        // 0 means no limit
+        public int MaxTotal { get; set; } = 0;
         // maximum number of connections in a thread that exceeds the calculated
         // amount for the pool's thread count before the connection redistribution
         // function is called
@@ -79,6 +82,9 @@ namespace Kneesocks {
 
         public bool AddConnection(T connection) {
             if(Disposed)
+                return false;
+
+            if(MaxTotal != 0 && Connections.Count >= MaxTotal)
                 return false;
 
             lock(Threads) {

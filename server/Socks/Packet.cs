@@ -7,27 +7,29 @@ using Glove;
 
 namespace SockScape {
     class Packet {
+        private static readonly byte[] MagicNumber = { 0xF0, 0x9F, 0xA6, 0x91 };
+
         public enum kId {
             KeyExchange = 0,
             LoginAttempt,
             RegistrationAttempt
         }
-        
-        private static Packet ErrorPacket {
-            get => new Packet { IsLegal = false };
-        }
 
         public static Packet FromBytes(byte[] raw) {
-            if(raw.Length < 3)
-                return ErrorPacket;
+            if(raw.Length < 7)
+                return null;
 
             Packet packet = new Packet();
-            if(!Enum.IsDefined(typeof(kId), (int)raw[0]))
-                return ErrorPacket;
-            packet.Id = (kId)raw[0];
-            var regionCount = raw[1];
+            if(!Enum.IsDefined(typeof(kId), (int)raw[4]))
+                return null;
+
+            if(!raw.Subset(0, 4).SequenceEqual(MagicNumber))
+                return null;
+
+            packet.Id = (kId)raw[4];
+            var regionCount = raw[5];
             var regionLengths = new List<uint>();
-            var headerPtr = 2;
+            var headerPtr = 6;
             for(var i = 0; i < regionCount; ++i) {
                 regionLengths.Add(0);
                 var first = raw[headerPtr];
@@ -36,22 +38,22 @@ namespace SockScape {
                     ++headerPtr;
                 } else if(first == 254) {
                     if(headerPtr + 3 < raw.Length)
-                        return ErrorPacket;
+                        return null;
                     regionLengths[i] = raw.Subset(headerPtr + 1, 2).UnpackUInt16();
                     headerPtr += 3;
                 } else {
                     if(headerPtr + 5 < raw.Length)
-                        return ErrorPacket;
+                        return null;
                     regionLengths[i] = raw.Subset(headerPtr + 1, 4).UnpackUInt32();
                     headerPtr += 5;
                 }
 
                 if(headerPtr > raw.Length)
-                    return ErrorPacket;
+                    return null;
             }
 
             if(headerPtr + regionLengths.Sum(x => x) > raw.Length)
-                return ErrorPacket;
+                return null;
              
             long bodyPtr = headerPtr;
             foreach(var regionLength in regionLengths) {
@@ -96,10 +98,11 @@ namespace SockScape {
             if(!IsLegal)
                 return null;
 
-            var header = new List<byte> {
-                (byte)Id,
-                (byte)RegionCount
-            };
+            var header = new List<byte>();
+            header.AddRange(MagicNumber);
+            header.Add((byte)Id);
+            header.Add((byte)RegionCount);
+            
             IEnumerable<byte> body = new byte[0];
             foreach(var region in Regions) {
                 if(region.Length < 0xFE)

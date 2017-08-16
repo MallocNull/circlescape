@@ -5,6 +5,8 @@ const enum kPacketId {
 }
 
 class Packet {
+    private static magicNumber: Uint8Array = new Uint8Array([0xF0, 0x9F, 0xA6, 0x91]);
+
     private _id: kPacketId;
     public get id(): kPacketId {
         return this._id;
@@ -47,10 +49,14 @@ class Packet {
 
     public static fromBytes(bytes: Uint8Array): Packet {
         var packet = new Packet;
-        packet._id = bytes[0];
-        var regionCount = bytes[1];
+
+        if(!bytes.subarray(0, 4).every((v, i) => v === Packet.magicNumber[i]))
+            return null;
+
+        packet._id = bytes[4];
+        var regionCount = bytes[5];
         var regionLengths = [];
-        var ptr = 2;
+        var ptr = 6;
         for(var i = 0; i < regionCount; ++i) {
             if(bytes[ptr] < 0xFE)
                 regionLengths.push(bytes[ptr]);
@@ -74,7 +80,7 @@ class Packet {
     }
 
     public getBytes(): Uint8Array {
-        var headerSize = 2, bodySize = 0;
+        var headerSize = 6, bodySize = 0;
         this._regions.forEach(region => {
             bodySize += region.byteLength;
 
@@ -86,9 +92,10 @@ class Packet {
         });
 
         var buffer = new Uint8Array(headerSize + bodySize);
-        var headerPtr = 2, bodyPtr = headerSize;
-        buffer[0] = this._id % 256;
-        buffer[1] = this._regions.length;
+        var headerPtr = 6, bodyPtr = headerSize;
+        buffer.set(Packet.magicNumber, 0);
+        buffer[4] = this._id % 256;
+        buffer[5] = this._regions.length;
         this._regions.forEach(region => {
             var regionLength = region.byteLength;
             if(regionLength < 0xFE)
