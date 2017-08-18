@@ -25,6 +25,17 @@ namespace SockScape {
                     },
 
                     new SectionRules {
+                        Name = "Database",
+                        Required = true,
+                        RequiredFields = new string[] {
+                            "Server",
+                            "Username",
+                            "Password",
+                            "Database"
+                        }
+                    },
+
+                    new SectionRules {
                         Name = "Server",
                         AllowMultiple = true,
                         Required = true,
@@ -44,6 +55,12 @@ namespace SockScape {
         public static Instance General {
             get {
                 return Settings["General"][0];
+            }
+        }
+
+        public static Instance Database {
+            get {
+                return Settings["Database"][0];
             }
         }
 

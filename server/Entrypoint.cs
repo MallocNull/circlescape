@@ -31,8 +31,6 @@ namespace SockScape {
                 servers.Add(server["Id"], new Server<PlayerConnection>((ushort)server["Port"], pool, server));
             }
 
-
-
             //var server = new Server<PlayerConnection>(6770, PoolManager.Pending);
             //server.Start();
 

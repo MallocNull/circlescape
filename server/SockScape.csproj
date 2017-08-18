@@ -7,7 +7,7 @@
     <ProjectGuid>{438DBAC1-BA37-40BB-9CCE-0FE1F23C6DC5}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CircleScape</RootNamespace>
+    <RootNamespace>SockScape</RootNamespace>
     <AssemblyName>server</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -87,17 +87,16 @@
     <Compile Include="Socks\MasterConnection.cs" />
     <Compile Include="Socks\MasterUdpClient.cs" />
     <Compile Include="Socks\MasterUdpServer.cs" />
-    <Compile Include="Socks\Packet.cs" />
+    <Compile Include="Socks\Protocols\ClientServerIds.cs" />
+    <Compile Include="Socks\Protocols\InterMasterIds.cs" />
+    <Compile Include="Socks\Protocols\IntraMasterIds.cs" />
+    <Compile Include="Socks\Protocols\Packet.cs" />
     <Compile Include="Entrypoint.cs" />
     <Compile Include="Socks\PlayerConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="connectionStrings.config">
-      <DependentUpon>App.config</DependentUpon>
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config">

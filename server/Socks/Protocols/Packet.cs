@@ -9,24 +9,16 @@ namespace SockScape {
     class Packet {
         private static readonly byte[] MagicNumber = { 0xF0, 0x9F, 0xA6, 0x91 };
 
-        public enum kId {
-            KeyExchange = 0,
-            LoginAttempt,
-            RegistrationAttempt
-        }
-
         public static Packet FromBytes(byte[] raw) {
             if(raw.Length < 7)
                 return null;
 
             Packet packet = new Packet();
-            if(!Enum.IsDefined(typeof(kId), (int)raw[4]))
-                return null;
 
             if(!raw.Subset(0, 4).SequenceEqual(MagicNumber))
                 return null;
 
-            packet.Id = (kId)raw[4];
+            packet.Id = raw[4];
             var regionCount = raw[5];
             var regionLengths = new List<uint>();
             var headerPtr = 6;
@@ -66,15 +58,14 @@ namespace SockScape {
         }
         
         private List<byte[]> Regions = new List<byte[]>();
-        public kId Id { get; private set; } = kId.KeyExchange;
-        public bool IsLegal { get; private set; } = true;
+        public int Id { get; private set; }
         public int RegionCount {
             get => Regions.Count;
         }
 
-        private Packet() { }
+        protected Packet() { }
 
-        public Packet(kId id, params object[] regions) {
+        public Packet(int id, params object[] regions) {
             Id = id;
 
             foreach(var region in regions)
@@ -95,9 +86,6 @@ namespace SockScape {
         }
 
         public byte[] GetBytes() {
-            if(!IsLegal)
-                return null;
-
             var header = new List<byte>();
             header.AddRange(MagicNumber);
             header.Add((byte)Id);

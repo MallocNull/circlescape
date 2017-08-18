@@ -23,21 +23,43 @@ namespace SockScape.Encryption {
 
         public Packet GenerateRequestPacket() {
             return new Packet(
-                Packet.kId.KeyExchange, 
+                1, 
                 Generator.ToHexString(), 
                 Modulus.ToHexString(), 
                 BigInteger.ModPow(Generator, Secret, Modulus).ToHexString()
             );
         }
 
+        public Packet ParseRequestPacket(Packet packet) {
+            if(packet.Id != 1 || packet.RegionCount != 3)
+                return null;
+
+            bool check = BigInteger.TryParse(packet[0], NumberStyles.HexNumber, 
+                NumberFormatInfo.InvariantInfo, out BigInteger generator);
+            check &= BigInteger.TryParse(packet[1], NumberStyles.HexNumber,
+                NumberFormatInfo.InvariantInfo, out BigInteger modulus);
+            check &= BigInteger.TryParse(packet[2], NumberStyles.HexNumber,
+                NumberFormatInfo.InvariantInfo, out BigInteger serverKey);
+
+            if(!check)
+                return null;
+
+            var clientKey = BigInteger.ModPow(generator, Secret, modulus);
+            PrivateKey = BigInteger.ModPow(serverKey, Secret, modulus);
+            return new Packet(
+                1,
+                clientKey.ToHexString()
+            );
+        }
+
         public BigInteger ParseResponsePacket(Packet packet) {
-            if(packet.Id != Packet.kId.KeyExchange || packet.RegionCount != 1)
+            if(packet.Id != 1 || packet.RegionCount != 1)
                 return -1;
 
-            if(!BigInteger.TryParse(packet[0], NumberStyles.HexNumber, NumberFormatInfo.InvariantInfo, out BigInteger ClientKey))
+            if(!BigInteger.TryParse(packet[0], NumberStyles.HexNumber, NumberFormatInfo.InvariantInfo, out BigInteger clientKey))
                 return -1;
 
-            return (PrivateKey = BigInteger.ModPow(ClientKey, Secret, Modulus));
+            return (PrivateKey = BigInteger.ModPow(clientKey, Secret, Modulus));
         }
     }
 }

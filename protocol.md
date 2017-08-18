@@ -36,6 +36,8 @@ All numbers, unless otherwise specified, are the string representation of a base
 
 A packet ID may have a specific "direction" of communication, in that an endpoint may either act as a _requester_ or a _responder_. A _requester_ is an endpoint that drives all of the communication on that specific packet ID, while the _responder_ is responsible for providing a timely response to the requests it receives. A _responder_ for a specific packet ID should never send that packet ID unsolicited; either the packet will be ignored or the other endpoint will close the connection. Any packet ID marked as bidirectional may be initiated by either endpoint at any time.
 
+A _blind requester_ is an endpoint that sends out a packet of a certain ID and either does not expect a response or expects a response on a different packet ID.
+
 #### Server to Client
 
 TODO: populate
@@ -59,7 +61,80 @@ Communication between the master server and clients will be done over a WebSocke
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-   ID 0: Key Exchange<br />
+   ID 1: Key Exchange<br />
+   Requester (resp. StM ID 0)
+  </th>
+ </thead>
+ <thead>
+  <th>#</th>
+  <th>Region</th>
+  <th>Type</th>
+ </thead>
+ <tr>
+  <td>1</td>
+  <td>Generator</td>
+  <td>Big Int</td>
+ </tr>
+ <tr>
+  <td>2</td>
+  <td>Modulus</td>
+  <td>Big Int</td>
+ </tr>
+ <tr>
+  <td>3</td>
+  <td>Server Key</td>
+  <td>Big Int</td>
+ </tr>
+</table>
+
+#### Slave to Master
+
+<table style="margin-right: 8px; margin-bottom: 8px;">
+ <thead>
+  <th colspan="100" class="center">
+    ID 0: Initiation Attempt<br />
+    Blind Requester
+  </th>
+ </thead>
+ <thead>
+  <th>#</th>
+  <th>Region</th>
+  <th>Type</th>
+ </thead>
+ <tr>
+  <td class="center">1</td>
+  <td>Secret</td>
+  <td>String</td>
+ </tr>
+</table>
+
+<table style="margin-right: 8px; margin-bottom: 8px;">
+ <thead>
+  <th colspan="100" class="center">
+    ID 1: Key Exchange<br />
+    Responder
+  </th>
+ </thead>
+ <thead>
+  <th>#</th>
+  <th>Region</th>
+  <th>Type</th>
+ </thead>
+ <tr>
+  <td class="center">1</td>
+  <td>Client Key</td>
+  <td>Big Int</td>
+ </tr>
+</table>
+
+### Master/Client Packet IDs
+
+#### Master to Client
+
+<table style="margin-right: 8px; margin-bottom: 8px;">
+ <thead>
+  <th colspan="100" class="center">
+   ID 1: Key Exchange<br />
    Requester
   </th>
  </thead>
@@ -88,7 +163,7 @@ Communication between the master server and clients will be done over a WebSocke
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 1: Login Attempt<br />
+    ID 2: Login Attempt<br />
     [Encrypted] Responder
   </th>
  </thead>
@@ -112,7 +187,7 @@ Communication between the master server and clients will be done over a WebSocke
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 2: Registration Attempt<br />
+    ID 3: Registration Attempt<br />
     [Encrypted] Responder
   </th>
  </thead>
@@ -133,12 +208,12 @@ Communication between the master server and clients will be done over a WebSocke
  </tr>
 </table>
 
-#### Slave to Master
+#### Client to Master
 
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 0: Key Exchange<br />
+    ID 1: Key Exchange<br />
     Responder
   </th>
  </thead>
@@ -149,15 +224,15 @@ Communication between the master server and clients will be done over a WebSocke
  </thead>
  <tr>
   <td class="center">1</td>
-  <td>Client Key</td>
-  <td>Big Int</td>
+  <td>Secret</td>
+  <td>String</td>
  </tr>
 </table>
 
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 1: Login Attempt<br />
+    ID 2: Login Attempt<br />
     [Encrypted] Requester
   </th>
  </thead>
@@ -181,7 +256,7 @@ Communication between the master server and clients will be done over a WebSocke
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 2: Registration Attempt<br />
+    ID 3: Registration Attempt<br />
     [Encrypted] Requester
   </th>
  </thead>
@@ -206,12 +281,6 @@ Communication between the master server and clients will be done over a WebSocke
   <td>String</td>
  </tr>
 </table>
-
-### Master/Client Packet IDs
-
-#### Master to Client
-
-#### Client to Master
 
 ## Sockstamps
 

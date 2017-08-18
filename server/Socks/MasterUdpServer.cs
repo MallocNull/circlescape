@@ -28,7 +28,7 @@ namespace SockScape.Socks {
         public static void Listener() {
             while(IsOpen) {
                 while(Sock.Available > 0) {
-
+                     
                 }
 
                 Thread.Sleep(1);
