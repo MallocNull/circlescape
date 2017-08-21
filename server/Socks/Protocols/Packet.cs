@@ -57,11 +57,10 @@ namespace SockScape {
             return packet;
         }
         
-        private List<byte[]> Regions = new List<byte[]>();
+        private readonly List<byte[]> Regions = new List<byte[]>();
         public int Id { get; private set; }
-        public int RegionCount {
-            get => Regions.Count;
-        }
+        public int RegionCount
+            => Regions.Count;
 
         protected Packet() { }
 
@@ -72,9 +71,8 @@ namespace SockScape {
                 AddRegion(region);
         }
 
-        public Region this[int i] {
-            get => new Region(Regions[i]);
-        }
+        public Region this[int i] 
+            => new Region(Regions[i]);
 
         public Packet AddRegion(object region) {
             if(region.GetType() == typeof(byte[]))
@@ -110,16 +108,15 @@ namespace SockScape {
         }
 
         public class Region {
-            public byte[] Data { get; private set; }
+            public byte[] Data { get; }
 
             public Region(byte[] data) {
                 Data = data;
             }
 
             public static implicit operator byte[] (Region region) => region.Data;
-            public string Bytes {
-                get => this;
-            }
+            public string Bytes
+                => this;
 
             public static implicit operator string(Region region) {
                 try {
@@ -128,9 +125,8 @@ namespace SockScape {
                     return Encoding.ASCII.GetString(region.Data);
                 }
             }
-            public string Str {
-                get => this;
-            }
+            public string Str
+                => this;
         }
     }
 }

@@ -34,14 +34,14 @@ namespace Kneesocks {
             get => Enum.GetName(typeof(kStatusCode), StatusCode).Replace('_', ' ');
         }
 
-        private Dictionary<string, string> Headers =
-            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> Headers =
+                     new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         public string Content { get; set; } = null;
 
         public Handshake(string rawData) {
             IsRequest = true;
 
-            var headerLength = rawData.IndexOf("\r\n\r\n");
+            var headerLength = rawData.IndexOf("\r\n\r\n", StringComparison.InvariantCulture);
             if(headerLength == -1)
                 throw new FormatException("Header delimeter not found in raw data");
 
@@ -57,14 +57,14 @@ namespace Kneesocks {
                     if(parts.Length < 3)
                         throw new FormatException("Status line in header malformed");
                 } else {
-                    parts = line.Trim().Split(new char[] {':'}, 2);
+                    parts = line.Trim().Split(new[] {':'}, 2);
                     if(parts.Length == 2)
                         Headers.Add(parts[0].Trim(), parts[1].Trim());
                 }
             }
 
             if(Headers.ContainsKey("Content-Length")) {
-                rawData.Substring(headerLength + 4, int.Parse(Headers["Content-Length"]));
+                Content = rawData.Substring(headerLength + 4, int.Parse(Headers["Content-Length"]));
             } else {
                 if(rawData.Length > headerLength + 4)
                     Content = rawData.Substring(headerLength + 4);
@@ -106,7 +106,7 @@ namespace Kneesocks {
             var raw = "HTTP/"+ HttpVersion +" "+ (int)StatusCode + " "+ StatusCodeText +"\r\n";
             foreach(var header in Headers)
                 raw += header.Key.Trim() + ": " + header.Value.Trim() + "\r\n";
-            return raw += "\r\n";
+            return raw + "\r\n";
         }
 
         public bool HasHeader(string name) => Headers.ContainsKey(name);

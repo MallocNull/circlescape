@@ -17,17 +17,16 @@ namespace Kneesocks {
             get {
                 if(_Id == null)
                     throw new ArgumentNullException();
-                else
-                    return (UInt64)_Id;
+                
+                return (UInt64)_Id;
             }
             set {
                 if(_Id == null)
                     _Id = value;
             }
         }
-        internal bool IsIdNull {
-            get => _Id == null;
-        }
+        internal bool IsIdNull
+            => _Id == null;
 
         private TcpClient Socket = null;
         private NetworkStream Stream = null;
@@ -43,12 +42,11 @@ namespace Kneesocks {
 
         protected const int PingInterval    = 30;
         protected const int TimeoutInterval = 120;
-        private byte[] PingData = Encoding.ASCII.GetBytes("woomy!");
+        private readonly byte[] PingData = Encoding.ASCII.GetBytes("woomy!");
         private DateTime LastPing;
         private bool AwaitingPingResponse = false;
-        private TimeSpan TimeSinceLastPing {
-            get => DateTime.UtcNow - LastPing;
-        }
+        private TimeSpan TimeSinceLastPing
+            => DateTime.UtcNow - LastPing;
 
         internal bool OutsidePool = false;
         public bool Disconnected { get; private set; } = false;
@@ -57,11 +55,8 @@ namespace Kneesocks {
         public bool Handshaked { get; private set; } = false;
         public Handshake ClientHandshake { get; private set; } = null;
 
-        public IPAddress IP {
-            get {
-                return ((IPEndPoint)Socket.Client.RemoteEndPoint).Address;
-            }
-        }
+        public IPAddress IP
+            => ((IPEndPoint)Socket.Client.RemoteEndPoint).Address;
 
         public void Initialize(TcpClient sock) {
             if(Initialized)
@@ -117,7 +112,7 @@ namespace Kneesocks {
             int frameCount = singleFrame ? 0 : (message.Length / MaximumSendFrameSize);
             for(var i = 0; i <= frameCount; ++i) {
                 SendFrameBuffer.Add(new Frame {
-                    IsFinal = (i == frameCount && isFinal) ? true : false,
+                    IsFinal = (i == frameCount && isFinal),
                     IsMasked = false,
                     Opcode = (i == 0 || (singleFrame && first)) ? Frame.kOpcode.BinaryFrame : Frame.kOpcode.Continuation,
                     Content = message.Subset(i * (MaximumSendFrameSize + 1), MaximumSendFrameSize)
@@ -143,10 +138,9 @@ namespace Kneesocks {
                 if(stream.Position == stream.Length) {
                     _Send(bytesRead == MaximumSendFrameSize ? byteBuffer : byteBuffer.Take(bytesRead).ToArray(), true, true, firstRead);
                     return;
-                } else {
-                    _Send(bytesRead == MaximumSendFrameSize ? byteBuffer : byteBuffer.Take(bytesRead).ToArray(), false, true, firstRead);
                 }
 
+                _Send(bytesRead == MaximumSendFrameSize ? byteBuffer : byteBuffer.Take(bytesRead).ToArray(), false, true, firstRead);
                 firstRead = false;
             }
         }

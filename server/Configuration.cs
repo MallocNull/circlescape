@@ -7,7 +7,7 @@ using Glove.INI;
 
 namespace SockScape {
     public static class Configuration {
-        private static SettingsFile Settings;
+        private static readonly SettingsFile Settings;
 
         static Configuration() {
             Settings = new SettingsFile(
@@ -16,7 +16,7 @@ namespace SockScape {
                     new SectionRules {
                         Name = "General",
                         Required = true,
-                        RequiredFields = new string[] {
+                        RequiredFields = new[] {
                             "Run Master",
                             "Master Port",
                             "Master Addr",
@@ -27,7 +27,7 @@ namespace SockScape {
                     new SectionRules {
                         Name = "Database",
                         Required = true,
-                        RequiredFields = new string[] {
+                        RequiredFields = new[] {
                             "Server",
                             "Username",
                             "Password",
@@ -39,7 +39,7 @@ namespace SockScape {
                         Name = "Server",
                         AllowMultiple = true,
                         Required = true,
-                        RequiredFields = new string[] {
+                        RequiredFields = new[] {
                             "Id",
                             "Port"
                         }
@@ -52,22 +52,13 @@ namespace SockScape {
             return Settings[section];
         }
 
-        public static Instance General {
-            get {
-                return Settings["General"][0];
-            }
-        }
+        public static Instance General 
+            => Settings["General"][0];
 
-        public static Instance Database {
-            get {
-                return Settings["Database"][0];
-            }
-        }
+        public static Instance Database
+            => Settings["Database"][0];
 
-        public static Section Servers {
-            get {
-                return Settings["Server"];
-            }
-        }
+        public static Section Servers 
+            => Settings["Server"];
     }
 }

@@ -5,7 +5,7 @@ namespace SockScape.Migrations
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<SockScape.DAL.ScapeDb>
+    internal sealed class Configuration : DbMigrationsConfiguration<DAL.ScapeDb>
     {
         public Configuration()
         {
@@ -13,7 +13,7 @@ namespace SockScape.Migrations
             AutomaticMigrationsEnabled = false;
         }
 
-        protected override void Seed(SockScape.DAL.ScapeDb context)
+        protected override void Seed(DAL.ScapeDb context)
         {
             //  This method will be called after migrating to the latest version.
 

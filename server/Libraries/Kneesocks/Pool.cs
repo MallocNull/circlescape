@@ -33,11 +33,11 @@ namespace Kneesocks {
         private int _fullThreadCount;
         private volatile bool updateFullThreadCount = true;
 
-        private List<ThreadContext> Threads
+        private readonly List<ThreadContext> Threads
             = new List<ThreadContext>();
 
         private long InternalCounter = 0;
-        private Dictionary<UInt64, T> Connections
+        private readonly Dictionary<UInt64, T> Connections
             = new Dictionary<UInt64, T>();
 
         public Pool() {
@@ -47,9 +47,11 @@ namespace Kneesocks {
 
         public T this[UInt64 id] {
             get {
-                if(HasConnection(id))
-                    return Connections[id];
-                else return null;
+                lock (Connections) {
+                    if (HasConnection(id))
+                        return Connections[id];
+                    else return null;
+                }
             }
         }
 
@@ -108,7 +110,7 @@ namespace Kneesocks {
 
         internal void InvalidateThread(Stack<T> stackRef) {
             lock(Threads) {
-                var ctx = Threads.FirstOrDefault(x => Object.ReferenceEquals(x.Stack, stackRef));
+                var ctx = Threads.FirstOrDefault(x => ReferenceEquals(x.Stack, stackRef));
                 if(ctx != null) {
                     Threads.Remove(ctx);
                     updateFullThreadCount = true;
@@ -120,7 +122,7 @@ namespace Kneesocks {
             var stack = new Stack<T>(this, runWithNoClients, initialConnection);
             var ctx = new ThreadContext {
                 Stack = stack,
-                Thread = new Thread(new ThreadStart(stack.ManageStack))
+                Thread = new Thread(stack.ManageStack)
             };
 
             ctx.Thread.Start();

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Glove.INI {
     public class Section : IEnumerable<Instance> {
-        private List<Instance> Instances = new List<Instance>();
+        private readonly List<Instance> Instances = new List<Instance>();
 
         internal Section() { }
 
@@ -16,23 +16,13 @@ namespace Glove.INI {
             return Instances[Instances.Count - 1];
         }
 
-        public string this[string key] {
-            get {
-                return Instances[0][key];
-            }
-        }
+        public string this[string key]
+            => Instances[0][key];
 
-        public Instance this[int i] {
-            get {
-                return Instances[i];
-            }
-        }
+        public Instance this[int i]
+            => Instances[i];
 
-        public int Count {
-            get {
-                return Instances.Count;
-            }
-        }
+        public int Count => Instances.Count;
 
         IEnumerator IEnumerable.GetEnumerator() {
             return Instances.GetEnumerator();

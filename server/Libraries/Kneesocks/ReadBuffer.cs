@@ -12,25 +12,24 @@ namespace Kneesocks {
         private List<byte> Buffer;
         private int ExpectedLength;
         private string ExpectedString;
-        private NetworkStream Source;
+        private readonly NetworkStream Source;
         private DateTime StartTime;
 
-        public bool IsReading { get; private set; } = false;
+        public bool IsReading { get; private set; }
 
         public ReadBuffer(NetworkStream source) {
             Source = source;
             Buffer = new List<byte>();
         }
 
-        public TimeSpan ElapsedReadTime {
-            get => DateTime.UtcNow - StartTime;
-        }
+        public TimeSpan ElapsedReadTime
+            => DateTime.UtcNow - StartTime;
 
         private byte[] CheckBuffer() {
             byte[] returnValue = null;
 
             if(ExpectedString != null) {
-                var location = Encoding.ASCII.GetString(Buffer.ToArray()).IndexOf(ExpectedString);
+                var location = Encoding.ASCII.GetString(Buffer.ToArray()).IndexOf(ExpectedString, StringComparison.InvariantCulture);
                 if(location != -1) {
                     var fullJump = location + ExpectedString.Length;
                     returnValue = Buffer.Take(fullJump).ToArray();

@@ -7,8 +7,8 @@
     <ProjectGuid>{054F172E-9683-40BC-8BDD-7671340EC193}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Square</RootNamespace>
-    <AssemblyName>Square</AssemblyName>
+    <RootNamespace>Glove</RootNamespace>
+    <AssemblyName>Glove</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

@@ -13,6 +13,7 @@ namespace SockScape.DAL {
         
         public ScapeDb()
             : base("server="+ Config.Database["Server"] 
+                  +";port="+ (Config.Database["Port"] ?? "3306")
                   +";user id="+ Config.Database["Username"] 
                   +";password="+ Config.Database["Password"]
                   +";persistsecurityinfo=True;"
@@ -25,9 +26,8 @@ namespace SockScape.DAL {
         public DbSet<Origin> Origins { get; set; }
         public DbSet<Session> Sessions { get; set; }
 
-
-        protected override void OnModelCreating(DbModelBuilder modelBuilder) {
-            base.OnModelCreating(modelBuilder);
+        protected override void OnModelCreating(DbModelBuilder builder) {
+            base.OnModelCreating(builder);
         }
     }
 }

@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace Glove.INI {
     public class Instance : IEnumerable<KeyValuePair<string, Value>> {
-        private Dictionary<string, Value> Data 
+        private readonly Dictionary<string, Value> Data 
             = new Dictionary<string, Value>(StringComparer.OrdinalIgnoreCase);
 
         internal Instance() { }
 
         internal void Push(string line) {
             if(line.Contains('=')) {
-                var parts = line.Split(new char[] { '=' }, 2);
+                var parts = line.Split(new[] { '=' }, 2);
                 Data.Add(parts[0].Trim(), new Value(parts[1].Trim()));
             } else
                 throw new FormatException("Line is not a key-value pair delimited by an equals sign.");

@@ -7,12 +7,12 @@ using System.Threading;
 
 namespace Kneesocks {
     internal class Stack<T> where T : Connection {
-        private Pool<T> PoolRef = null;
-        private List<T> Clients = new List<T>();
-        private bool RunWithNoClients = false;
+        private readonly Pool<T> PoolRef;
+        private readonly List<T> Clients = new List<T>();
+        private readonly bool RunWithNoClients;
         private bool Running = true;
 
-        public bool Finished { get; private set; } = false;
+        public bool Finished { get; private set; }
 
         public Stack(Pool<T> poolRef, T initialConnection = null) {
             PoolRef = poolRef;

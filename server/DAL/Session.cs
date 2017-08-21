@@ -14,14 +14,14 @@ namespace SockScape.DAL {
         public int UserId { get; set; }
         public virtual User User { get; set; }
 
+
+
         protected string RawIp { get; set; }
+
+        [NotMapped]
         public IPAddress Ip {
-            get {
-                return IPAddress.Parse(RawIp);
-            }
-            set {
-                RawIp = value.ToString();
-            }
+            get => IPAddress.Parse(RawIp);
+            set => RawIp = value.ToString();
         }
 
         public int ServerId { get; set; }

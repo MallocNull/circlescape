@@ -8,8 +8,8 @@ using Glove;
 
 namespace SockScape.Encryption {
     class Cipher {
-        private byte[] Key = new byte[512 / 8];
-        private byte[] State = new byte[256];
+        private readonly byte[] Key = new byte[512 / 8];
+        private readonly byte[] State = new byte[256];
 
         public Cipher(BigInteger key) {
             int i = 0, j = 0;

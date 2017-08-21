@@ -10,7 +10,7 @@ using SockScape.Encryption;
 namespace SockScape {
     class MasterConnection : Connection {
         private Key Key;
-        public Cipher Encryptor { get; private set; } = null;
+        public Cipher Encryptor { get; private set; }
         
         protected override void OnOpen() {
             Key = new Key();

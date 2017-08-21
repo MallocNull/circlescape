@@ -7,7 +7,8 @@ using System.Numerics;
 
 namespace Glove {
     public static class RNG {
-        private static Random RandCtx = new Random();
+        // TODO add cryptographically secure rng
+        private static readonly Random RandCtx = new Random();
 
         public static int Next() {
             lock(RandCtx) {

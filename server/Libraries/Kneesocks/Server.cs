@@ -35,7 +35,7 @@ namespace Kneesocks {
         public Server(UInt16 port, Pool<T> pool, object config = null) {
             Port = port;
             Socket = new TcpListener(IPAddress.Any, port);
-            Listener = new Thread(new ThreadStart(ListenThread));
+            Listener = new Thread(ListenThread);
             ConnectionPool = pool;
             Configuration = config;
         }

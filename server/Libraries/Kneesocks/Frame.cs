@@ -50,7 +50,7 @@ namespace Kneesocks {
 
         private int _BodyLength = 0;
         public int BodyLength {
-            get => Content == null ? _BodyLength : Content.Length;
+            get => Content?.Length ?? _BodyLength;
         }
 
         public byte[] Content { get; set; } = null;
@@ -159,7 +159,7 @@ namespace Kneesocks {
                 throw new FormatException("Raw frame length ("+ (uint)raw.Length + ") is less than described size ("+ expectedFrameLength + ")");
 
             returnFrame.Content = new byte[returnFrame.BodyLength];
-            Array.Copy(raw, returnFrame.HeaderLength, returnFrame.Content, 0L, (long)returnFrame.BodyLength);
+            Array.Copy(raw, returnFrame.HeaderLength, returnFrame.Content, 0L, returnFrame.BodyLength);
             if(returnFrame.IsMasked)
                 returnFrame.Content = returnFrame.MaskedContent;
 

@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 namespace SockScape.Socks {
     static class MasterUdpServer {
         private static UdpClient Sock;
-        private static Thread ListeningThread = null;
-        private static bool IsOpen = false;
+        private static Thread ListeningThread;
+        private static bool IsOpen;
 
         public static void Initialize() {
             if(!IsOpen && ListeningThread == null)
@@ -21,7 +21,7 @@ namespace SockScape.Socks {
             Sock = new UdpClient(port);
             
             IsOpen = true;
-            ListeningThread = new Thread(new ThreadStart(Listener));
+            ListeningThread = new Thread(Listener);
             ListeningThread.Start();
         }
 

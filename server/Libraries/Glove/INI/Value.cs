@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Glove.INI {
     public class Value {
-        private string Raw;
+        private readonly string Raw;
 
         public Value(string raw) {
             Raw = raw;
@@ -17,9 +17,7 @@ namespace Glove.INI {
         }
 
         public static implicit operator bool(Value value) {
-            return Boolean.TryParse(value.Raw, out bool retval)
-                ? retval
-                : false;
+            return Boolean.TryParse(value.Raw, out bool retval) && retval;
         }
 
         public static implicit operator Int32(Value value) {

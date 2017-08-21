@@ -9,13 +9,12 @@ using System.Globalization;
 
 namespace SockScape.Encryption {
     class Key {
-        private readonly static BigInteger Secret = RNG.NextPrime(512 / 8);
-        public BigInteger Generator { get; private set; } = 2;
-        public BigInteger Modulus { get; private set; }
+        private static readonly BigInteger Secret = RNG.NextPrime(512 / 8);
+        public BigInteger Generator { get; } = 2;
+        public BigInteger Modulus { get; }
         public BigInteger PrivateKey { get; private set; } = BigInteger.Zero;
-        public bool Succeeded {
-            get => !PrivateKey.IsZero;
-        }
+        public bool Succeeded 
+            => !PrivateKey.IsZero;
 
         public Key() {
             Modulus = RNG.NextPrime(512 / 8);
@@ -34,7 +33,7 @@ namespace SockScape.Encryption {
             if(packet.Id != 1 || packet.RegionCount != 3)
                 return null;
 
-            bool check = BigInteger.TryParse(packet[0], NumberStyles.HexNumber, 
+            var check = BigInteger.TryParse(packet[0], NumberStyles.HexNumber, 
                 NumberFormatInfo.InvariantInfo, out BigInteger generator);
             check &= BigInteger.TryParse(packet[1], NumberStyles.HexNumber,
                 NumberFormatInfo.InvariantInfo, out BigInteger modulus);
@@ -59,7 +58,7 @@ namespace SockScape.Encryption {
             if(!BigInteger.TryParse(packet[0], NumberStyles.HexNumber, NumberFormatInfo.InvariantInfo, out BigInteger clientKey))
                 return -1;
 
-            return (PrivateKey = BigInteger.ModPow(clientKey, Secret, Modulus));
+            return PrivateKey = BigInteger.ModPow(clientKey, Secret, Modulus);
         }
     }
 }
