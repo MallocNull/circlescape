@@ -46,7 +46,7 @@ namespace Glove.INI {
                     if(rule.RequiredFields.Length > 0) {
                         foreach(var instance in section) {
                             foreach(var field in rule.RequiredFields) {
-                                if(instance.ContainsKey(field))
+                                if(!instance.ContainsKey(field))
                                     throw new FormatException("Expected field '"+ field +"' in section '" + name + "' was not found in '" + path + "'");
                             }
                         }

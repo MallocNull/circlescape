@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +13,9 @@ using Kneesocks;
 namespace SockScape {
     class Entrypoint {
         static void Main(string[] args) {
-            
+            var db = new DAL.ScapeDb();
+            var a = db.Users.ToList();
+
             Dictionary<int, Server> servers
                 = new Dictionary<int, Server>();
             Dictionary<int, Pool<PlayerConnection>> pools

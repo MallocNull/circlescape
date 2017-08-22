@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
+using System.Security.Cryptography;
 
 namespace Glove {
     public static class RNG {
         // TODO add cryptographically secure rng
         private static readonly Random RandCtx = new Random();
+        private static readonly RNGCryptoServiceProvider CsRandCtx 
+            = new RNGCryptoServiceProvider();
 
         public static int Next() {
             lock(RandCtx) {
@@ -41,9 +44,9 @@ namespace Glove {
         }
 
         public static byte[] NextBytes(int length) {
-            lock(RandCtx) {
+            lock(CsRandCtx) {
                 var buffer = new byte[length];
-                RandCtx.NextBytes(buffer);
+                CsRandCtx.GetNonZeroBytes(buffer);
                 return buffer;
             }
         }

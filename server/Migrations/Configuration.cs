@@ -5,16 +5,13 @@ namespace SockScape.Migrations
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<DAL.ScapeDb>
-    {
-        public Configuration()
-        {
+    internal sealed class Configuration : DbMigrationsConfiguration<DAL.ScapeDb> {
+        public Configuration() {
             SetSqlGenerator("MySql.Data.MySqlClient", new MySql.Data.Entity.MySqlMigrationSqlGenerator());
             AutomaticMigrationsEnabled = false;
         }
 
-        protected override void Seed(DAL.ScapeDb context)
-        {
+        protected override void Seed(DAL.ScapeDb context) {
             //  This method will be called after migrating to the latest version.
 
             //  You can use the DbSet<T>.AddOrUpdate() helper extension method 

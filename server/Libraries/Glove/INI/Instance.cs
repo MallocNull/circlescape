@@ -13,6 +13,9 @@ namespace Glove.INI {
         internal Instance() { }
 
         internal void Push(string line) {
+            if(line.Trim() == "")
+                return;
+
             if(line.Contains('=')) {
                 var parts = line.Split(new[] { '=' }, 2);
                 Data.Add(parts[0].Trim(), new Value(parts[1].Trim()));
