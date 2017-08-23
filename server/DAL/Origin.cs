@@ -11,14 +11,14 @@ namespace SockScape.DAL {
     public partial class Origin {
         public long Id { get; set; }
 
-        [ForeignKey("User")]
-        [Index("IX_RawIp_UserId_Unique", 1, IsUnique = true)]
+        [ForeignKey("User"), Index("IX_RawIp_UserId_Unique", 1, IsUnique = true)]
+        [Required]
         public long UserId { get; set; }
         public virtual User User { get; set; }
 
         [Index("IX_RawIp_UserId_Unique", 2, IsUnique = true)]
-        [MaxLength(16)]
-        protected byte[] RawIp { get; set; }
+        [MaxLength(16), Required]
+        public byte[] RawIp { get; set; }
 
         [NotMapped]
         public IPAddress Ip {

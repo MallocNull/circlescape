@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,10 +10,12 @@ using System.Numerics;
 using Glove;
 using System.Net;
 using Kneesocks;
+using MySql.Data.Entity;
 
 namespace SockScape {
     class Entrypoint {
         static void Main(string[] args) {
+            DbConfiguration.SetConfiguration(new MySqlEFConfiguration());
             var db = new DAL.ScapeDb();
             var a = db.Users.ToList();
 

@@ -24,5 +24,29 @@ namespace Glove {
                 return hasher.ComputeHash(bytes);
             }
         }
+
+        private const int HashIterations = 3000;
+
+        public static byte[] HashPassword(this string pwd) {
+            byte[] salt, hash = new byte[36];
+            RNG.NextBytes(salt = new byte[16]);
+
+            using(var hasher = new Rfc2898DeriveBytes(pwd, salt, HashIterations)) {
+                byte[] rawHash = hasher.GetBytes(20);
+                Array.Copy(salt, 0, hash, 0, 16);
+                Array.Copy(rawHash, 0, hash, 16, 20);
+            }
+
+            return hash;
+        }
+
+        public static bool CheckPassword(this string pwd, byte[] hash) {
+            byte[] salt = hash.Take(16).ToArray();
+
+            using(var hasher = new Rfc2898DeriveBytes(pwd, salt, HashIterations)) {
+                byte[] phash = hasher.GetBytes(20);
+                return hash.Skip(16).SequenceEqual(phash);
+            }
+        }
     }
 }

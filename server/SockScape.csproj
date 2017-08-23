@@ -61,6 +61,12 @@
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
+    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Migrations, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Migrations.1.0.1.0\lib\net40-Client\Migrations.dll</HintPath>
+    </Reference>
     <Reference Include="MySql.Data, Version=6.9.9.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <HintPath>packages\MySql.Data.6.9.9\lib\net45\MySql.Data.dll</HintPath>
     </Reference>
@@ -83,29 +89,15 @@
   <ItemGroup>
     <Compile Include="Configuration.cs" />
     <Compile Include="DAL\Origin.cs" />
-    <Compile Include="DAL\ScapeDb.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ScapeDb.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="DAL\ScapeDb.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ScapeDb.tt</DependentUpon>
-    </Compile>
-    <Compile Include="DAL\ScapeDb.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ScapeDb.edmx</DependentUpon>
-    </Compile>
-    <Compile Include="DAL\Session.cs">
-      <DependentUpon>ScapeDb.tt</DependentUpon>
-    </Compile>
-    <Compile Include="DAL\User.cs">
-      <DependentUpon>ScapeDb.tt</DependentUpon>
-    </Compile>
+    <Compile Include="DAL\ScapeDb.cs" />
+    <Compile Include="DAL\Session.cs" />
+    <Compile Include="DAL\User.cs" />
     <Compile Include="Encryption\KeyExchange.cs" />
     <Compile Include="Encryption\Cipher.cs" />
+    <Compile Include="Migrations\201708231959530_Initial.cs" />
+    <Compile Include="Migrations\201708231959530_Initial.Designer.cs">
+      <DependentUpon>201708231959530_Initial.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="ServerList.cs" />
     <Compile Include="Socks\MasterConnection.cs" />
@@ -123,12 +115,8 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <EntityDeploy Include="DAL\ScapeDb.edmx">
-      <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>ScapeDb.Designer.cs</LastGenOutput>
-    </EntityDeploy>
-    <None Include="DAL\ScapeDb.edmx.diagram">
-      <DependentUpon>ScapeDb.edmx</DependentUpon>
+    <None Include="connectionStrings.config">
+      <DependentUpon>App.config</DependentUpon>
     </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
@@ -145,16 +133,6 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="DAL\ScapeDb.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>ScapeDb.edmx</DependentUpon>
-      <LastGenOutput>ScapeDb.Context.cs</LastGenOutput>
-    </Content>
-    <Content Include="DAL\ScapeDb.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>ScapeDb.edmx</DependentUpon>
-      <LastGenOutput>ScapeDb.cs</LastGenOutput>
-    </Content>
     <Content Include="Fodyweavers.xml">
       <SubType>Designer</SubType>
       <DependentUpon>App.config</DependentUpon>
@@ -181,6 +159,11 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201708231959530_Initial.resx">
+      <DependentUpon>201708231959530_Initial.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
