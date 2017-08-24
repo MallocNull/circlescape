@@ -88,6 +88,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration.cs" />
+    <Compile Include="DAL\Item.cs" />
+    <Compile Include="DAL\ItemMaster.cs" />
     <Compile Include="DAL\Origin.cs" />
     <Compile Include="DAL\ScapeDb.cs" />
     <Compile Include="DAL\Session.cs" />
