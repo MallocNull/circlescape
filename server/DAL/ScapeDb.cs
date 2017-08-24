@@ -31,9 +31,16 @@ namespace SockScape.DAL {
         public DbSet<User> Users { get; set; }
         public DbSet<Origin> Origins { get; set; }
         public DbSet<Session> Sessions { get; set; }
+        public DbSet<ItemMaster> ItemMaster { get; set; }
+        public DbSet<Item> Items { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder builder) {
             base.OnModelCreating(builder);
+            
+            builder.Properties<string>()
+                .Configure(s => s.HasMaxLength(256).HasColumnType("varchar"));
+
+            builder.Entity<ItemMaster>().ToTable("ItemMaster");
         }
     }
 }

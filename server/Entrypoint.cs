@@ -17,7 +17,6 @@ namespace SockScape {
         static void Main(string[] args) {
             DbConfiguration.SetConfiguration(new MySqlEFConfiguration());
             var db = new DAL.ScapeDb();
-            var a = db.Users.ToList();
 
             Dictionary<int, Server> servers
                 = new Dictionary<int, Server>();
