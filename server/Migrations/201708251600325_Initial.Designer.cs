@@ -13,7 +13,7 @@ namespace SockScape.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201708231959530_Initial"; }
+            get { return "201708251600325_Initial"; }
         }
         
         string IMigrationMetadata.Source

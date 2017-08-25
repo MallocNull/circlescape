@@ -16,8 +16,7 @@ namespace SockScape.DAL {
         public long UserId { get; set; }
         public virtual User User { get; set; }
 
-        [Index("IX_RawIp_UserId_Unique", 2, IsUnique = true)]
-        [MaxLength(16), Required]
+        [Required, Index("IX_RawIp_UserId_Unique", 2, IsUnique = true)]
         public byte[] RawIp { get; set; }
 
         [NotMapped]

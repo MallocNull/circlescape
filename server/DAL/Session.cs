@@ -14,9 +14,7 @@ namespace SockScape.DAL {
         [Required]
         public virtual User User { get; set; }
 
-        [Required]
-        [Index(IsUnique = true)]
-        [MaxLength(16), MinLength(16)]
+        [Required, Index(IsUnique = true)]
         public byte[] Secret { get; set; }
 
         [Required]

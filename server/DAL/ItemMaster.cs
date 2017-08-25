@@ -19,16 +19,16 @@ namespace SockScape.DAL {
         [Required, DefaultValue(false)]
         public bool Stackable { get; set; }
         [Required, DefaultValue(UInt32.MaxValue)]
-        public uint MaxStack { get; set; }
+        public long MaxStack { get; set; }
         [Required, DefaultValue(true)]
         public bool Droppable { get; set; }
 
         [Required, MaxLength(64)]
         public string Sheet { get; set; }
         [Required]
-        public ushort Row { get; set; }
+        public int Row { get; set; }
         [Required]
-        public ushort Column { get; set; }
+        public int Column { get; set; }
 
         [MaxLength(64)]
         public string Object { get; set; }

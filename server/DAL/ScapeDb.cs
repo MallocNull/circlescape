@@ -36,7 +36,9 @@ namespace SockScape.DAL {
 
         protected override void OnModelCreating(DbModelBuilder builder) {
             base.OnModelCreating(builder);
-            
+
+            builder.HasDefaultSchema(String.Empty);
+
             builder.Properties<string>()
                 .Configure(s => s.HasMaxLength(256).HasColumnType("varchar"));
 

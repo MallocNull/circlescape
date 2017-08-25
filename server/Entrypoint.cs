@@ -15,7 +15,6 @@ using MySql.Data.Entity;
 namespace SockScape {
     class Entrypoint {
         static void Main(string[] args) {
-            DbConfiguration.SetConfiguration(new MySqlEFConfiguration());
             var db = new DAL.ScapeDb();
 
             Dictionary<int, Server> servers
