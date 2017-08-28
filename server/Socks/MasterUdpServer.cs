@@ -14,7 +14,7 @@ namespace SockScape.Socks {
         private static bool IsOpen;
 
         public static void Initialize() {
-            if(!IsOpen && ListeningThread == null)
+            if(IsOpen || ListeningThread != null)
                 return;
 
             short port = (short)Configuration.General["Master Port"];
