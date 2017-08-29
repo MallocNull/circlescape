@@ -119,6 +119,7 @@
     </None>
     <None Include="connectionStrings.config">
       <DependentUpon>App.config</DependentUpon>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>

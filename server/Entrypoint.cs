@@ -31,8 +31,11 @@ namespace SockScape {
                     MaxTotal = server["Max Users"] ?? Configuration.General["Max Users"]
                 };
 
+                var serverHandle = new Server<PlayerConnection>((ushort)server["Port"], pool, server);
+
                 pools.Add(server["Id"], pool);
-                servers.Add(server["Id"], new Server<PlayerConnection>((ushort)server["Port"], pool, server));
+                servers.Add(server["Id"], serverHandle);
+                serverHandle.Start();
             }
 
             //var server = new Server<PlayerConnection>(6770, PoolManager.Pending);

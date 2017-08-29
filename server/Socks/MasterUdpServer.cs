@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SockScape.Socks {
+namespace SockScape {
     static class MasterUdpServer {
         private static UdpClient Sock;
         private static Thread ListeningThread;
@@ -18,7 +18,7 @@ namespace SockScape.Socks {
                 return;
 
             short port = (short)Configuration.General["Master Port"];
-            Sock = new UdpClient(port);
+            Sock = new UdpClient(new IPEndPoint(IPAddress.Any, port));
             
             IsOpen = true;
             ListeningThread = new Thread(Listener);
@@ -39,6 +39,7 @@ namespace SockScape.Socks {
             IsOpen = false;
             ListeningThread.Join();
             ListeningThread = null;
+            Sock.Dispose();
         }
     }
 }
