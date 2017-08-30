@@ -20,6 +20,7 @@ namespace SockScape {
                             "Run Master",
                             "Master Port",
                             "Master Addr",
+                            "Master Secret",
                             "Max Users"
                         }
                     },
