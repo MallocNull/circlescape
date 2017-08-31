@@ -87,6 +87,49 @@ Communication between the master server and clients will be done over a WebSocke
  </tr>
 </table>
 
+<table style="margin-right: 8px; margin-bottom: 8px;">
+ <thead>
+  <th colspan="100" class="center">
+   ID 2: Positive ACK<br />
+   Responder
+  </th>
+ </thead>
+ <thead>
+  <th>#</th>
+  <th>Region</th>
+  <th>Type</th>
+ </thead>
+ <tr>
+  <td>1</td>
+  <td>Request Packet ID</td>
+  <td>Byte</td>
+ </tr>
+</table>
+
+<table style="margin-right: 8px; margin-bottom: 8px;">
+ <thead>
+  <th colspan="100" class="center">
+   ID 3: Negative ACK<br />
+   Responder
+  </th>
+ </thead>
+ <thead>
+  <th>#</th>
+  <th>Region</th>
+  <th>Type</th>
+ </thead>
+ <tr>
+  <td>1</td>
+  <td>Request Packet ID</td>
+  <td>Byte</td>
+ </tr>
+ <tr>
+  <td>2</td>
+  <td>Error Message</td>
+  <td>String</td>
+ </tr>
+</table>
+
 #### Slave to Master
 
 <table style="margin-right: 8px; margin-bottom: 8px;">
@@ -124,6 +167,49 @@ Communication between the master server and clients will be done over a WebSocke
   <td class="center">1</td>
   <td>Client Key</td>
   <td>Big Int</td>
+ </tr>
+</table>
+
+<table style="margin-right: 8px; margin-bottom: 8px;">
+ <thead>
+  <th colspan="100" class="center">
+    ID 2: Status Update<br />
+    Blind Requester
+  </th>
+ </thead>
+ <thead>
+  <th># (<i>r</i>)</th>
+  <th>Region</th>
+  <th>Type</th>
+ </thead>
+ <tr>
+  <td class="center">1</td>
+  <td>Server Count (<i>n</i>)</td>
+  <td>Unsigned Byte</td>
+ </tr>
+ <tr>
+  <td><i>r</i> > 1</td>
+  <td colspan="2">Iterated over <i>n</i> (0 &leq; <i>i</i> &leq; <i>n - 1</i>)</td>
+ </tr>
+ <tr>
+  <td class="center">2 + 4<i>i</i></td>
+  <td>Server Id</td>
+  <td>Packed Unsigned Short</td>
+ </tr>
+ <tr>
+  <td class="center">3 + 4<i>i</i></td>
+  <td>User Count</td>
+  <td>Packed Unsigned Short</td>
+ </tr>
+ <tr>
+  <td class="center">4 + 4<i>i</i></td>
+  <td>IPv4 Address</td>
+  <td>Bytes (4)</td>
+ </tr>
+ <tr>
+  <td class="center">5 + 4<i>i</i></td>
+  <td>Port</td>
+  <td>Packed Unsigned Short</td>
  </tr>
 </table>
 

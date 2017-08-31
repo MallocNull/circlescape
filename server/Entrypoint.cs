@@ -13,14 +13,16 @@ using Kneesocks;
 using MySql.Data.Entity;
 
 namespace SockScape {
+    static class ServerContext {
+        public static Dictionary<int, Server<PlayerConnection>> Servers { get; }
+            = new Dictionary<int, Server<PlayerConnection>>();
+        public static Dictionary<int, Pool<PlayerConnection>> Pools { get; }
+            = new Dictionary<int, Pool<PlayerConnection>>();
+    }
+
     class Entrypoint {
         static void Main(string[] args) {
             var db = new DAL.ScapeDb();
-
-            Dictionary<int, Server> servers
-                = new Dictionary<int, Server>();
-            Dictionary<int, Pool<PlayerConnection>> pools
-                = new Dictionary<int, Pool<PlayerConnection>>();
 
             foreach(var server in Configuration.Servers) {
                 var pool = new Pool<PlayerConnection> {
@@ -33,8 +35,8 @@ namespace SockScape {
 
                 var serverHandle = new Server<PlayerConnection>((ushort)server["Port"], pool, server);
 
-                pools.Add(server["Id"], pool);
-                servers.Add(server["Id"], serverHandle);
+                ServerContext.Pools.Add(server["Id"], pool);
+                ServerContext.Servers.Add(server["Id"], serverHandle);
                 serverHandle.Start();
             }
 

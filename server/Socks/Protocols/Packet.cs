@@ -7,7 +7,8 @@ using Glove;
 
 namespace SockScape {
     class Packet {
-        private static readonly byte[] MagicNumber = { 0xF0, 0x9F, 0xA6, 0x91 };
+        // (squid)
+        public static readonly byte[] MagicNumber = { 0xF0, 0x9F, 0xA6, 0x91 };
 
         public static Packet FromBytes(byte[] raw) {
             if(raw.Length < 7)

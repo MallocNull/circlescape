@@ -16,12 +16,13 @@ namespace SockScape {
         private static UdpClient Sock;
         private static Thread ListeningThread;
         private static bool IsOpen;
+        private static DateTime LastMessage;
 
         public static void Initialize() {
             if(IsOpen || ListeningThread != null)
                 return;
 
-            short port = (short)Configuration.General["Master Port"];
+            ushort port = (ushort)Configuration.General["Master Port"];
             Sock = new UdpClient(Configuration.General["Master Addr"], port);
 
             Key = new Key();
@@ -39,6 +40,11 @@ namespace SockScape {
 
                 Thread.Sleep(1);
             }
+        }
+
+        public static void Send(byte[] message) {
+            Sock.Send(message, message.Length);
+            LastMessage = DateTime.Now;
         }
 
         public static void Close() {

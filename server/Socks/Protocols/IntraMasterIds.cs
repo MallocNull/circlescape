@@ -7,6 +7,12 @@ using System.Threading.Tasks;
 namespace SockScape {
     public enum kIntraMasterId {
         InitiationAttempt = 0,
-        KeyExchange
+        KeyExchange,
+        StatusUpdate
+    }
+
+    public enum kIntraMasterAckId {
+        PositiveAck = 1,
+        NegativeAck
     }
 }
