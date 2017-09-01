@@ -5,14 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SockScape {
-    public enum kIntraMasterId {
+    public enum kIntraSlaveId {
         InitiationAttempt = 0,
         KeyExchange,
         StatusUpdate
     }
 
-    public enum kIntraMasterAckId {
-        PositiveAck = 1,
-        NegativeAck
+    public enum kIntraMasterId {
+        KeyExchange = 1,
+        PositiveAck,
+        NegativeAck,
+        EncryptionError
     }
 }

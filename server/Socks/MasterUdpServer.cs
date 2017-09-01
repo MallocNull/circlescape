@@ -37,7 +37,7 @@ namespace SockScape {
 
         public static void Listener() {
             while(IsOpen) {
-                IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
+                IPEndPoint endPoint = new IPEndPoint(0, 0);
                 while(Sock.Available > 0) {
                     var data = Sock.Receive(ref endPoint);
                     var client = endPoint.ToString();
@@ -51,11 +51,10 @@ namespace SockScape {
 
                     if(packet == null)
                         break;
-
-                    byte[] sendBuffer;
-                    switch((kIntraMasterId)packet.Id) {
-                        case kIntraMasterId.InitiationAttempt:
-                            if(packet.RegionCount != 1)
+                    
+                    switch((kIntraSlaveId)packet.Id) {
+                        case kIntraSlaveId.InitiationAttempt:
+                            if(packet.RegionCount != 1 || IsProspectConnected(client))
                                 break;
 
                             if(packet[0] == Configuration.General["Master Secret"]) {
@@ -66,12 +65,11 @@ namespace SockScape {
                                     Key = key
                                 };
                                 
-                                sendBuffer = key.GenerateRequestPacket().GetBytes();
-                                Sock.Send(sendBuffer, sendBuffer.Length, endPoint);
+                                Send(key.GenerateRequestPacket(), endPoint);
                             }
                             break;
 
-                        case kIntraMasterId.KeyExchange:
+                        case kIntraSlaveId.KeyExchange:
                             if(!IsProspectConnected(client))
                                 break;
 
@@ -84,11 +82,11 @@ namespace SockScape {
                                 Prospects.Remove(client);
                             break;
                             
-                        case kIntraMasterId.StatusUpdate:
+                        case kIntraSlaveId.StatusUpdate:
                             if(!IsClientConnected(client) || packet.RegionCount < 1)
                                 break;
 
-
+                            
                             break;
                     }
                 }
@@ -97,6 +95,11 @@ namespace SockScape {
 
                 Thread.Sleep(1);
             }
+        }
+
+        private static void Send(Packet packet, IPEndPoint client) {
+            var message = packet.GetBytes();
+            Sock.Send(message, message.Length, client);
         }
 
         public static void Close() {
@@ -115,11 +118,15 @@ namespace SockScape {
         }
 
         private static Packet PositiveAck(byte id) {
-            return new Packet((int)kIntraMasterAckId.PositiveAck, new { id });
+            return new Packet(kIntraMasterId.PositiveAck, id);
         }
 
-        private static Packet NegativeAck(byte id, string message) {
-            return new Packet((int)kIntraMasterAckId.NegativeAck, new { id, message });
+        private static Packet NegativeAck(byte id, string message = "") {
+            return new Packet(kIntraMasterId.NegativeAck, id, message);
+        }
+
+        private static Packet EncryptionError(string message = "A general encryption error has occurred.") {
+            return new Packet(kIntraMasterId.EncryptionError, message);
         }
 
         class Client {

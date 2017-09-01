@@ -65,7 +65,15 @@ namespace SockScape {
 
         protected Packet() { }
 
+        public Packet(Enum id, params object[] regions) {
+            Initialize((int)Convert.ChangeType(id, id.GetTypeCode()), regions);
+        }
+
         public Packet(int id, params object[] regions) {
+            Initialize(id, regions);
+        }
+
+        private void Initialize(int id, object[] regions) {
             Id = id;
 
             foreach(var region in regions)

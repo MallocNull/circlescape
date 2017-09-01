@@ -91,7 +91,7 @@ Communication between the master server and clients will be done over a WebSocke
  <thead>
   <th colspan="100" class="center">
    ID 2: Positive ACK<br />
-   Responder
+   [Encrypted] Responder
   </th>
  </thead>
  <thead>
@@ -110,7 +110,7 @@ Communication between the master server and clients will be done over a WebSocke
  <thead>
   <th colspan="100" class="center">
    ID 3: Negative ACK<br />
-   Responder
+   [Encrypted] Responder
   </th>
  </thead>
  <thead>
@@ -125,6 +125,25 @@ Communication between the master server and clients will be done over a WebSocke
  </tr>
  <tr>
   <td>2</td>
+  <td>Error Message</td>
+  <td>String</td>
+ </tr>
+</table>
+
+<table style="margin-right: 8px; margin-bottom: 8px;">
+ <thead>
+  <th colspan="100" class="center">
+   ID 4: Encryption Error<br />
+   Responder
+  </th>
+ </thead>
+ <thead>
+  <th>#</th>
+  <th>Region</th>
+  <th>Type</th>
+ </thead>
+ <tr>
+  <td>1</td>
   <td>Error Message</td>
   <td>String</td>
  </tr>
@@ -174,7 +193,7 @@ Communication between the master server and clients will be done over a WebSocke
  <thead>
   <th colspan="100" class="center">
     ID 2: Status Update<br />
-    Blind Requester
+    [Encrypted] Blind Requester
   </th>
  </thead>
  <thead>

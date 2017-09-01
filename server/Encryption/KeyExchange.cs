@@ -45,10 +45,7 @@ namespace SockScape.Encryption {
 
             var clientKey = BigInteger.ModPow(generator, Secret, modulus);
             PrivateKey = BigInteger.ModPow(serverKey, Secret, modulus);
-            return new Packet(
-                1,
-                clientKey.ToHexString()
-            );
+            return new Packet(1, clientKey.ToHexString());
         }
 
         public BigInteger ParseResponsePacket(Packet packet) {

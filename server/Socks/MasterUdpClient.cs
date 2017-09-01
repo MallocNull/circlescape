@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -11,12 +12,19 @@ using SockScape.Encryption;
 namespace SockScape {
     static class MasterUdpClient {
         private static Key Key;
-        public static Cipher Encryptor { get; private set; }
+        private static Cipher Encryptor;
 
         private static UdpClient Sock;
         private static Thread ListeningThread;
         private static bool IsOpen;
-        private static DateTime LastMessage;
+
+        private static DateTime LastMessageOut;
+        private static TimeSpan DeltaLastOut
+            => DateTime.Now - LastMessageOut;
+
+        private static DateTime LastMessageIn = new DateTime(0);
+        private static TimeSpan DeltaLastIn
+            => DateTime.Now - LastMessageIn;
 
         public static void Initialize() {
             if(IsOpen || ListeningThread != null)
@@ -26,6 +34,7 @@ namespace SockScape {
             Sock = new UdpClient(Configuration.General["Master Addr"], port);
 
             Key = new Key();
+            Encryptor = null;
 
             IsOpen = true;
             ListeningThread = new Thread(Listener);
@@ -34,17 +43,39 @@ namespace SockScape {
 
         public static void Listener() {
             while(IsOpen) {
+                if(LastMessageIn.Ticks == 0 && DeltaLastOut.TotalSeconds > 10)
+                    Send(new Packet(kIntraSlaveId.InitiationAttempt, Configuration.General["Master Secret"]));
+
+                var endPoint = new IPEndPoint(0, 0);
                 while(Sock.Available > 0) {
-                    
+                    var data = Sock.Receive(ref endPoint);
+                    LastMessageIn = DateTime.Now;
+
+                    Packet packet =
+                        Encryptor == null ? Packet.FromBytes(data)
+                                          : Packet.FromBytes(Encryptor.Parse(data));
+
+                    switch((kIntraMasterId)packet.Id) {
+                        case kIntraMasterId.KeyExchange:
+                            var responsePacket = Key.ParseRequestPacket(packet);
+                            Encryptor = new Cipher(Key.PrivateKey);
+                            if(responsePacket != null)
+                                Send(responsePacket);
+
+                            else
+                                LastMessageIn = new DateTime(0);
+                            break;
+                    }
                 }
 
                 Thread.Sleep(1);
             }
         }
 
-        public static void Send(byte[] message) {
+        public static void Send(Packet packet) {
+            var message = packet.GetBytes();
             Sock.Send(message, message.Length);
-            LastMessage = DateTime.Now;
+            LastMessageOut = DateTime.Now;
         }
 
         public static void Close() {
