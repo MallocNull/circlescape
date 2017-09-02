@@ -5,20 +5,52 @@
         <link rel="stylesheet" type="text/css" href="style.css" />
         <meta charset="UTF-8" />
 
+        <!-- LOGIN AND REGISTER SCRIPT -->
+        <script type="text/javascript" src="lib/loginstration.js"></script>
+        <!-- END -->
+
         <script type="text/javascript" src="bin/lib.js"></script>
         <script type="text/javascript" src="bin/scape.js"></script>
 
         <script type="notjs" id="loading-vertex">
-            
+
         </script>
         <script type="notjs" id="loading-frag">
-            
+
         </script>
     </head>
     <body>
         <canvas id="cs"></canvas>
         <div id="modal" class="hidden">
-            
+
         </div>
+
+        <!-- THUGGINOMICS LOGIN CODE VERY FRAGILE -->
+
+        <div id="loginstration-wrap">
+          <h1 id="loginstration-header" class="loginstration-header">
+            S O C K &nbsp; S C A P E
+          </h1>
+
+          <div id="loginstration-login">
+            <input type="text" placeholder="USER" id="login-user-input"></input><br>
+            <input type="password" placeholder="PASSWORD" id="login-password-input"></input><br>
+            <button id="login-button-submit">ENTER THE REALM</button>
+          </div>
+
+          <div id="loginstration-registration">
+            <input type="text" placeholder="ENTER EMAIL" id="register-email-input"></input><br>
+            <input type="text" placeholder="ENTER USER NAME" id="register-user-input"></input><br>
+            <input type="password" placeholder="ENTER PASSWORD" id="register-password-input"></input><br>
+            <button id="register-button-submit">CREATE ACCOUNT</button>
+          </div>
+
+          <button id="loginstration-registration-button">REGISTER</button>
+
+        </div>
+
+        <!-- AAAAAAAAAAA END -->
+
+
     </body>
 </html>
