@@ -65,6 +65,20 @@ namespace SockScape {
                             else
                                 LastMessageIn = new DateTime(0);
                             break;
+
+                        case kIntraMasterId.PositiveAck:
+
+                            break;
+
+                        case kIntraMasterId.NegativeAck:
+                            Console.WriteLine("Packet type "+ packet[0] +" declined for reason "+ packet[1]);
+                            break;
+
+                        case kIntraMasterId.EncryptionError:
+                            Key = new Key();
+                            Encryptor = null;
+                            LastMessageIn = new DateTime(0);
+                            break;
                     }
                 }
 
