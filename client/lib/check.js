@@ -1,6 +1,6 @@
 // feature checking trashcode (c) obrado 1989
 
-window.onload = function() {
+window.addEventListener("load", function() {
     var support = {
         anim: true,
         canvas: true,
@@ -57,4 +57,4 @@ window.onload = function() {
     }
 
     Entrypoint.start();
-}
+});

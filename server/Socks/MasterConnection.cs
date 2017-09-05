@@ -11,6 +11,7 @@ namespace SockScape {
     class MasterConnection : Connection {
         private Key Key;
         public Cipher Encryptor { get; private set; }
+
         
         protected override void OnOpen() {
             Key = new Key();

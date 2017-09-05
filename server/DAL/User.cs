@@ -13,6 +13,9 @@ namespace SockScape.DAL {
         [Required, MaxLength(16)]
         public string Username { get; set; }
 
+        [Required, MaxLength(256)]
+        public string Email { get; set; }
+
         [Required]
         public byte[] Password { get; set; }
 

@@ -45,7 +45,7 @@ namespace Kneesocks {
             
             while(Started) {
                 if(Socket.Pending()) {
-                    var templatedConnection = new T() {
+                    var templatedConnection = new T {
                         Server = this
                     };
                     templatedConnection.Initialize(Socket.AcceptTcpClient());

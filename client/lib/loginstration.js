@@ -8,7 +8,7 @@ var register_button;
 var login;
 var register;
 var create;
-window.onload = function () {
+window.addEventListener("load", function () {
 
   // Define var's for transition;
   login_header = document.getElementById("loginstration-header");
@@ -19,7 +19,7 @@ window.onload = function () {
   create = document.getElementById("register-button-submit");
   register_button.addEventListener("click" , prepareRegister);
   create.addEventListener("click" , prepareLogin);
-};
+});
 
 function prepareRegister(){
   login_header.classList.remove("displayYes");

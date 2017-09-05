@@ -102,6 +102,7 @@ body {
   height:25px;
   font-size: 20px;
   background: #000;
+  margin-bottom:25px;
   padding:10px;
 }
 
@@ -113,6 +114,7 @@ body {
   font-size: 20px;
   background: #000;
   padding:10px;
+  margin-bottom:25px;
   border: 1px solid white;
 }
 
@@ -150,6 +152,7 @@ body {
   width: 300px;
   height:25px;
   font-size: 20px;
+  margin-bottom:25px;
   background: #000;
   padding:10px;
   border: 1px solid white;
@@ -161,6 +164,7 @@ body {
   color: yellow;
   width: 300px;
   height:25px;
+  margin-bottom:25px;
   font-size: 20px;
   background: #000;
   padding:10px;
@@ -174,6 +178,7 @@ body {
   font-size: 20px;
   background: #000;
   padding:10px;
+  margin-bottom:25px;
   border: 1px solid white;
 }
 
