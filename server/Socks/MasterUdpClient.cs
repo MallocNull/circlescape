@@ -18,7 +18,7 @@ namespace SockScape {
         private static Thread ListeningThread;
         private static bool IsOpen;
 
-        private static DateTime LastMessageOut;
+        private static DateTime LastMessageOut = new DateTime(0);
         private static TimeSpan DeltaLastOut
             => DateTime.Now - LastMessageOut;
 
@@ -43,9 +43,6 @@ namespace SockScape {
 
         public static void Listener() {
             while(IsOpen) {
-                if(LastMessageIn.Ticks == 0 && DeltaLastOut.TotalSeconds > 10)
-                    Send(new Packet(kIntraSlaveId.InitiationAttempt, Configuration.General["Master Secret"]));
-
                 var endPoint = new IPEndPoint(0, 0);
                 while(Sock.Available > 0) {
                     var data = Sock.Receive(ref endPoint);
@@ -67,11 +64,11 @@ namespace SockScape {
                             break;
 
                         case kIntraMasterId.PositiveAck:
-
+                            Console.WriteLine($"Packet type {packet[0]} accepted by master");
                             break;
 
                         case kIntraMasterId.NegativeAck:
-                            Console.WriteLine("Packet type "+ packet[0] +" declined for reason "+ packet[1]);
+                            Console.WriteLine($"Packet type {packet[0]} declined by master for reason {packet[1]}");
                             break;
 
                         case kIntraMasterId.EncryptionError:
@@ -80,6 +77,12 @@ namespace SockScape {
                             LastMessageIn = new DateTime(0);
                             break;
                     }
+                }
+
+                if(LastMessageIn.Ticks == 0 && DeltaLastOut.TotalSeconds > 10)
+                    Send(new Packet(kIntraSlaveId.InitiationAttempt, Configuration.General["Master Secret"]));
+                else {
+                    
                 }
 
                 Thread.Sleep(1);

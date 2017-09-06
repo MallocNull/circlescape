@@ -30,9 +30,8 @@ namespace Kneesocks {
             Gateway_Timeout         = 504
         }
         public kStatusCode? StatusCode { get; private set; } = null;
-        protected string StatusCodeText {
-            get => Enum.GetName(typeof(kStatusCode), StatusCode).Replace('_', ' ');
-        }
+        protected string StatusCodeText
+            => Enum.GetName(typeof(kStatusCode), StatusCode).Replace('_', ' ');
 
         private readonly Dictionary<string, string> Headers =
                      new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -103,9 +102,9 @@ namespace Kneesocks {
                     SetHeader("Content-Type", "text/plain");
             }
 
-            var raw = "HTTP/"+ HttpVersion +" "+ (int)StatusCode + " "+ StatusCodeText +"\r\n";
+            var raw = $"HTTP/{HttpVersion} {(int)StatusCode} {StatusCodeText}\r\n";
             foreach(var header in Headers)
-                raw += header.Key.Trim() + ": " + header.Value.Trim() + "\r\n";
+                raw += $"{header.Key.Trim()}: {header.Value.Trim()}\r\n";
             return raw + "\r\n";
         }
 

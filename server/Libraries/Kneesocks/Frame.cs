@@ -118,7 +118,7 @@ namespace Kneesocks {
 
             var rawOpcode = raw[0] & 0x0F;
             if(!Enum.IsDefined(typeof(kOpcode), rawOpcode))
-                throw new ArgumentException("Opcode '0x" + rawOpcode.ToString("X") + "' not understood");
+                throw new ArgumentException($"Opcode '0x{rawOpcode.ToString("X")}' not understood");
 
             var returnFrame = new Frame {
                 IsFinal  = (raw[0] & 0x80) != 0,
@@ -156,9 +156,9 @@ namespace Kneesocks {
 
             uint expectedFrameLength = (uint)returnFrame.BodyLength + (uint)returnFrame.HeaderLength;
             if((uint)raw.Length < expectedFrameLength)
-                throw new FormatException("Raw frame length ("+ (uint)raw.Length + ") is less than described size ("+ expectedFrameLength + ")");
+                throw new FormatException($"Raw frame length ({(uint)raw.Length}) is less than described size ({expectedFrameLength})");
 
-            returnFrame.Content = new byte[returnFrame.BodyLength];
+        returnFrame.Content = new byte[returnFrame.BodyLength];
             Array.Copy(raw, returnFrame.HeaderLength, returnFrame.Content, 0L, returnFrame.BodyLength);
             if(returnFrame.IsMasked)
                 returnFrame.Content = returnFrame.MaskedContent;

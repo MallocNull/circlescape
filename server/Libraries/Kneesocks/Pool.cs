@@ -45,6 +45,9 @@ namespace Kneesocks {
                 CreateThread(runWithNoClients: true);
         }
 
+        public int ConnectionCount
+            => Connections.Count;
+
         public T this[UInt64 id] {
             get {
                 lock (Connections) {
@@ -86,7 +89,7 @@ namespace Kneesocks {
             if(Disposed)
                 return false;
 
-            if(MaxTotal != 0 && Connections.Count >= MaxTotal)
+            if(MaxTotal != 0 && ConnectionCount >= MaxTotal)
                 return false;
 
             lock(Threads) {

@@ -29,7 +29,7 @@ namespace Glove.INI {
                     if(currentInstance != null)
                         currentInstance.Push(line);
                     else
-                        throw new FormatException("Non-section line before any define sections in '"+ path +"'");
+                        throw new FormatException($"Non-section line before any define sections in '{path}'");
                 }
             }
         }
@@ -41,18 +41,18 @@ namespace Glove.INI {
                 if(ContainsSection(name)) {
                     var section = Sections[name];
                     if(!rule.AllowMultiple && section.Count > 1)
-                        throw new FormatException("Section '"+ name +"' is not allowed to have multiple declarations in '"+ path +"'");
+                        throw new FormatException($"Section '{name}' is not allowed to have multiple declarations in '{path}'");
 
                     if(rule.RequiredFields.Length > 0) {
                         foreach(var instance in section) {
                             foreach(var field in rule.RequiredFields) {
                                 if(!instance.ContainsKey(field))
-                                    throw new FormatException("Expected field '"+ field +"' in section '" + name + "' was not found in '" + path + "'");
+                                    throw new FormatException($"Expected field '{field}' in section '{name}' was not found in '{path}'");
                             }
                         }
                     }
                 } else if(rule.Required)
-                    throw new FormatException("Expected section '"+ name +"' was not found in '"+ path +"'");
+                    throw new FormatException($"Expected section '{name}' was not found in '{path}'");
             }
         }
 

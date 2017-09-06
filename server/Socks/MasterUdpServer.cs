@@ -7,13 +7,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Glove;
+using SockScape.DAL;
 using SockScape.Encryption;
 
 namespace SockScape {
     static class MasterUdpServer {
         private static Dictionary<string, Client> Prospects;
         private static Dictionary<string, Client> Clients;
-        private static ServerList Servers;
 
         private static UdpClient Sock;
         private static Thread ListeningThread;
@@ -22,8 +22,8 @@ namespace SockScape {
         public static void Initialize() {
             if(IsOpen || ListeningThread != null)
                 return;
-
-            Servers = new ServerList();
+            
+            ServerList.Clear();
             Prospects = new Dictionary<string, Client>();
             Clients = new Dictionary<string, Client>();
 
@@ -50,7 +50,7 @@ namespace SockScape {
                                           : Packet.FromBytes(encryptor.Parse(data));
 
                     if(packet == null)
-                        break;
+                        continue;
                     
                     switch((kIntraSlaveId)packet.Id) {
                         case kIntraSlaveId.InitiationAttempt:
@@ -86,7 +86,30 @@ namespace SockScape {
                             if(!IsClientConnected(client) || packet.RegionCount < 1)
                                 break;
 
-                            
+                            if(packet.CheckRegions(0, 1)) {
+                                NegativeAck(endPoint, kIntraSlaveId.StatusUpdate, "Server count is malformed.");
+                                break;
+                            }
+
+                            byte serverCount = packet[0].Raw[0];
+                            if(packet.RegionCount != 1 + 3 * serverCount) {
+                                NegativeAck(endPoint, kIntraSlaveId.StatusUpdate, "Region count does not match server count");
+                                break;
+                            }
+
+                            for(byte i = 0; i < serverCount; ++i) {
+                                if(!packet.CheckRegions(2 + 3 * i, 2, 2, 2))
+                                    continue;
+
+                                ServerList.Write(new Server {
+                                    Id = packet[2 + 3 * i].Raw.UnpackUInt16(),
+                                    UserCount = packet[3 + 3 * i].Raw.UnpackUInt16(),
+                                    Address = endPoint.Address,
+                                    Port = packet[4 + 3 * i].Raw.UnpackUInt16()
+                                });
+                            }
+
+                            PositiveAck(endPoint, kIntraSlaveId.StatusUpdate);
                             break;
                     }
                 }
@@ -117,16 +140,16 @@ namespace SockScape {
             return Clients.ContainsKey(client);
         }
 
-        private static Packet PositiveAck(byte id) {
-            return new Packet(kIntraMasterId.PositiveAck, id);
+        private static void PositiveAck(IPEndPoint endPoint, kIntraSlaveId id) {
+            Send(new Packet(kIntraMasterId.PositiveAck, id), endPoint);
         }
 
-        private static Packet NegativeAck(byte id, string message = "") {
-            return new Packet(kIntraMasterId.NegativeAck, id, message);
+        private static void NegativeAck(IPEndPoint endPoint, kIntraSlaveId id, string message = "An error occurred while parsing a packet.") {
+            Send(new Packet(kIntraMasterId.NegativeAck, id, message), endPoint);
         }
 
-        private static Packet EncryptionError(string message = "A general encryption error has occurred.") {
-            return new Packet(kIntraMasterId.EncryptionError, message);
+        private static void EncryptionError(IPEndPoint endPoint, string message = "A general encryption error has occurred. Renegotiation required.") {
+            Send(new Packet(kIntraMasterId.EncryptionError, message), endPoint);
         }
 
         class Client {

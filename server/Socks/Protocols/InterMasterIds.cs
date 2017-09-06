@@ -8,6 +8,7 @@ namespace SockScape {
     public enum kInterMasterId {
         KeyExchange = 1,
         LoginAttempt,
-        RegistrationAttempt
+        RegistrationAttempt,
+        ServerListing
     }
 }

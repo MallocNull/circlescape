@@ -92,6 +92,18 @@ namespace SockScape {
             return this;
         }
 
+        public bool CheckRegions(int startIndex, params int[] lengths) {
+            if(startIndex + lengths.Length > RegionCount)
+                return false;
+
+            for(int i = 0; i < lengths.Length; ++i) {
+                if(this[startIndex + i].Raw.Length == lengths[i])
+                    return false;
+            }
+
+            return true;
+        }
+
         public byte[] GetBytes() {
             var header = new List<byte>();
             header.AddRange(MagicNumber);
@@ -117,14 +129,14 @@ namespace SockScape {
         }
 
         public class Region {
-            public byte[] Data { get; }
+            private byte[] Data { get; }
 
             public Region(byte[] data) {
                 Data = data;
             }
 
             public static implicit operator byte[] (Region region) => region.Data;
-            public string Bytes
+            public byte[] Raw
                 => this;
 
             public static implicit operator string(Region region) {

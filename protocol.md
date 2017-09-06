@@ -211,22 +211,17 @@ Communication between the master server and clients will be done over a WebSocke
   <td colspan="2">Iterated over <i>n</i> (0 &leq; <i>i</i> &leq; <i>n - 1</i>)</td>
  </tr>
  <tr>
-  <td class="center">2 + 4<i>i</i></td>
+  <td class="center">2 + 3<i>i</i></td>
   <td>Server Id</td>
   <td>Packed Unsigned Short</td>
  </tr>
  <tr>
-  <td class="center">3 + 4<i>i</i></td>
+  <td class="center">3 + 3<i>i</i></td>
   <td>User Count</td>
   <td>Packed Unsigned Short</td>
  </tr>
  <tr>
-  <td class="center">4 + 4<i>i</i></td>
-  <td>IPv4 Address</td>
-  <td>Bytes (4)</td>
- </tr>
- <tr>
-  <td class="center">5 + 4<i>i</i></td>
+  <td class="center">4 + 3<i>i</i></td>
   <td>Port</td>
   <td>Packed Unsigned Short</td>
  </tr>
@@ -293,6 +288,30 @@ Communication between the master server and clients will be done over a WebSocke
  <thead>
   <th colspan="100" class="center">
     ID 3: Registration Attempt<br />
+    [Encrypted] Responder
+  </th>
+ </thead>
+ <thead>
+  <th>#</th>
+  <th>Region</th>
+  <th>Type</th>
+ </thead>
+ <tr>
+  <td class="center">1</td>
+  <td>Succeeded</td>
+  <td>Boolean</td>
+ </tr>
+ <tr>
+  <td class="center">2</td>
+  <td>Message</td>
+  <td>String</td>
+ </tr>
+</table>
+
+<table style="margin-right: 8px; margin-bottom: 8px;">
+ <thead>
+  <th colspan="100" class="center">
+    ID 4: Server List Request<br />
     [Encrypted] Responder
   </th>
  </thead>
@@ -385,6 +404,16 @@ Communication between the master server and clients will be done over a WebSocke
   <td>Email</td>
   <td>String</td>
  </tr>
+</table>
+
+<table style="margin-right: 8px; margin-bottom: 8px;">
+ <thead>
+  <th colspan="100" class="center">
+    ID 4: Server List Request<br />
+    [Encrypted] Requester<br />
+	<i>Bodyless Packet</i>
+  </th>
+ </thead>
 </table>
 
 ## Sockstamps

@@ -32,9 +32,7 @@ namespace Kneesocks {
             }
         }
 
-        public int Count {
-            get => Clients.Count;
-        }
+        public int Count => Clients.Count;
 
         internal void StopThread() => Running = false;
 

@@ -22,8 +22,6 @@ namespace SockScape {
 
     class Entrypoint {
         static void Main(string[] args) {
-            var db = new DAL.ScapeDb();
-
             foreach(var server in Configuration.Servers) {
                 var pool = new Pool<PlayerConnection> {
                     InitialCount = 3,

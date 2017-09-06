@@ -6,26 +6,51 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SockScape {
-    class ServerList {
-        public static Dictionary<int, Server> Servers { get; } 
-            = new Dictionary<int, Server>();
+    static class ServerList {
+        private static ServerDictionary Servers { get; } 
+            = new ServerDictionary();
 
-        public Server this[int i] {
-            get => Servers.ContainsKey(i) ? Servers[i] : null;
-            set => Servers[i] = value;
+        private static Dictionary<UInt16, Server> List
+            => Servers.List;
+
+        public static void Write(Server server) {
+            lock(Servers) {
+                if(HasId(server.Id) && !List[server.Id].Address.Equals(server.Address))
+                    Console.WriteLine($"{DateTime.Now.ToShortTimeString()} - Server {server.Id} has changed IP addresses.");
+
+                List[server.Id] = server;
+            }
         }
 
-        public bool HasId(int id)
-            => Servers.ContainsKey(id);
+        public static Packet ReportPacket {
+            get {
+                var packet = new Packet(kInterMasterId.);
 
-        public void Clear()
-            => Servers.Clear();
+                return packet;
+            }
+        }
+
+        public static bool HasId(UInt16 id)
+            => List.ContainsKey(id);
+
+        public static void Clear()
+            => List.Clear();
+
+        public class ServerDictionary {
+            public Dictionary<UInt16, Server> List { get; }
+                = new Dictionary<UInt16, Server>();
+
+            public Server this[UInt16 i] {
+                get => List.ContainsKey(i) ? List[i] : null;
+                set => List[i] = value;
+            }
+        }
     }
 
     class Server {
         public ushort Id { get; set; }
         public ushort UserCount { get; set; }
-        public IPEndPoint Address { get; set; }
-        public IPEndPoint Owner { get; set; }
+        public IPAddress Address { get; set; }
+        public ushort Port { get; set; }
     }
 }
