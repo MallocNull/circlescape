@@ -51,7 +51,8 @@ namespace SockScape {
 
                     if(packet == null)
                         continue;
-                    
+
+                    Clients[client].LastReceive = DateTime.Now;
                     switch((kIntraSlaveId)packet.Id) {
                         case kIntraSlaveId.InitiationAttempt:
                             if(packet.RegionCount != 1 || IsProspectConnected(client))
@@ -155,6 +156,7 @@ namespace SockScape {
         class Client {
             public IPEndPoint Address { get; set; }
             public DateTime LastReceive { get; set; }
+            public TimeSpan ReceiveDelta => DateTime.Now - LastReceive;
             public Cipher Encryptor { get; set; }
             public Key Key { get; set; }
         }

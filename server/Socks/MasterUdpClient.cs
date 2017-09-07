@@ -79,11 +79,12 @@ namespace SockScape {
                     }
                 }
 
-                if(LastMessageIn.Ticks == 0 && DeltaLastOut.TotalSeconds > 10)
-                    Send(new Packet(kIntraSlaveId.InitiationAttempt, Configuration.General["Master Secret"]));
-                else {
-                    
-                }
+                if (LastMessageIn.Ticks != 0) {
+                    if(DeltaLastOut.TotalSeconds > 2)
+                        Send(new Packet());
+                } else
+                    if(DeltaLastOut.TotalSeconds > 10)
+                        Send(new Packet(kIntraSlaveId.InitiationAttempt, Configuration.General["Master Secret"]));
 
                 Thread.Sleep(1);
             }
