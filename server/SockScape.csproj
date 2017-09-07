@@ -94,17 +94,18 @@
     <Compile Include="DAL\ScapeDb.cs" />
     <Compile Include="DAL\Session.cs" />
     <Compile Include="DAL\User.cs" />
+    <Compile Include="Encryption\BlockCipher.cs" />
     <Compile Include="Encryption\KeyExchange.cs" />
-    <Compile Include="Encryption\Cipher.cs" />
+    <Compile Include="Encryption\StreamCipher.cs" />
     <Compile Include="Migrations\201708251600325_Initial.cs" />
     <Compile Include="Migrations\201708251600325_Initial.Designer.cs">
       <DependentUpon>201708251600325_Initial.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
-    <Compile Include="ServerList.cs" />
+    <Compile Include="MasterServerList.cs" />
     <Compile Include="Socks\MasterConnection.cs" />
-    <Compile Include="Socks\MasterUdpClient.cs" />
-    <Compile Include="Socks\MasterUdpServer.cs" />
+    <Compile Include="Socks\MasterIntraClient.cs" />
+    <Compile Include="Socks\MasterIntraServer.cs" />
     <Compile Include="Socks\Protocols\ClientServerIds.cs" />
     <Compile Include="Socks\Protocols\InterMasterIds.cs" />
     <Compile Include="Socks\Protocols\IntraMasterIds.cs" />

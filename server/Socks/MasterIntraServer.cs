@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace SockScape {
             if(IsOpen || ListeningThread != null)
                 return;
             
-            ServerList.Clear();
+            MasterServerList.Clear();
             Prospects = new Dictionary<string, Client>();
             Clients = new Dictionary<string, Client>();
 
@@ -49,8 +50,11 @@ namespace SockScape {
                         encryptor == null ? Packet.FromBytes(data) 
                                           : Packet.FromBytes(encryptor.Parse(data));
 
-                    if(packet == null)
+                    if(packet == null) {
+                        if(encryptor != null)
+                            EncryptionError(endPoint);
                         continue;
+                    }
 
                     Clients[client].LastReceive = DateTime.Now;
                     switch((kIntraSlaveId)packet.Id) {
@@ -76,7 +80,8 @@ namespace SockScape {
 
                             var privateKey = Prospects[client].Key.ParseResponsePacket(packet);
                             if(privateKey != -1) {
-                                Prospects[client].Encryptor = new Cipher(privateKey);
+                                Prospects[client].LastReceive = DateTime.Now;
+                                Prospects[client].Encryptor = new StreamCipher(privateKey);
                                 Clients[client] = Prospects[client];
                                 Prospects.Remove(client);
                             } else
@@ -88,13 +93,13 @@ namespace SockScape {
                                 break;
 
                             if(packet.CheckRegions(0, 1)) {
-                                NegativeAck(endPoint, kIntraSlaveId.StatusUpdate, "Server count is malformed.");
+                                NegativeAck(endPoint, encryptor, kIntraSlaveId.StatusUpdate, "Server count is malformed.");
                                 break;
                             }
 
                             byte serverCount = packet[0].Raw[0];
                             if(packet.RegionCount != 1 + 3 * serverCount) {
-                                NegativeAck(endPoint, kIntraSlaveId.StatusUpdate, "Region count does not match server count");
+                                NegativeAck(endPoint, encryptor, kIntraSlaveId.StatusUpdate, "Region count does not match server count");
                                 break;
                             }
 
@@ -102,7 +107,7 @@ namespace SockScape {
                                 if(!packet.CheckRegions(2 + 3 * i, 2, 2, 2))
                                     continue;
 
-                                ServerList.Write(new Server {
+                                MasterServerList.Write(new Server {
                                     Id = packet[2 + 3 * i].Raw.UnpackUInt16(),
                                     UserCount = packet[3 + 3 * i].Raw.UnpackUInt16(),
                                     Address = endPoint.Address,
@@ -110,7 +115,7 @@ namespace SockScape {
                                 });
                             }
 
-                            PositiveAck(endPoint, kIntraSlaveId.StatusUpdate);
+                            PositiveAck(endPoint, encryptor, kIntraSlaveId.StatusUpdate);
                             break;
                     }
                 }
@@ -122,8 +127,11 @@ namespace SockScape {
         }
 
         private static void Send(Packet packet, IPEndPoint client) {
-            var message = packet.GetBytes();
-            Sock.Send(message, message.Length, client);
+            Send(packet.GetBytes(), client);
+        }
+
+        private static void Send(byte[] bytes, IPEndPoint client) {
+            Sock.Send(bytes, bytes.Length, client);
         }
 
         public static void Close() {
@@ -141,12 +149,12 @@ namespace SockScape {
             return Clients.ContainsKey(client);
         }
 
-        private static void PositiveAck(IPEndPoint endPoint, kIntraSlaveId id) {
-            Send(new Packet(kIntraMasterId.PositiveAck, id), endPoint);
+        private static void PositiveAck(IPEndPoint endPoint, StreamCipher cipher, kIntraSlaveId id) {
+            Send(cipher.Parse(new Packet(kIntraMasterId.PositiveAck, id).GetBytes()), endPoint);
         }
 
-        private static void NegativeAck(IPEndPoint endPoint, kIntraSlaveId id, string message = "An error occurred while parsing a packet.") {
-            Send(new Packet(kIntraMasterId.NegativeAck, id, message), endPoint);
+        private static void NegativeAck(IPEndPoint endPoint, StreamCipher cipher, kIntraSlaveId id, string message = "An error occurred while parsing a packet.") {
+            Send(cipher.Parse(new Packet(kIntraMasterId.NegativeAck, id, message).GetBytes()), endPoint);
         }
 
         private static void EncryptionError(IPEndPoint endPoint, string message = "A general encryption error has occurred. Renegotiation required.") {
@@ -157,7 +165,7 @@ namespace SockScape {
             public IPEndPoint Address { get; set; }
             public DateTime LastReceive { get; set; }
             public TimeSpan ReceiveDelta => DateTime.Now - LastReceive;
-            public Cipher Encryptor { get; set; }
+            public StreamCipher Encryptor { get; set; }
             public Key Key { get; set; }
         }
     } 

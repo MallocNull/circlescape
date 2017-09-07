@@ -10,9 +10,8 @@ using Glove;
 using SockScape.Encryption;
 
 namespace SockScape {
-    static class MasterUdpClient {
+    static class MasterIntraClient {
         private static Key Key;
-        private static Cipher Encryptor;
 
         private static UdpClient Sock;
         private static Thread ListeningThread;
@@ -55,10 +54,9 @@ namespace SockScape {
                     switch((kIntraMasterId)packet.Id) {
                         case kIntraMasterId.KeyExchange:
                             var responsePacket = Key.ParseRequestPacket(packet);
-                            Encryptor = new Cipher(Key.PrivateKey);
+                            Encryptor = new StreamCipher(Key.PrivateKey);
                             if(responsePacket != null)
                                 Send(responsePacket);
-
                             else
                                 LastMessageIn = new DateTime(0);
                             break;
@@ -72,6 +70,8 @@ namespace SockScape {
                             break;
 
                         case kIntraMasterId.EncryptionError:
+                            NextSendId = NextRecvId = 0;
+                            Buffer.Clear();
                             Key = new Key();
                             Encryptor = null;
                             LastMessageIn = new DateTime(0);
@@ -79,9 +79,9 @@ namespace SockScape {
                     }
                 }
 
-                if (LastMessageIn.Ticks != 0) {
+                if(LastMessageIn.Ticks != 0) {
                     if(DeltaLastOut.TotalSeconds > 2)
-                        Send(new Packet());
+                        Send(Encryptor.Parse(ServerContext.StatusUpdatePacket.GetBytes()));
                 } else
                     if(DeltaLastOut.TotalSeconds > 10)
                         Send(new Packet(kIntraSlaveId.InitiationAttempt, Configuration.General["Master Secret"]));
@@ -91,9 +91,14 @@ namespace SockScape {
         }
 
         public static void Send(Packet packet) {
-            var message = packet.GetBytes();
-            Sock.Send(message, message.Length);
+            Send(packet.GetBytes());
+        }
+
+        public static void Send(byte[] bytes) {
+            Sock.Send(bytes, bytes.Length);
             LastMessageOut = DateTime.Now;
+            Buffer.Add(NextSendId, bytes);
+            ++NextSendId;
         }
 
         public static void Close() {

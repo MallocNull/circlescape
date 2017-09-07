@@ -10,7 +10,7 @@ using SockScape.Encryption;
 namespace SockScape {
     class MasterConnection : Connection {
         private Key Key;
-        public Cipher Encryptor { get; private set; }
+        public StreamCipher Encryptor { get; private set; }
         
         protected override void OnOpen() {
             Key = new Key();
@@ -39,7 +39,7 @@ namespace SockScape {
                         return;
                     }
 
-                    Encryptor = new Cipher(Key.PrivateKey);
+                    Encryptor = new StreamCipher(Key.PrivateKey);
                     break;
                 case kInterMasterId.LoginAttempt:
 

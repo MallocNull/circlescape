@@ -7,11 +7,11 @@ using System.Numerics;
 using Glove;
 
 namespace SockScape.Encryption {
-    class Cipher {
-        private readonly byte[] Key = new byte[512 / 8];
+    class StreamCipher {
+        private readonly byte[] Key = new byte[Encryption.Key.KeySizeBytes];
         private readonly byte[] State = new byte[256];
 
-        public Cipher(BigInteger key) {
+        public StreamCipher(BigInteger key) {
             int i = 0, j = 0;
             State = State.Select(x => (byte)i++).ToArray();
             Key = Key.Select(x => (byte)0).ToArray();

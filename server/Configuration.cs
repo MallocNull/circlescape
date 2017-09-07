@@ -21,6 +21,7 @@ namespace SockScape {
                             "Master Port",
                             "Master Addr",
                             "Master Secret",
+                            "Master IV",
                             "Max Users"
                         }
                     },

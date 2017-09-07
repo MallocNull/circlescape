@@ -92,6 +92,13 @@ namespace SockScape {
             return this;
         }
 
+        public Packet AddRegions(params object[] regions) {
+            foreach(var region in regions)
+                AddRegion(region);
+
+            return this;
+        }
+
         public bool CheckRegions(int startIndex, params int[] lengths) {
             if(startIndex + lengths.Length > RegionCount)
                 return false;
@@ -149,5 +156,33 @@ namespace SockScape {
             public string Str
                 => this;
         }
+    }
+
+    public class PacketBuffer {
+        private short MaxSize;
+        private Dictionary<uint, byte[]> Buffer
+            = new Dictionary<uint, byte[]>();
+
+        public PacketBuffer(short maxSize = 10) {
+            MaxSize = maxSize;
+        }
+
+        public void Add(uint id, byte[] packet) {
+            Buffer[id] = packet;
+
+            if(Buffer.Count > 10)
+                Buffer =
+                    Buffer.Where(x => x.Key >= id - 10)
+                        .ToDictionary(x => x.Key, x => x.Value);
+        }
+
+        public byte[] this[uint i]
+            => Buffer[i];
+
+        public bool HasId(uint id)
+            => Buffer.ContainsKey(id);
+
+        public void Clear()
+            => Buffer.Clear();
     }
 }

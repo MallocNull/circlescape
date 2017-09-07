@@ -322,13 +322,32 @@ Communication between the master server and clients will be done over a WebSocke
  </thead>
  <tr>
   <td class="center">1</td>
-  <td>Succeeded</td>
-  <td>Boolean</td>
+  <td>Server Count (<i>n</i>)</td>
+  <td>Packed Unsigned Short</td>
  </tr>
  <tr>
-  <td class="center">2</td>
-  <td>Message</td>
-  <td>String</td>
+  <td><i>r</i> > 1</td>
+  <td colspan="2">Iterated over <i>n</i> (0 &leq; <i>i</i> &leq; <i>n - 1</i>)</td>
+ </tr>
+ <tr>
+  <td class="center">2 + 4<i>i</i></td>
+  <td>Server Id</td>
+  <td>Packed Unsigned Short</td>
+ </tr>
+ <tr>
+  <td class="center">3 + 4<i>i</i></td>
+  <td>User Count</td>
+  <td>Packed Unsigned Short</td>
+ </tr>
+ <tr>
+  <td class="center">4 + 4<i>i</i></td>
+  <td>IP Address</td>
+  <td>IPv4 String</td>
+ </tr>
+ <tr>
+  <td class="center">5 + 4<i>i</i></td>
+  <td>Port</td>
+  <td>Packed Unsigned Short</td>
  </tr>
 </table>
 

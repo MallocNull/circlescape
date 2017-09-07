@@ -5,6 +5,18 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Glove {
+    public static class CharExtensions {
+        public static bool IsHex(this char c) {
+            return (c >= '0' && c <= '9')
+                   || (c >= 'A' && c <= 'F')
+                   || (c >= 'a' && c <= 'f');
+        }
+
+        public static byte HexValue(this char c) {
+            return (byte)(!c.IsHex() ? 0 : c - (c < 0x3A ? 0x30 : (c < 0x61 ? 0x37 : 0x57)));
+        }
+    }
+
     public static class StringExtensions {
         public static byte[] GetBytes(this string str, bool isUtf8 = true)
             => isUtf8 ? Encoding.UTF8.GetBytes(str)

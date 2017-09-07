@@ -6,10 +6,14 @@ using System.Threading.Tasks;
 using System.Numerics;
 using Glove;
 using System.Globalization;
+using System.Security.Cryptography;
 
 namespace SockScape.Encryption {
     class Key {
-        private static readonly BigInteger Secret = RNG.NextPrime(512 / 8);
+        public const int KeySize = 512;
+        public const int KeySizeBytes = KeySize / 8;
+
+        private static readonly BigInteger Secret = RNG.NextPrime(KeySizeBytes);
         public BigInteger Generator { get; } = 2;
         public BigInteger Modulus { get; }
         public BigInteger PrivateKey { get; private set; } = BigInteger.Zero;
@@ -17,7 +21,7 @@ namespace SockScape.Encryption {
             => !PrivateKey.IsZero;
 
         public Key() {
-            Modulus = RNG.NextPrime(512 / 8);
+            Modulus = RNG.NextPrime(KeySizeBytes);
         }
 
         public Packet GenerateRequestPacket() {

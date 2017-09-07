@@ -29,7 +29,7 @@ namespace Kneesocks {
             Service_Unavailable     = 503,
             Gateway_Timeout         = 504
         }
-        public kStatusCode? StatusCode { get; private set; } = null;
+        public kStatusCode? StatusCode { get; } = null;
         protected string StatusCodeText
             => Enum.GetName(typeof(kStatusCode), StatusCode).Replace('_', ' ');
 

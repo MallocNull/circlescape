@@ -60,5 +60,23 @@ namespace Glove {
 
         public static BigInteger HexStringToBigInt(this string value)
             => BigInteger.Parse(value, NumberStyles.HexNumber);
+
+        public static byte[] HexStringToBytes(this string value) {
+            if(value.Length % 2 == 1)
+                return null;
+
+            var bytes = new byte[value.Length / 2];
+            for(var i = 0; i < bytes.Length; ++i) {
+                char upperNibble = value[2 * i],
+                     lowerNibble = value[2 * i + 1];
+
+                if(!upperNibble.IsHex() || !lowerNibble.IsHex())
+                    return null;
+
+                bytes[i] = (byte)((upperNibble.HexValue() << 4) | lowerNibble.HexValue());
+            }
+
+            return bytes;
+        }
     }
 }

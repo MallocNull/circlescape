@@ -12,24 +12,29 @@ namespace Glove.INI {
             Raw = raw;
         }
 
-        public static implicit operator string(Value value) {
-            return value.Raw;
-        }
+        public string Str
+            => this;
 
-        public static implicit operator bool(Value value) {
-            return Boolean.TryParse(value.Raw, out bool retval) && retval;
-        }
+        public Int32 Int
+            => this;
 
-        public static implicit operator Int32(Value value) {
-            return Int32.TryParse(value.Raw, out Int32 retval)
+        public double Dbl
+            => this;
+
+        public static implicit operator string(Value value)
+            => value.Raw;
+
+        public static implicit operator bool(Value value)
+            => Boolean.TryParse(value.Raw, out bool retval) && retval;
+
+        public static implicit operator Int32(Value value)
+            => Int32.TryParse(value.Raw, out Int32 retval)
                 ? retval
                 : 0;
-        }
 
-        public static implicit operator double(Value value) {
-            return Double.TryParse(value.Raw, out double retval)
+        public static implicit operator double(Value value) 
+            => Double.TryParse(value.Raw, out double retval)
                 ? retval
                 : 0;
-        }
     }
 }

@@ -14,10 +14,20 @@ using MySql.Data.Entity;
 
 namespace SockScape {
     static class ServerContext {
-        public static Dictionary<int, Server<PlayerConnection>> Servers { get; }
-            = new Dictionary<int, Server<PlayerConnection>>();
-        public static Dictionary<int, Pool<PlayerConnection>> Pools { get; }
-            = new Dictionary<int, Pool<PlayerConnection>>();
+        public static Dictionary<ushort, Server<PlayerConnection>> Servers { get; }
+            = new Dictionary<ushort, Server<PlayerConnection>>();
+        public static Dictionary<ushort, Pool<PlayerConnection>> Pools { get; }
+            = new Dictionary<ushort, Pool<PlayerConnection>>();
+
+        public static Packet StatusUpdatePacket {
+            get {
+                var packet = new Packet(kIntraSlaveId.StatusUpdate, (byte)Servers.Count);
+                foreach(var pool in Pools)
+                    packet.AddRegions(pool.Key.Pack(), ((ushort)pool.Value.ConnectionCount).Pack(), Servers[pool.Key].Port.Pack());
+
+                return packet;
+            }
+        }
     }
 
     class Entrypoint {
@@ -33,8 +43,8 @@ namespace SockScape {
 
                 var serverHandle = new Server<PlayerConnection>((ushort)server["Port"], pool, server);
 
-                ServerContext.Pools.Add(server["Id"], pool);
-                ServerContext.Servers.Add(server["Id"], serverHandle);
+                ServerContext.Pools.Add((ushort)server["Id"], pool);
+                ServerContext.Servers.Add((ushort)server["Id"], serverHandle);
                 serverHandle.Start();
             }
 
