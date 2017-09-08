@@ -51,7 +51,7 @@ namespace SockScape.Encryption {
             try {
                 var ms = new MemoryStream(data);
                 var cs = new CryptoStream(ms,
-                    new TripleDESCryptoServiceProvider().CreateEncryptor(Key, IV),
+                    new TripleDESCryptoServiceProvider().CreateDecryptor(Key, IV),
                     CryptoStreamMode.Read);
 
                 byte[] ret = new byte[data.Length];

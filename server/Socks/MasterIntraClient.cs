@@ -12,6 +12,7 @@ using SockScape.Encryption;
 namespace SockScape {
     static class MasterIntraClient {
         private static Key Key;
+        private static BlockCipher Encryptor;
 
         private static UdpClient Sock;
         private static Thread ListeningThread;
@@ -32,6 +33,12 @@ namespace SockScape {
             ushort port = (ushort)Configuration.General["Master Port"];
             Sock = new UdpClient(Configuration.General["Master Addr"], port);
 
+            // TODO figure out what this has to do with ICMP (in server too)
+            uint IOC_IN            = 0x80000000,
+                 IOC_VENDOR        = 0x18000000,
+                 SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
+            Sock.Client.IOControl((int)SIO_UDP_CONNRESET, new byte[] {0}, null);
+
             Key = new Key();
             Encryptor = null;
 
@@ -42,19 +49,22 @@ namespace SockScape {
 
         public static void Listener() {
             while(IsOpen) {
-                var endPoint = new IPEndPoint(0, 0);
+                var endPoint = new IPEndPoint(IPAddress.Any, 0);
                 while(Sock.Available > 0) {
                     var data = Sock.Receive(ref endPoint);
                     LastMessageIn = DateTime.Now;
 
+                    bool readRaw = Encryptor == null 
+                        || data.Take(Packet.MagicNumber.Length).SequenceEqual(Packet.MagicNumber);
+
                     Packet packet =
-                        Encryptor == null ? Packet.FromBytes(data)
-                                          : Packet.FromBytes(Encryptor.Parse(data));
+                        readRaw ? Packet.FromBytes(data)
+                                : Packet.FromBytes(Encryptor.Decrypt(data));
 
                     switch((kIntraMasterId)packet.Id) {
                         case kIntraMasterId.KeyExchange:
                             var responsePacket = Key.ParseRequestPacket(packet);
-                            Encryptor = new StreamCipher(Key.PrivateKey);
+                            Encryptor = new BlockCipher(Key.PrivateKey);
                             if(responsePacket != null)
                                 Send(responsePacket);
                             else
@@ -62,16 +72,14 @@ namespace SockScape {
                             break;
 
                         case kIntraMasterId.PositiveAck:
-                            Console.WriteLine($"Packet type {packet[0]} accepted by master");
+                            Console.WriteLine($"Packet type {packet[0].Raw[0]} accepted by master");
                             break;
 
                         case kIntraMasterId.NegativeAck:
-                            Console.WriteLine($"Packet type {packet[0]} declined by master for reason {packet[1]}");
+                            Console.WriteLine($"Packet type {packet[0].Raw[0]} declined by master for reason {packet[1].Str}");
                             break;
 
                         case kIntraMasterId.EncryptionError:
-                            NextSendId = NextRecvId = 0;
-                            Buffer.Clear();
                             Key = new Key();
                             Encryptor = null;
                             LastMessageIn = new DateTime(0);
@@ -79,12 +87,12 @@ namespace SockScape {
                     }
                 }
 
-                if(LastMessageIn.Ticks != 0) {
+                if(Encryptor != null) {
                     if(DeltaLastOut.TotalSeconds > 2)
-                        Send(Encryptor.Parse(ServerContext.StatusUpdatePacket.GetBytes()));
+                        SendEncrypted(ServerContext.StatusUpdatePacket);
                 } else
                     if(DeltaLastOut.TotalSeconds > 10)
-                        Send(new Packet(kIntraSlaveId.InitiationAttempt, Configuration.General["Master Secret"]));
+                        Send(new Packet(kIntraSlaveId.InitiationAttempt, Configuration.General["Master Secret"].Str));
 
                 Thread.Sleep(1);
             }
@@ -94,11 +102,13 @@ namespace SockScape {
             Send(packet.GetBytes());
         }
 
+        public static void SendEncrypted(Packet packet) {
+            Send(Encryptor.Encrypt(packet.GetBytes()));
+        }
+
         public static void Send(byte[] bytes) {
             Sock.Send(bytes, bytes.Length);
             LastMessageOut = DateTime.Now;
-            Buffer.Add(NextSendId, bytes);
-            ++NextSendId;
         }
 
         public static void Close() {

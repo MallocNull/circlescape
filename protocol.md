@@ -271,16 +271,31 @@ Communication between the master server and clients will be done over a WebSocke
   <th>#</th>
   <th>Region</th>
   <th>Type</th>
+  <th>if</th>
  </thead>
  <tr>
   <td class="center">1</td>
   <td>Succeeded</td>
   <td>Boolean</td>
+  <td></td>
  </tr>
- <tr> 
+ <tr style="border-bottom: 2px solid;"> 
   <td class="center">2</td>
   <td>Message</td>
   <td>String</td>
+  <td>R<sub>1</sub></td>
+ </tr>
+ <tr> 
+  <td class="center">2</td>
+  <td>Session Id</td>
+  <td>Packed Unsigned Long</td>
+  <td>&not;R<sub>1</sub></td>
+ </tr>
+ <tr> 
+  <td class="center">3</td>
+  <td>Secret</td>
+  <td>Bytes (16)</td>
+  <td>&not;R<sub>1</sub></td>
  </tr>
 </table>
 
@@ -430,8 +445,12 @@ Communication between the master server and clients will be done over a WebSocke
   <th colspan="100" class="center">
     ID 4: Server List Request<br />
     [Encrypted] Requester<br />
-	<i>Bodyless Packet</i>
   </th>
+  <thead>
+	<th colspan="100" class="center">
+		<i>Bodyless Packet</i>
+	</th>
+  </thead>
  </thead>
 </table>
 

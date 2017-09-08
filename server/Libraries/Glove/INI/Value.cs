@@ -21,6 +21,9 @@ namespace Glove.INI {
         public double Dbl
             => this;
 
+        public bool Bool
+            => this;
+
         public static implicit operator string(Value value)
             => value.Raw;
 

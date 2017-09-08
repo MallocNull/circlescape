@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Kneesocks;
 using Glove;
+using SockScape.DAL;
 using SockScape.Encryption;
 
 namespace SockScape {
@@ -18,7 +20,7 @@ namespace SockScape {
         }
 
         protected override void OnParse() {
-
+            
         }
 
         protected override void OnReceive(byte[] data) {
@@ -28,6 +30,11 @@ namespace SockScape {
 
             if(packet == null) {
                 Disconnect(Frame.kClosingReason.ProtocolError, "Packet received was not legal.");
+                return;
+            }
+
+            if(packet.Id != (int)kInterMasterId.KeyExchange && Encryptor == null) {
+                Disconnect(Frame.kClosingReason.ProtocolError, "You must exchange keys before performing any other operations.");
                 return;
             }
 
@@ -42,10 +49,17 @@ namespace SockScape {
                     Encryptor = new StreamCipher(Key.PrivateKey);
                     break;
                 case kInterMasterId.LoginAttempt:
+                    if(packet.RegionCount != 2)
+                        break;
 
+                    using(var db = new ScapeDb()) {
+                        if(db.Users.)
+                    }
                     break;
                 case kInterMasterId.RegistrationAttempt:
-
+                    using(var db = new ScapeDb()) {
+                        
+                    }
                     break;
                 default:
                     Disconnect(Frame.kClosingReason.ProtocolError, "Packet ID could not be understood at this time.");

@@ -48,8 +48,10 @@ namespace SockScape {
                 serverHandle.Start();
             }
 
-            //var server = new Server<PlayerConnection>(6770, PoolManager.Pending);
-            //server.Start();
+            if(Configuration.General["Run Master"])
+                MasterIntraServer.Initialize();
+
+            MasterIntraClient.Initialize();
 
             /*while(true) {
                 var send = Console.ReadLine();
@@ -60,7 +62,9 @@ namespace SockScape {
 
             Console.ReadLine();
 
-            //server.Stop();
+            MasterIntraClient.Close();
+            if(Configuration.General["Run Master"])
+                MasterIntraServer.Close();
         }
     }
 }

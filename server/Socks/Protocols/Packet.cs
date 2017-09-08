@@ -88,6 +88,10 @@ namespace SockScape {
                 Regions.Add((byte[])region);
             else if(region.GetType() == typeof(string))
                 Regions.Add(((string)region).GetBytes());
+            else if(region.GetType() == typeof(byte))
+                Regions.Add(new[] { (byte)region });
+            else
+                Console.WriteLine($"Could not add region {region} of type {region.GetType()}.");
 
             return this;
         }
@@ -104,7 +108,7 @@ namespace SockScape {
                 return false;
 
             for(int i = 0; i < lengths.Length; ++i) {
-                if(this[startIndex + i].Raw.Length == lengths[i])
+                if(this[startIndex + i].Raw.Length != lengths[i])
                     return false;
             }
 

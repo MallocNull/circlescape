@@ -2,29 +2,39 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Runtime.Remoting;
 using System.Text;
 using System.Threading.Tasks;
 using Glove;
 
 namespace SockScape {
     static class MasterServerList {
-        public static Dictionary<UInt16, Server> Servers { get; }
+        private static Dictionary<UInt16, Server> _Servers
             = new Dictionary<UInt16, Server>();
 
+        public static Dictionary<UInt16, Server> Servers {
+            get {
+                lock(_Servers) {
+                    return _Servers.ToDictionary(x => x.Key,
+                                                 x => x.Value);
+                }
+            }
+        }
+
         public static void Write(Server server) {
-            lock(Servers) {
-                if(HasId(server.Id) && !Servers[server.Id].Address.Equals(server.Address))
+            lock(_Servers) {
+                if(HasId(server.Id) && !_Servers[server.Id].Address.Equals(server.Address))
                     Console.WriteLine($"{DateTime.Now.ToShortTimeString()} - Server {server.Id} has changed IP addresses.");
 
-                Servers[server.Id] = server;
+                _Servers[server.Id] = server;
             }
         }
 
         public static Packet ReportPacket {
             get {
-                lock(Servers) {
-                    var packet = new Packet(kInterMasterId.ServerListing, ((ushort)Servers.Count).Pack());
-                    foreach(var server in Servers)
+                lock(_Servers) {
+                    var packet = new Packet(kInterMasterId.ServerListing, ((ushort)_Servers.Count).Pack());
+                    foreach(var server in _Servers)
                         // TODO change this to support IPv6
                         packet.AddRegions(server.Key.Pack(), server.Value.UserCount.Pack(), 
                             server.Value.Address.MapToIPv4().ToString(), server.Value.Port.Pack());
@@ -34,11 +44,24 @@ namespace SockScape {
             }
         }
 
-        public static bool HasId(UInt16 id)
-            => Servers.ContainsKey(id);
+        public static void RemoveServersByOwners(IEnumerable<MasterIntraServer.Client> owners) {
+            lock(_Servers) {
+                _Servers = _Servers.Where(x => !owners.Contains(x.Value.Owner))
+                    .ToDictionary(x => x.Key, x => x.Value);
+            }
+        }
 
-        public static void Clear()
-            => Servers.Clear();
+        public static bool HasId(UInt16 id) {
+            lock(_Servers) {
+                return _Servers.ContainsKey(id);
+            }   
+        }
+
+        public static void Clear() {
+            lock(_Servers) {
+                _Servers.Clear();
+            }
+        } 
     }
 
     class Server {
@@ -46,5 +69,6 @@ namespace SockScape {
         public ushort UserCount { get; set; }
         public IPAddress Address { get; set; }
         public ushort Port { get; set; }
+        public MasterIntraServer.Client Owner { get; set; }
     }
 }
