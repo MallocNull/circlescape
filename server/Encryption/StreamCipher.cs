@@ -14,7 +14,6 @@ namespace SockScape.Encryption {
         public StreamCipher(BigInteger key) {
             int i = 0, j = 0;
             State = State.Select(x => (byte)i++).ToArray();
-            Key = Key.Select(x => (byte)0).ToArray();
             Array.Copy(key.ToByteArray(), Key, Key.Length);
 
             for(i = 0; i < State.Length; ++i) {

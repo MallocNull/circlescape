@@ -18,7 +18,6 @@ namespace SockScape.Encryption {
         private readonly byte[] IV;
 
         public BlockCipher(BigInteger key) {
-            Key = Key.Select(x => (byte)0).ToArray();
             Array.Copy(key.ToByteArray(), Key, Key.Length);
 
             IV = Configuration.General["Master IV"].Str.HexStringToBytes() 
