@@ -18,6 +18,13 @@ namespace SockScape.DAL {
         public byte[] Secret { get; set; }
 
         [Required]
+        public DateTime LastPing { get; set; }
+
+        [NotMapped]
+        public TimeSpan DeltaLastPing
+            => DateTime.UtcNow - LastPing;
+
+        [Required]
         public int ServerId { get; set; }
     }
 }

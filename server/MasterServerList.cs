@@ -36,8 +36,7 @@ namespace SockScape {
                     var packet = new Packet(kInterMasterId.ServerListing, ((ushort)_Servers.Count).Pack());
                     foreach(var server in _Servers)
                         // TODO change this to support IPv6
-                        packet.AddRegions(server.Key.Pack(), server.Value.UserCount.Pack(), 
-                            server.Value.Address.MapToIPv4().ToString(), server.Value.Port.Pack());
+                        packet.AddRegions(server.Key.Pack(), server.Value.UserCount.Pack());
 
                     return packet;
                 }
@@ -47,7 +46,7 @@ namespace SockScape {
         public static void RemoveServersByOwners(IEnumerable<MasterIntraServer.Client> owners) {
             lock(_Servers) {
                 _Servers = _Servers.Where(x => !owners.Contains(x.Value.Owner))
-                    .ToDictionary(x => x.Key, x => x.Value);
+                                   .ToDictionary(x => x.Key, x => x.Value);
             }
         }
 

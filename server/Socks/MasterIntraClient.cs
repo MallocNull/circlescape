@@ -20,11 +20,11 @@ namespace SockScape {
 
         private static DateTime LastMessageOut = new DateTime(0);
         private static TimeSpan DeltaLastOut
-            => DateTime.Now - LastMessageOut;
+            => DateTime.UtcNow - LastMessageOut;
 
         private static DateTime LastMessageIn = new DateTime(0);
         private static TimeSpan DeltaLastIn
-            => DateTime.Now - LastMessageIn;
+            => DateTime.UtcNow - LastMessageIn;
 
         public static void Initialize() {
             if(IsOpen || ListeningThread != null)
@@ -52,7 +52,7 @@ namespace SockScape {
                 var endPoint = new IPEndPoint(IPAddress.Any, 0);
                 while(Sock.Available > 0) {
                     var data = Sock.Receive(ref endPoint);
-                    LastMessageIn = DateTime.Now;
+                    LastMessageIn = DateTime.UtcNow;
 
                     bool readRaw = Encryptor == null 
                         || data.Take(Packet.MagicNumber.Length).SequenceEqual(Packet.MagicNumber);
@@ -108,7 +108,7 @@ namespace SockScape {
 
         public static void Send(byte[] bytes) {
             Sock.Send(bytes, bytes.Length);
-            LastMessageOut = DateTime.Now;
+            LastMessageOut = DateTime.UtcNow;
         }
 
         public static void Close() {

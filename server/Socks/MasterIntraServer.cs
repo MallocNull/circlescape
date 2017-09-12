@@ -63,9 +63,9 @@ namespace SockScape {
                     }
 
                     if(IsProspectConnected(client) && encryptor == null)
-                        Prospects[client].LastReceive = DateTime.Now;
+                        Prospects[client].LastReceive = DateTime.UtcNow;
                     else if(IsClientConnected(client) && encryptor != null)
-                        Clients[client].LastReceive = DateTime.Now;
+                        Clients[client].LastReceive = DateTime.UtcNow;
 
                     switch((kIntraSlaveId)packet.Id) {
                         case kIntraSlaveId.InitiationAttempt:
@@ -75,7 +75,7 @@ namespace SockScape {
                             if(packet[0] == Configuration.General["Master Secret"]) {
                                 var key = new Key();
                                 Prospects[client] = new Client {
-                                    LastReceive = DateTime.Now,
+                                    LastReceive = DateTime.UtcNow,
                                     Address = endPoint,
                                     Key = key
                                 };
@@ -90,7 +90,7 @@ namespace SockScape {
 
                             var privateKey = Prospects[client].Key.ParseResponsePacket(packet);
                             if(privateKey != -1) {
-                                Prospects[client].LastReceive = DateTime.Now;
+                                Prospects[client].LastReceive = DateTime.UtcNow;
                                 Prospects[client].Encryptor = new BlockCipher(privateKey);
                                 Clients[client] = Prospects[client];
                                 Prospects.Remove(client);
@@ -131,10 +131,10 @@ namespace SockScape {
                     }
                 }
 
-                Prospects = Prospects.Where(x => x.Value.ReceiveDelta.Seconds < 10)
+                Prospects = Prospects.Where(x => x.Value.ReceiveDelta.TotalSeconds < 10)
                     .ToDictionary(x => x.Key, x => x.Value);
 
-                var expiredClients = Clients.Where(x => x.Value.ReceiveDelta.Seconds > 60).Select(x => x.Value).ToList();
+                var expiredClients = Clients.Where(x => x.Value.ReceiveDelta.TotalSeconds > 60).Select(x => x.Value).ToList();
                 if(expiredClients.Count > 0)
                     MasterServerList.RemoveServersByOwners(expiredClients);
 
@@ -180,7 +180,7 @@ namespace SockScape {
         public class Client {
             public IPEndPoint Address { get; set; }
             public DateTime LastReceive { get; set; }
-            public TimeSpan ReceiveDelta => DateTime.Now - LastReceive;
+            public TimeSpan ReceiveDelta => DateTime.UtcNow - LastReceive;
             public BlockCipher Encryptor { get; set; }
             public Key Key { get; set; }
         }

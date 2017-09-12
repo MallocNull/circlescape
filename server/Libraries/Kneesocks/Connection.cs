@@ -171,9 +171,9 @@ namespace Kneesocks {
         internal void Parse() {
             if(Handshaked) {
                 if(!Buffer.IsReading) {
-                    if(TimeSinceLastPing.Seconds > TimeoutInterval) {
+                    if(TimeSinceLastPing.TotalSeconds > TimeoutInterval) {
                         Disconnect(Frame.kClosingReason.Normal, "Ping response timed out.");
-                    } else if(TimeSinceLastPing.Seconds > PingInterval && !AwaitingPingResponse) {
+                    } else if(TimeSinceLastPing.TotalSeconds > PingInterval && !AwaitingPingResponse) {
                         var frameBytes = new Frame {
                             IsFinal = true,
                             IsMasked = false,
@@ -204,7 +204,7 @@ namespace Kneesocks {
             if(Buffer.IsReading) {
                 readBuffer = Buffer.AttemptRead();
                 if(readBuffer == null) {
-                    if((!Handshaked || (Handshaked && FirstTwoBytes != null)) && Buffer.ElapsedReadTime.Seconds > (Handshaked ? 300 : 30))
+                   if((!Handshaked || (Handshaked && FirstTwoBytes != null)) && Buffer.ElapsedReadTime.TotalSeconds > (Handshaked ? 300 : 30))
                         Disconnect(Frame.kClosingReason.ProtocolError, "Timed out waiting for a full response");
 
                     return;

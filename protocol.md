@@ -283,19 +283,31 @@ Communication between the master server and clients will be done over a WebSocke
   <td class="center">2</td>
   <td>Message</td>
   <td>String</td>
-  <td>R<sub>1</sub></td>
+  <td>&not;R<sub>1</sub></td>
  </tr>
  <tr> 
   <td class="center">2</td>
   <td>Session Id</td>
   <td>Packed Unsigned Long</td>
-  <td>&not;R<sub>1</sub></td>
+  <td>R<sub>1</sub></td>
  </tr>
  <tr> 
   <td class="center">3</td>
   <td>Secret</td>
   <td>Bytes (16)</td>
-  <td>&not;R<sub>1</sub></td>
+  <td>R<sub>1</sub></td>
+ </tr>
+ <tr> 
+  <td class="center">4</td>
+  <td>Server Address</td>
+  <td>IPv4 String</td>
+  <td>R<sub>1</sub></td>
+ </tr>
+ <tr> 
+  <td class="center">5</td>
+  <td>Server Port</td>
+  <td>Packed Unsigned Short</td>
+  <td>R<sub>1</sub></td>
  </tr>
 </table>
 
@@ -345,23 +357,13 @@ Communication between the master server and clients will be done over a WebSocke
   <td colspan="2">Iterated over <i>n</i> (0 &leq; <i>i</i> &leq; <i>n - 1</i>)</td>
  </tr>
  <tr>
-  <td class="center">2 + 4<i>i</i></td>
+  <td class="center">2 + 2<i>i</i></td>
   <td>Server Id</td>
   <td>Packed Unsigned Short</td>
  </tr>
  <tr>
-  <td class="center">3 + 4<i>i</i></td>
+  <td class="center">3 + 2<i>i</i></td>
   <td>User Count</td>
-  <td>Packed Unsigned Short</td>
- </tr>
- <tr>
-  <td class="center">4 + 4<i>i</i></td>
-  <td>IP Address</td>
-  <td>IPv4 String</td>
- </tr>
- <tr>
-  <td class="center">5 + 4<i>i</i></td>
-  <td>Port</td>
   <td>Packed Unsigned Short</td>
  </tr>
 </table>
@@ -408,6 +410,11 @@ Communication between the master server and clients will be done over a WebSocke
   <td class="center">2</td>
   <td>Password</td>
   <td>String</td>
+ </tr>
+ <tr>
+  <td class="center">3</td>
+  <td>Server Id</td>
+  <td>Packed Unsigned Short</td>
  </tr>
 </table>
 

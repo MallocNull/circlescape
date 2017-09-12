@@ -17,7 +17,7 @@ namespace SockScape {
         }
 
         protected override void OnParse() {
-            if((DateTime.UtcNow - ConnectionOpened).Seconds > 60) {
+            if((DateTime.UtcNow - ConnectionOpened).TotalSeconds > 60) {
                 Disconnect(Frame.kClosingReason.ProtocolError, "Logon request timed out.");
             }
         }
