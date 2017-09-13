@@ -33,6 +33,9 @@ namespace Glove {
             => isUtf8 ? Encoding.UTF8.GetString(bytes)
                       : Encoding.ASCII.GetString(bytes);
 
+        public static bool IsAsciiString(this byte[] bytes)
+            => !bytes.Any(x => x > 0x7F);
+
         public static byte[] HostToNetworkOrder(this byte[] bytes) {
             if(BitConverter.IsLittleEndian)
                 return bytes.Reverse().ToArray();

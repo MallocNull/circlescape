@@ -4,6 +4,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Kneesocks;
 using Glove;
@@ -12,6 +13,9 @@ using SockScape.Encryption;
 
 namespace SockScape {
     class MasterConnection : Connection {
+        private Regex UsernameRegex = new Regex("[A-Z0-9_]", RegexOptions.IgnoreCase);
+        private Regex EmailRegex = new Regex("\\B[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\B", RegexOptions.IgnoreCase);
+
         private Key Key;
         public StreamCipher Encryptor { get; private set; }
         
@@ -39,6 +43,7 @@ namespace SockScape {
                 return;
             }
 
+            // TODO rate limiting by ip
             switch((kInterMasterId)packet.Id) {
                 case kInterMasterId.KeyExchange:
                     Key.ParseResponsePacket(packet);
@@ -60,7 +65,7 @@ namespace SockScape {
                             break;
                         }
 
-                        if(!packet[1].Str.CheckPassword(user.Password)) {
+                        if(packet[1].Str.Trim() == "" || !packet[1].Str.CheckPassword(user.Password)) {
                             SendEncrypted(new Packet(kInterMasterId.LoginAttempt, Convert.ToByte(false), "Password is incorrect."));
                             break;
                         }
@@ -91,9 +96,25 @@ namespace SockScape {
                     }
                     break;
                 case kInterMasterId.RegistrationAttempt:
+                    if(packet.RegionCount != 3)
+                        break;
+
                     using(var db = new ScapeDb()) {
-                        
+                        if(!packet[0].Raw.IsAsciiString()) {
+                            SendEncrypted(new Packet(kInterMasterId.RegistrationAttempt, Convert.ToByte(false), "Your username cannot contain unicode characters."));
+                            break;
+                        }
+
+                        if(packet[0].Raw.Length > 16 || !UsernameRegex.IsMatch(packet[0].Str)) {
+                            SendEncrypted(new Packet(kInterMasterId.RegistrationAttempt, Convert.ToByte(false), "The username is max 16 characters and can only be letters, numbers, and underscores."));
+                            break;
+                        }
+
+
                     }
+                    break;
+                case kInterMasterId.ServerListing:
+                    SendEncrypted(MasterServerList.ReportPacket);
                     break;
                 default:
                     Disconnect(Frame.kClosingReason.ProtocolError, "Packet ID could not be understood at this time.");
