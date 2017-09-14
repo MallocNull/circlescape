@@ -102,7 +102,7 @@ namespace SockScape {
                             if(!IsClientConnected(client) || packet.RegionCount < 1)
                                 break;
 
-                            if(!packet.CheckRegions(0, 1)) {
+                            if(!packet.CheckRegionLengths(0, 1)) {
                                 NegativeAck(endPoint, encryptor, kIntraSlaveId.StatusUpdate, "Server count is malformed.");
                                 break;
                             }
@@ -114,7 +114,7 @@ namespace SockScape {
                             }
 
                             for(byte i = 0; i < serverCount; ++i) {
-                                if(!packet.CheckRegions(1 + 3 * i, 2, 2, 2))
+                                if(!packet.CheckRegionLengths(1 + 3 * i, 2, 2, 2))
                                     continue;
 
                                 MasterServerList.Write(new Server {
@@ -132,7 +132,7 @@ namespace SockScape {
                 }
 
                 Prospects = Prospects.Where(x => x.Value.ReceiveDelta.TotalSeconds < 10)
-                    .ToDictionary(x => x.Key, x => x.Value);
+                                     .ToDictionary(x => x.Key, x => x.Value);
 
                 var expiredClients = Clients.Where(x => x.Value.ReceiveDelta.TotalSeconds > 60).Select(x => x.Value).ToList();
                 if(expiredClients.Count > 0)

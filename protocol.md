@@ -287,24 +287,18 @@ Communication between the master server and clients will be done over a WebSocke
  </tr>
  <tr> 
   <td class="center">2</td>
-  <td>Session Id</td>
-  <td>Packed Unsigned Long</td>
-  <td>R<sub>1</sub></td>
- </tr>
- <tr> 
-  <td class="center">3</td>
   <td>Secret</td>
   <td>Bytes (16)</td>
   <td>R<sub>1</sub></td>
  </tr>
  <tr> 
-  <td class="center">4</td>
+  <td class="center">3</td>
   <td>Server Address</td>
   <td>IPv4 String</td>
   <td>R<sub>1</sub></td>
  </tr>
  <tr> 
-  <td class="center">5</td>
+  <td class="center">4</td>
   <td>Server Port</td>
   <td>Packed Unsigned Short</td>
   <td>R<sub>1</sub></td>

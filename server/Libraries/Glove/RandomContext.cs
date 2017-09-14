@@ -8,7 +8,6 @@ using System.Security.Cryptography;
 
 namespace Glove {
     public static class RNG {
-        // TODO add cryptographically secure rng
         private static readonly Random RandCtx = new Random();
         private static readonly RNGCryptoServiceProvider CsRandCtx 
             = new RNGCryptoServiceProvider();

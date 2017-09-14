@@ -13,8 +13,8 @@ using SockScape.Encryption;
 
 namespace SockScape {
     class MasterConnection : Connection {
-        private Regex UsernameRegex = new Regex("[A-Z0-9_]", RegexOptions.IgnoreCase);
-        private Regex EmailRegex = new Regex("\\B[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\B", RegexOptions.IgnoreCase);
+        private readonly Regex UsernameRegex = new Regex("[A-Z0-9_]", RegexOptions.IgnoreCase);
+        private readonly Regex EmailRegex = new Regex(@"\B[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\B", RegexOptions.IgnoreCase);
 
         private Key Key;
         public StreamCipher Encryptor { get; private set; }
@@ -55,9 +55,10 @@ namespace SockScape {
                     Encryptor = new StreamCipher(Key.PrivateKey);
                     break;
                 case kInterMasterId.LoginAttempt:
-                    if(packet.RegionCount != 3 || !packet.CheckRegions(2, 2))
+                    if(packet.RegionCount != 3 || !packet.CheckRegionsMaxLength(0, 16, 255) || !packet.CheckRegionLengths(2, 2))
                         break;
 
+                    Session session;
                     using(var db = new ScapeDb()) {
                         User user;
                         if((user = db.Users.FirstOrDefault(x => x.Username == packet[0])) == null) {
@@ -75,8 +76,8 @@ namespace SockScape {
                             break;
                         }
 
-                        ushort server = packet[2].Raw.UnpackUInt16();
-                        if(!MasterServerList.HasId(server)) {
+                        ushort serverId = packet[2].Raw.UnpackUInt16();
+                        if(!MasterServerList.HasId(serverId)) {
                             SendEncrypted(new Packet(kInterMasterId.LoginAttempt, Convert.ToByte(false), "The world you have specified is offline."));
                             break;
                         }
@@ -86,32 +87,65 @@ namespace SockScape {
                             db.SaveChanges();
                         }
 
-                        db.Sessions.Add(new Session {
+                        db.Sessions.Add(session = new Session {
                             Id = user.Id,
                             Secret = RNG.NextBytes(16),
-                            ServerId = server,
+                            ServerId = serverId,
                             LastPing = DateTime.UtcNow
                         });
+
                         db.SaveChanges();
                     }
+
+                    var server = MasterServerList.Get((ushort)session.ServerId);
+                    SendEncrypted(new Packet(kInterMasterId.LoginAttempt, Convert.ToByte(true), session.Secret, server.Address.ToString(), server.Port.Pack()));
                     break;
                 case kInterMasterId.RegistrationAttempt:
-                    if(packet.RegionCount != 3)
+                    if(packet.RegionCount != 3 || !packet.CheckAllMaxLength(0xFF))
                         break;
 
-                    using(var db = new ScapeDb()) {
-                        if(!packet[0].Raw.IsAsciiString()) {
-                            SendEncrypted(new Packet(kInterMasterId.RegistrationAttempt, Convert.ToByte(false), "Your username cannot contain unicode characters."));
-                            break;
-                        }
-
-                        if(packet[0].Raw.Length > 16 || !UsernameRegex.IsMatch(packet[0].Str)) {
-                            SendEncrypted(new Packet(kInterMasterId.RegistrationAttempt, Convert.ToByte(false), "The username is max 16 characters and can only be letters, numbers, and underscores."));
-                            break;
-                        }
-
-
+                    if(!packet[0].Raw.IsAsciiString()) {
+                        SendEncrypted(new Packet(kInterMasterId.RegistrationAttempt, Convert.ToByte(false), "Your username cannot contain unicode characters."));
+                        break;
                     }
+
+                    string username = packet[0].Str.Trim(),
+                           password = packet[1].Str.Trim(),
+                           email    = packet[2].Str.Trim();
+
+                    if(username.Length > 16 || !UsernameRegex.IsMatch(username)) {
+                        SendEncrypted(new Packet(kInterMasterId.RegistrationAttempt, Convert.ToByte(false), "The username is max 16 characters and can only be letters, numbers, and underscores."));
+                        break;
+                    }
+
+                    if(!EmailRegex.IsMatch(email)) {
+                        SendEncrypted(new Packet(kInterMasterId.RegistrationAttempt, Convert.ToByte(false), "The email address is malformed."));
+                        break;
+                    }
+
+                    using(var db = new ScapeDb()) {
+                        if(db.Users.FirstOrDefault(x => x.Username == username) != null) {
+                            SendEncrypted(new Packet(kInterMasterId.RegistrationAttempt, Convert.ToByte(false), "This username is already in use."));
+                            break;
+                        }
+
+                        if(db.Users.FirstOrDefault(x => x.Email == email) != null) {
+                            SendEncrypted(new Packet(kInterMasterId.RegistrationAttempt, Convert.ToByte(false), "This email address is already in use."));
+                            break;
+                        }
+
+                        // TODO email activation
+                        db.Users.Add(new User {
+                            Username = username,
+                            Password = password.HashPassword(),
+                            Email = email,
+                            Joined = DateTime.UtcNow
+                        });
+
+                        db.SaveChanges();
+                    }
+
+                    SendEncrypted(new Packet(kInterMasterId.RegistrationAttempt, Convert.ToByte(true), "Registration was successful."));
                     break;
                 case kInterMasterId.ServerListing:
                     SendEncrypted(MasterServerList.ReportPacket);

@@ -21,6 +21,12 @@ namespace SockScape {
             }
         }
 
+        public static Server Get(ushort id) {
+            lock(_Servers) {
+                return _Servers[id];
+            }
+        }
+
         public static void Write(Server server) {
             lock(_Servers) {
                 if(HasId(server.Id) && !_Servers[server.Id].Address.Equals(server.Address))

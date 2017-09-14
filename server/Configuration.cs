@@ -27,6 +27,16 @@ namespace SockScape {
                     },
 
                     new SectionRules {
+                        Name = "Mail",
+                        Required = true,
+                        RequiredFields = new[] {
+                            "Host",
+                            "UseTLS",
+                            "Auth"
+                        }
+                    },
+
+                    new SectionRules {
                         Name = "Database",
                         Required = true,
                         RequiredFields = new[] {

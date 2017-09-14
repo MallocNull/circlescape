@@ -50,7 +50,7 @@ namespace SockScape {
              
             long bodyPtr = headerPtr;
             foreach(var regionLength in regionLengths) {
-                // FLAG this could fail if one region exceeds 2^31-1 in size, check later
+                // FLAG TODO this could fail if one region exceeds 2^31-1 in size, check later
                 packet.Regions.Add(raw.Subset((int)bodyPtr, (int)regionLength));
                 bodyPtr += regionLength;
             }
@@ -103,12 +103,36 @@ namespace SockScape {
             return this;
         }
 
-        public bool CheckRegions(int startIndex, params int[] lengths) {
+        public bool CheckRegionLengths(int startIndex, params int[] lengths) {
             if(startIndex + lengths.Length > RegionCount)
                 return false;
 
             for(int i = 0; i < lengths.Length; ++i) {
                 if(this[startIndex + i].Raw.Length != lengths[i])
+                    return false;
+            }
+
+            return true;
+        }
+
+        public bool CheckRegionsMaxLength(int startIndex, params int[] lengths) {
+            if(startIndex + lengths.Length > RegionCount)
+                return false;
+
+            for(int i = 0; i < lengths.Length; ++i) {
+                if(this[startIndex + i].Raw.Length > lengths[i])
+                    return false;
+            }
+
+            return true;
+        }
+
+        public bool CheckAllMaxLength(int length, int startIndex = 0) {
+            if(startIndex > RegionCount)
+                return false;
+
+            for(int i = startIndex; i < RegionCount; ++i) {
+                if(this[i].Raw.Length > length)
                     return false;
             }
 
@@ -162,8 +186,9 @@ namespace SockScape {
         }
     }
 
+    // FLAG TODO determine if you still need this thing, probably not
     public class PacketBuffer {
-        private short MaxSize;
+        private readonly short MaxSize;
         private Dictionary<uint, byte[]> Buffer
             = new Dictionary<uint, byte[]>();
 
@@ -174,9 +199,9 @@ namespace SockScape {
         public void Add(uint id, byte[] packet) {
             Buffer[id] = packet;
 
-            if(Buffer.Count > 10)
+            if(Buffer.Count > MaxSize)
                 Buffer =
-                    Buffer.Where(x => x.Key >= id - 10)
+                    Buffer.Where(x => x.Key >= id - MaxSize)
                         .ToDictionary(x => x.Key, x => x.Value);
         }
 
