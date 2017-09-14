@@ -69,6 +69,10 @@ class FileCache {
         var store = query.objectStore("files");
         store.put({name: fileName, data: data});
     }
+
+    public static deleteFile(fileName: string) {
+        
+    }
 }
 
 class FileMeta {

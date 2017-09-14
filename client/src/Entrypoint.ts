@@ -20,18 +20,16 @@ class Entrypoint {
             () => { 
                 Entrypoint.initStatus.fileCache = true;
                 this.initCheck();
-            },         
+            },
 
             // FAILURE
             (error: string) => { 
                 CriticalStop.redirect(error);
             } 
         ); 
-        
-        Connection.open();
     }
 
     private static ready(): void {
-
+        
     }
 }

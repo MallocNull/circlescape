@@ -1,38 +1,38 @@
 class Connection {
-    private static sock: WebSocket = null;
-    private static _isOpen: boolean = false;
-    private static onOpenFunc: () => void = null;
-    private static onCloseFunc: () => void = null;
-    public static get isOpen(): boolean {
-        return Connection._isOpen;
+    private sock: WebSocket = null;
+    private _isOpen: boolean = false;
+    private onOpenFunc: () => void = null;
+    private onCloseFunc: () => void = null;
+    public get isOpen(): boolean {
+        return this._isOpen;
     }
 
-    public static open(onOpen: () => void = null): void {
-        if(Connection._isOpen)
+    public open(onOpen: () => void = null): void {
+        if(this._isOpen)
             return;
 
         // FLAG replace hard coded url with one loaded from a config file
-        Connection.sock = new WebSocket("ws://localhost:6770");
-        Connection.sock.binaryType = "arraybuffer";
+        this.sock = new WebSocket("ws://localhost:6770");
+        this.sock.binaryType = "arraybuffer";
 
-        Connection.onOpenFunc = onOpen;
-        Connection.sock.onopen = Connection.onOpen;
-        Connection.sock.onmessage = Connection.onMessage;
-        Connection.sock.onclose = Connection.onClose;
+        this.onOpenFunc = onOpen;
+        this.sock.onopen = this.onOpen;
+        this.sock.onmessage = this.onMessage;
+        this.sock.onclose = this.onClose;
     }
 
-    public static send(msg: Packet) {
-        Connection.sock.send(msg.getBytes());
+    public send(msg: Packet) {
+        this.sock.send(msg.getBytes());
     }
 
-    private static onOpen(event: any): void {
-        Connection._isOpen = true;
+    private onOpen(event: any): void {
+        this._isOpen = true;
         
-        if(Connection.onOpenFunc)
-            Connection.onOpenFunc();
+        if(this.onOpenFunc)
+            this.onOpenFunc();
     }
 
-    private static onMessage(event: any): void {
+    private onMessage(event: any): void {
         var raw = new Uint8Array(event.data);
         var msg: Packet;
         try { 
@@ -45,36 +45,36 @@ class Connection {
 
         console.log(msg);
         switch(msg.id) {
-            case kPacketId.KeyExchange:
+            case kMasterId.KeyExchange:
                 var response = Key.generateResponsePacket(msg);
                 if(Key.succeeded) {
                     Cipher.init(Key.privateKey);
-                    Connection.send(response);
+                    this.send(response);
                 } else
                     CriticalStop.redirect("Could not establish an encrypted connection with the server.");
                 break;
-            case kPacketId.LoginAttempt:
+            case kMasterId.LoginAttempt:
                 
                 break;
-            case kPacketId.RegistrationAttempt:
+            case kMasterId.RegistrationAttempt:
 
                 break;
         }
     }
 
-    private static onClose(event: any): void {
-        Connection._isOpen = false;
+    private onClose(event: any): void {
+        this._isOpen = false;
         Cipher.close();
 
-        if(Connection.onCloseFunc)
-            Connection.onCloseFunc();
+        if(this.onCloseFunc)
+            this.onCloseFunc();
     }
 
-    public static close(onClose: () => void = null): void {
-        if(!Connection._isOpen)
+    public close(onClose: () => void = null): void {
+        if(!this._isOpen)
             return;
 
-        Connection.onCloseFunc = onClose;
-        Connection.sock.close();
+        this.onCloseFunc = onClose;
+        this.sock.close();
     }
 }

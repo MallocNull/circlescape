@@ -1,14 +1,19 @@
-const enum kPacketId {
-    KeyExchange = 0,
+const enum kMasterId {
+    KeyExchange = 1,
     LoginAttempt,
-    RegistrationAttempt
+    RegistrationAttempt,
+    ServerListing
+}
+
+const enum kSlaveId {
+    
 }
 
 class Packet {
     private static magicNumber: Uint8Array = new Uint8Array([0xF0, 0x9F, 0xA6, 0x91]);
 
-    private _id: kPacketId;
-    public get id(): kPacketId {
+    private _id: number;
+    public get id(): number {
         return this._id;
     }
 
@@ -37,7 +42,7 @@ class Packet {
 
     private constructor() {}
 
-    public static create(id: kPacketId, regions: any[]): Packet {
+    public static create(id: number, regions: any[]): Packet {
         var packet = new Packet;
         packet._id = id;
         regions.forEach(region => {

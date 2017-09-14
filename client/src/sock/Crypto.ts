@@ -20,7 +20,7 @@ class Key {
         var clientKey = generator.modPow(Key.secret, modulus);
 
         Key._privateKey = serverKey.modPow(Key.secret, modulus);
-        return Packet.create(kPacketId.KeyExchange, [clientKey.toString(16)]);
+        return Packet.create(kMasterId.KeyExchange, [clientKey.toString(16)]);
     }
 }
 
