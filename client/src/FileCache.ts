@@ -25,13 +25,13 @@ class FileCache {
         };
 
         request.onsuccess = (event: any) => {
-            FileCache.dbHandle = request.result;
+            this.dbHandle = request.result;
             success();
         };
     }
 
     public static getMeta(fileName: string, success: (meta: FileMeta)=>void, error: (error: string)=>void): void {
-        var query = FileCache.dbHandle.transaction("metadata");
+        var query = this.dbHandle.transaction("metadata");
         var store = query.objectStore("metadata");
         var request = store.get(fileName);
 
@@ -45,13 +45,13 @@ class FileCache {
     }
 
     public static setMeta(meta: FileMeta) {
-        var query = FileCache.dbHandle.transaction("metadata", "readwrite");
+        var query = this.dbHandle.transaction("metadata", "readwrite");
         var store = query.objectStore("metadata");
         store.put(meta);
     }
 
     public static getFile(fileName: string, success: (name: string, data: Uint8Array)=>void, error: (error: string)=>void): void {
-        var query = FileCache.dbHandle.transaction("files");
+        var query = this.dbHandle.transaction("files");
         var store = query.objectStore("files");
         var request = store.get(fileName);
 
@@ -65,13 +65,17 @@ class FileCache {
     }
 
     public static setFile(fileName: string, data: Uint8Array) {
-        var query = FileCache.dbHandle.transaction("files", "readwrite");
+        var query = this.dbHandle.transaction("files", "readwrite");
         var store = query.objectStore("files");
         store.put({name: fileName, data: data});
     }
 
     public static deleteFile(fileName: string) {
-        
+        var query = this.dbHandle.transaction("files", "readwrite");
+        var store = query.objectStore("files");
+        store.delete(fileName);
+        store = query.objectStore("metadata");
+        store.delete(fileName);
     }
 }
 

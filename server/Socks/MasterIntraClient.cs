@@ -36,7 +36,7 @@ namespace SockScape {
             // TODO figure out what this has to do with ICMP (in server too)
             uint IOC_IN            = 0x80000000,
                  IOC_VENDOR        = 0x18000000,
-                 SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
+                 SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 0xC;
             Sock.Client.IOControl((int)SIO_UDP_CONNRESET, new byte[] {0}, null);
 
             Key = new Key();

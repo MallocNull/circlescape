@@ -202,7 +202,7 @@ namespace SockScape {
             if(Buffer.Count > MaxSize)
                 Buffer =
                     Buffer.Where(x => x.Key >= id - MaxSize)
-                        .ToDictionary(x => x.Key, x => x.Value);
+                          .ToDictionary(x => x.Key, x => x.Value);
         }
 
         public byte[] this[uint i]

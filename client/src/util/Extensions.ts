@@ -209,7 +209,7 @@ Uint8Array.prototype.toHexString = function(): string {
     for(var i = 0; i < this.byteLength; ++i) {
         var byte = this[i].toString(16);
         if(byte.length < 2)
-         byte = "0"+ byte;
+            byte = "0"+ byte;
 
         ret += byte +" ";
     }

@@ -1,3 +1,23 @@
+class SockContext {
+    private static didInit: boolean = false;
+
+    private static _masterSock: Connection;
+    public static get masterSock(): Connection {
+        return this._masterSock;
+    }
+    
+    private static _slaveSock: Connection;
+    public static get slaveSock(): Connection {
+        return this._slaveSock;
+    }
+
+    public static init(): void {
+        if(this.didInit) return;
+
+        
+    }
+}
+
 class Entrypoint {
     private static initStatus = {
         fileCache: false
@@ -5,8 +25,8 @@ class Entrypoint {
 
     private static initCheck(): void {
         var done = true;
-        for(var i in Entrypoint.initStatus)
-            done = done && Entrypoint.initStatus[i];
+        for(var i in this.initStatus)
+            done = done && this.initStatus[i];
 
         if(done)
             Entrypoint.ready();
@@ -18,7 +38,7 @@ class Entrypoint {
         FileCache.initCache(
             // SUCCESS 
             () => { 
-                Entrypoint.initStatus.fileCache = true;
+                this.initStatus.fileCache = true;
                 this.initCheck();
             },
 
