@@ -1,10 +1,34 @@
+var SockContext = (function () {
+    function SockContext() {
+    }
+    Object.defineProperty(SockContext, "masterSock", {
+        get: function () {
+            return this._masterSock;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(SockContext, "slaveSock", {
+        get: function () {
+            return this._slaveSock;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    SockContext.init = function () {
+        if (this.didInit)
+            return;
+    };
+    return SockContext;
+}());
+SockContext.didInit = false;
 var Entrypoint = (function () {
     function Entrypoint() {
     }
     Entrypoint.initCheck = function () {
         var done = true;
-        for (var i in Entrypoint.initStatus)
-            done = done && Entrypoint.initStatus[i];
+        for (var i in this.initStatus)
+            done = done && this.initStatus[i];
         if (done)
             Entrypoint.ready();
     };
@@ -14,14 +38,13 @@ var Entrypoint = (function () {
         FileCache.initCache(
         // SUCCESS 
         function () {
-            Entrypoint.initStatus.fileCache = true;
+            _this.initStatus.fileCache = true;
             _this.initCheck();
         }, 
         // FAILURE
         function (error) {
             CriticalStop.redirect(error);
         });
-        Connection.open();
     };
     Entrypoint.ready = function () {
     };
@@ -34,6 +57,7 @@ var FileCache = (function () {
     function FileCache() {
     }
     FileCache.initCache = function (success, error) {
+        var _this = this;
         var request = window.indexedDB.open("fileCache", 3);
         request.onupgradeneeded = function (event) {
             var db = event.target.result;
@@ -50,12 +74,12 @@ var FileCache = (function () {
             error("Could not upgrade the client database to the most recent version.");
         };
         request.onsuccess = function (event) {
-            FileCache.dbHandle = request.result;
+            _this.dbHandle = request.result;
             success();
         };
     };
     FileCache.getMeta = function (fileName, success, error) {
-        var query = FileCache.dbHandle.transaction("metadata");
+        var query = this.dbHandle.transaction("metadata");
         var store = query.objectStore("metadata");
         var request = store.get(fileName);
         request.onsuccess = function () {
@@ -66,12 +90,12 @@ var FileCache = (function () {
         };
     };
     FileCache.setMeta = function (meta) {
-        var query = FileCache.dbHandle.transaction("metadata", "readwrite");
+        var query = this.dbHandle.transaction("metadata", "readwrite");
         var store = query.objectStore("metadata");
         store.put(meta);
     };
     FileCache.getFile = function (fileName, success, error) {
-        var query = FileCache.dbHandle.transaction("files");
+        var query = this.dbHandle.transaction("files");
         var store = query.objectStore("files");
         var request = store.get(fileName);
         request.onsuccess = function () {
@@ -82,9 +106,16 @@ var FileCache = (function () {
         };
     };
     FileCache.setFile = function (fileName, data) {
-        var query = FileCache.dbHandle.transaction("files", "readwrite");
+        var query = this.dbHandle.transaction("files", "readwrite");
         var store = query.objectStore("files");
         store.put({ name: fileName, data: data });
+    };
+    FileCache.deleteFile = function (fileName) {
+        var query = this.dbHandle.transaction("files", "readwrite");
+        var store = query.objectStore("files");
+        store.delete(fileName);
+        store = query.objectStore("metadata");
+        store.delete(fileName);
     };
     return FileCache;
 }());
@@ -94,46 +125,106 @@ var FileMeta = (function () {
     }
     return FileMeta;
 }());
+var MasterProtocol = (function () {
+    function MasterProtocol() {
+    }
+    Object.defineProperty(MasterProtocol, "packetHandlers", {
+        get: function () {
+            return [
+                { id: 1, event: this.keyExchange }
+            ];
+        },
+        enumerable: true,
+        configurable: true
+    });
+    MasterProtocol.keyExchange = function (data, conn) {
+        var response = Key.generateResponsePacket(data);
+        if (Key.succeeded) {
+            Cipher.init(Key.privateKey);
+            conn.send(response);
+        }
+        else
+            CriticalStop.redirect("Could not establish an encrypted connection with the server.");
+    };
+    MasterProtocol.loginAttempt = function (username, password) {
+    };
+    return MasterProtocol;
+}());
+var SlaveProtocol = (function () {
+    function SlaveProtocol() {
+    }
+    Object.defineProperty(SlaveProtocol, "packetHandlers", {
+        get: function () {
+            return [
+                { id: 1, event: this.userLoginResponse }
+            ];
+        },
+        enumerable: true,
+        configurable: true
+    });
+    SlaveProtocol.userLoginResponse = function (data, conn) {
+        console.log("mario has logged in");
+    };
+    return SlaveProtocol;
+}());
 var Rendering = (function () {
     function Rendering() {
     }
     return Rendering;
 }());
 var Connection = (function () {
-    function Connection() {
+    function Connection(address, handles, useCipher, onOpen, onClose, onError) {
+        if (useCipher === void 0) { useCipher = false; }
+        if (onOpen === void 0) { onOpen = null; }
+        if (onClose === void 0) { onClose = null; }
+        if (onError === void 0) { onError = null; }
+        var _this = this;
+        this.sock = null;
+        this._isOpen = false;
+        this.handles = [];
+        this.onOpenFunc = null;
+        this.onCloseFunc = null;
+        this.onErrorFunc = null;
+        this.address = address;
+        this.useCipher = useCipher;
+        this.onOpenFunc = onOpen;
+        this.onCloseFunc = onClose;
+        this.onErrorFunc = onError;
+        handles.forEach(function (element) {
+            _this.handles[element.id] = element.event;
+        });
     }
-    Object.defineProperty(Connection, "isOpen", {
+    Object.defineProperty(Connection.prototype, "isOpen", {
         get: function () {
-            return Connection._isOpen;
+            return this._isOpen;
         },
         enumerable: true,
         configurable: true
     });
-    Connection.open = function (onOpen) {
-        if (onOpen === void 0) { onOpen = null; }
-        if (Connection._isOpen)
+    Connection.prototype.open = function () {
+        if (this._isOpen)
             return;
         // FLAG replace hard coded url with one loaded from a config file
-        Connection.sock = new WebSocket("ws://localhost:6770");
-        Connection.sock.binaryType = "arraybuffer";
-        Connection.onOpenFunc = onOpen;
-        Connection.sock.onopen = Connection.onOpen;
-        Connection.sock.onmessage = Connection.onMessage;
-        Connection.sock.onclose = Connection.onClose;
+        this.sock = new WebSocket(this.address);
+        this.sock.binaryType = "arraybuffer";
+        this.sock.onopen = this.onOpen;
+        this.sock.onmessage = this.onMessage;
+        this.sock.onerror = this.onError;
+        this.sock.onclose = this.onClose;
     };
-    Connection.send = function (msg) {
-        Connection.sock.send(msg.getBytes());
+    Connection.prototype.send = function (msg) {
+        this.sock.send(msg.getBytes());
     };
-    Connection.onOpen = function (event) {
-        Connection._isOpen = true;
-        if (Connection.onOpenFunc)
-            Connection.onOpenFunc();
+    Connection.prototype.onOpen = function (event) {
+        this._isOpen = true;
+        if (this.onOpenFunc)
+            this.onOpenFunc(this);
     };
-    Connection.onMessage = function (event) {
+    Connection.prototype.onMessage = function (event) {
         var raw = new Uint8Array(event.data);
         var msg;
         try {
-            msg = !Cipher.ready ? Packet.fromBytes(raw)
+            msg = !this.useCipher || !Cipher.ready ? Packet.fromBytes(raw)
                 : Packet.fromBytes(Cipher.parse(raw));
         }
         catch (e) {
@@ -141,41 +232,38 @@ var Connection = (function () {
             return;
         }
         console.log(msg);
-        switch (msg.id) {
-            case 0 /* KeyExchange */:
-                var response = Key.generateResponsePacket(msg);
-                if (Key.succeeded) {
-                    Cipher.init(Key.privateKey);
-                    Connection.send(response);
-                }
-                else
-                    CriticalStop.redirect("Could not establish an encrypted connection with the server.");
+        if (msg.id < this.handles.length && this.handles[msg.id] !== undefined)
+            this.handles[msg.id](msg, this);
+        /*
+        switch(msg.id) {
+            case kMasterId.KeyExchange:
                 break;
-            case 1 /* LoginAttempt */:
+            case kMasterId.LoginAttempt:
+
                 break;
-            case 2 /* RegistrationAttempt */:
+            case kMasterId.RegistrationAttempt:
+
                 break;
         }
+        */
     };
-    Connection.onClose = function (event) {
-        Connection._isOpen = false;
+    Connection.prototype.onError = function (event) {
+        if (this.onErrorFunc)
+            this.onErrorFunc(event, this);
+    };
+    Connection.prototype.onClose = function (event) {
+        this._isOpen = false;
         Cipher.close();
-        if (Connection.onCloseFunc)
-            Connection.onCloseFunc();
+        if (this.onCloseFunc)
+            this.onCloseFunc(this);
     };
-    Connection.close = function (onClose) {
-        if (onClose === void 0) { onClose = null; }
-        if (!Connection._isOpen)
+    Connection.prototype.close = function () {
+        if (!this._isOpen)
             return;
-        Connection.onCloseFunc = onClose;
-        Connection.sock.close();
+        this.sock.close();
     };
     return Connection;
 }());
-Connection.sock = null;
-Connection._isOpen = false;
-Connection.onOpenFunc = null;
-Connection.onCloseFunc = null;
 var Key = (function () {
     function Key() {
     }
@@ -202,7 +290,7 @@ var Key = (function () {
         var serverKey = new bigInt(request[2].toString(), 16);
         var clientKey = generator.modPow(Key.secret, modulus);
         Key._privateKey = serverKey.modPow(Key.secret, modulus);
-        return Packet.create(0 /* KeyExchange */, [clientKey.toString(16)]);
+        return Packet.create(1 /* KeyExchange */, [clientKey.toString(16)]);
     };
     return Key;
 }());
@@ -308,10 +396,12 @@ var Packet = (function () {
     };
     Packet.fromBytes = function (bytes) {
         var packet = new Packet;
-        packet._id = bytes[0];
-        var regionCount = bytes[1];
+        if (!bytes.subarray(0, 4).every(function (v, i) { return v === Packet.magicNumber[i]; }))
+            return null;
+        packet._id = bytes[4];
+        var regionCount = bytes[5];
         var regionLengths = [];
-        var ptr = 2;
+        var ptr = 6;
         for (var i = 0; i < regionCount; ++i) {
             if (bytes[ptr] < 0xFE)
                 regionLengths.push(bytes[ptr]);
@@ -332,7 +422,7 @@ var Packet = (function () {
         return packet;
     };
     Packet.prototype.getBytes = function () {
-        var headerSize = 2, bodySize = 0;
+        var headerSize = 6, bodySize = 0;
         this._regions.forEach(function (region) {
             bodySize += region.byteLength;
             ++headerSize;
@@ -342,9 +432,10 @@ var Packet = (function () {
                 headerSize += 4;
         });
         var buffer = new Uint8Array(headerSize + bodySize);
-        var headerPtr = 2, bodyPtr = headerSize;
-        buffer[0] = this._id % 256;
-        buffer[1] = this._regions.length;
+        var headerPtr = 6, bodyPtr = headerSize;
+        buffer.set(Packet.magicNumber, 0);
+        buffer[4] = this._id % 256;
+        buffer[5] = this._regions.length;
         this._regions.forEach(function (region) {
             var regionLength = region.byteLength;
             if (regionLength < 0xFE)
@@ -367,6 +458,7 @@ var Packet = (function () {
     };
     return Packet;
 }());
+Packet.magicNumber = new Uint8Array([0xF0, 0x9F, 0xA6, 0x91]);
 // ** STRING EXTENSIONS ** \\
 String.prototype.replaceAll = function (needle, replace, ignoreCase) {
     if (ignoreCase === void 0) { ignoreCase = false; }

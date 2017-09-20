@@ -5,6 +5,8 @@
         <link rel="stylesheet" type="text/css" href="style.css" />
         <meta charset="UTF-8" />
 
+        <script type="text/javascript" src="lib/load.js"></script>
+
         <script type="text/javascript" src="js/lib.js"></script>
         <script type="text/javascript" src="js/scape.js"></script>
 
@@ -21,7 +23,7 @@
 
         </div>
 
-        <!-- THUGGINOMICS LOGIN CODE VERY FRAGILE
+        <!-- THUGGINOMICS LOGIN CODE VERY FRAGILE -->
 
         <div id="loginstration-wrap">
           <h1 id="loginstration-header" class="loginstration-header">
@@ -38,14 +40,80 @@
             <input type="text" placeholder="ENTER EMAIL" id="register-email-input"></input><br>
             <input type="text" placeholder="ENTER USER NAME" id="register-user-input"></input><br>
             <input type="password" placeholder="ENTER PASSWORD" id="register-password-input"></input><br>
-            <button id="register-button-submit">CREATE ACCOUNT</button>
+            <button id="register-button-submit">CREATE ACCOUNT</button><br>
+            <button id="register-button-cancel">CANCEL</button>
           </div>
 
           <button id="loginstration-registration-button">REGISTER</button>
 
         </div>
 
+        <h1 class="error-homepage" id="error-homepage">Password is incorrect</h1>
+
         <!-- AAAAAAAAAAA END -->
+
+        <!-- loading screen -->
+
+
+        <div id="loading-page">
+          <h1 class="loading-header">LOADING</h1>
+          <div id="loading-page-bar">
+            <h2 id="loading-page-bar-percent" class="loading-page-bar-percent">1%</h2>
+            <div id="loading-page-bar-progress"></h1>
+          </div>
+        </div>
+      </div>
+
+
+        <!-- loading end -->
+
+
+        <!-- FIRST UI -->
+
+        <div id="game-ui">
+
+          <div id="game-ui-sidebar-left">
+
+            <div id="game-ui-map">
+              map
+            </div>
+
+            <div id="game-ui-inventory">
+              inventory
+            </div>
+
+            <div id="game-ui-buttons">
+
+              <div id="game-ui-logout">
+                <p>LOGOUT</p>
+              </div>
+
+              <div id="game-ui-show-chat">
+                <p>SHOW <br> CHAT</p>
+              </div>
+
+            </div>
+
+          </div>
+
+          <div id="game-ui-chat-wrap">
+            <div id="game-ui-chat-relative">
+              
+              <div id="game-chat-window">
+              </di>
+
+              <div id="game-ui-chatbox">
+                <p>Say:</p><input type="text" id="chat"></input>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+        <!-- END FIRST -->
+
+
 
 
     </body>

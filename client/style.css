@@ -29,13 +29,21 @@ body {
     display: none;
 }
 
+.error-homepage{
+  font-family: Scape;
+  position: absolute;
+  bottom:0;
+  left:25px;
+  color:red;
+  display: none;
+}
 
 /* LOGINSTRATION */
 
 #loginstration-wrap {
   position: absolute;
   width:600px;
-  height:600px;
+  height:700px;
   left: 0;
   right: 0;
   top:0;
@@ -43,6 +51,7 @@ body {
   margin: auto;
   background: url('img/sock.png') center no-repeat;
   background-size: contain;
+
   /* FLEX BOX - USED TO CENTER CHILD ELEMENTS DYNAMICALLY*/
 
   display:flex;
@@ -195,7 +204,173 @@ body {
   cursor:pointer;
 }
 
+#register-button-cancel{
+  font-family: Scape;
+  color: yellow;
+  width: 200px;
+  height:50px;
+  font-size: 20px;
+  background: #000;
+  padding:10px;
+  transition: 0.1s;
+  border: 1px solid white;
+  cursor:pointer;
+}
+
 /* REGISTER END */
+
+
+/* LOADING page */
+
+#loading-page{
+  font-family: Scape;
+  position: absolute;
+  width:100%;
+  height:100%;
+  left:0;
+  top:0;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 9999;
+  background: black;
+}
+
+.loading-header{
+  color:yellow;
+}
+
+#loading-page-bar{
+  width:30%;
+  height:50px;
+  border:1px solid white;
+  display:block;
+  position: relative;
+}
+
+.loading-page-bar-percent{
+  color:white;
+  position: absolute;
+  width: 100%;
+  height:100%;
+  text-align: center;
+  vertical-align: middle;
+  margin-top:8px;
+  z-index: 99;
+  text-shadow: 0px 0px 1px black;
+}
+
+#loading-page-bar-progress{
+  position: absolute;
+  left:0;
+  bottom:0;
+  top:0;
+  width:1%;
+  height:100%;
+  background: yellow;
+}
+
+
+
+/* LOADING page END */
+
+
+#game-ui{
+  position: absolute;
+  top:0;
+  bottom:0;
+  left:0;
+  right:0;
+  width: 100%;
+  height: 100%;
+  z-index: 99;
+  background: darkgreen;
+  font-family: Scape;
+  display:none;
+}
+
+#game-ui-sidebar-left{
+  position:relative;
+  top:0;
+  bottom:0;
+  left:0;
+  width:25%;
+  height:100%;
+  background: tan;
+}
+
+#game-ui-map{
+  position: absolute;
+  top:1%;
+  left:2.5%;
+  width:95%;
+  height:35%;
+  background:red;
+}
+
+#game-ui-inventory{
+  position: absolute;
+  bottom:10%;
+  height:52.5%;
+  width:95%;
+  left:2.5%;
+  background: blue;
+}
+
+#game-ui-buttons{
+  position: absolute;
+  bottom:0;
+  background: orange;
+  width:100%;
+  height:10%;
+  display: flex;
+  justify-content:space-between;
+  align-items: center;
+}
+
+#game-ui-logout{
+  background: yellow;
+  width:46%;
+  height:90%;
+  margin-left:2.6%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#game-ui-show-chat{
+  background:yellow;
+  width:46%;
+  height:90%;
+  margin-right: 2.6%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#game-ui-chat-wrap{
+  position: absolute;
+  left:25%;
+  height:28%;
+  bottom:0;
+  margin:0;
+  width:75%;
+}
+
+#game-ui-chat-relative{
+  position: relative;
+  margin:0;
+  width:100%;
+  height:100%;
+  background: rgba(255,255,255,0.75);
+}
+
+
+
+#game-ui-chat-window{
+
+}
 
 /* ANIMATIONS */
 

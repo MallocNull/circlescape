@@ -5,9 +5,10 @@
 var login_wrap;
 var login_header;
 var register_button;
-var login;
+global.login;
 var register;
 var create;
+var cancel;
 window.addEventListener("load", function () {
 
   // Define var's for transition;
@@ -17,8 +18,10 @@ window.addEventListener("load", function () {
   login = document.getElementById('loginstration-login');
   register = document.getElementById('loginstration-registration');
   create = document.getElementById("register-button-submit");
+  cancel = document.getElementById("register-button-cancel");
   register_button.addEventListener("click" , prepareRegister);
   create.addEventListener("click" , prepareLogin);
+  cancel.addEventListener("click" , prepareLogin);
 });
 
 function prepareRegister(){
@@ -50,6 +53,5 @@ function prepareLogin(){
   login.className = "displayYes";
   login_header.className += " " + "displayYes";
   register_button.className = "displayYes"
-
 
 }
