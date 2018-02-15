@@ -1,6 +1,8 @@
 #include <iostream>
+#include "sock/tcpsock.hpp"
 
 int main(int argc, char **argv) {
-    birdposting extreme 
+    auto sock = TcpClient();
+    
     return 0;
 }

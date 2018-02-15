@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 2.6)
 project(server)
 
-add_executable(server main.cpp)
+file(GLOB_RECURSE server_src
+    "src/*.hpp"
+    "src/*.cpp"
+)
+
+add_executable(server ${server_src})
 
 install(TARGETS server RUNTIME DESTINATION bin)
