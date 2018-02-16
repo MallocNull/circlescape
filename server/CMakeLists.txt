@@ -1,3 +1,4 @@
+set(CMAKE_CONFIGURATION_TYPES "Debug" CACHE STRING "" FORCE)
 cmake_minimum_required(VERSION 2.6)
 project(server)
 
