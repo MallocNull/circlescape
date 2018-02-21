@@ -1,21 +1,19 @@
 #ifndef SOSC_UTIL_STRING_H
 #define SOSC_UTIL_STRING_H
 
+#include <vector>
 #include <string>
 
 namespace sosc {
 namespace str {    
 std::string  trim (std::string  str);
 std::string* trim (std::string* str);
-std::string& trimr(std::string& str);
-    
-std::string  rtrim (std::string  str);
-std::string* rtrim (std::string* str);
-std::string& rtrimr(std::string& str);
 
 std::string  ltrim (std::string  str);
 std::string* ltrim (std::string* str);
-std::string& ltrimr(std::string& str);
+    
+std::string  rtrim (std::string  str);
+std::string* rtrim (std::string* str);
 
 std::vector<std::string> split
     (const std::string& str, char delimiter, int count = -1);
