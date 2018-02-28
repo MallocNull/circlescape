@@ -6,8 +6,12 @@
 #include <sstream>
 #include <algorithm>
 
+#undef tostr
+#undef TOSTR
+#define TOSTR(X) std::to_string(X)
+
 namespace sosc {
-namespace str { 
+namespace str {    
 std::string  trim (std::string  str);
 std::string* trim (std::string* str);
 
@@ -26,6 +30,9 @@ std::string join(const std::vector<std::string>& parts,
     char delimiter, int count = -1);
 std::string join(const std::vector<std::string>& parts, 
     std::string delimiter, int count = -1);
+
+bool starts(const std::string& str, const std::string& start);
+bool ends(const std::string& str, const std::string& end);
 }}
 
 #endif
