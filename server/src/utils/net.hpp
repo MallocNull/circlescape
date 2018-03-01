@@ -1,8 +1,13 @@
 #ifndef SOSC_UTIL_NET_H
 #define SOSC_UTIL_NET_H
 
+#include <sstream>
+#include <algorithm>
 #include <string>
 #include <chrono>
+#include <ctime>
+#include <mutex>
+#include <cstring>
 
 #undef htons
 #undef HTONS
@@ -47,17 +52,30 @@
 #define NTOHULL(X) sosc::net::ntohv<uint64_t>(X)
 
 namespace sosc {
-typedef std::chrono::system_clock time;
+typedef std::chrono::system_clock clock;
+typedef std::chrono::time_point<sosc::clock> time;
 
 namespace net {    
 class IpAddress {
+public:
+    
+private:
     
 };
 
+bool is_big_endian();
 template<typename T = uint32_t>
 std::string htonv(T host_var);
 template<typename T = uint32_t>
-T ntohv(std::string net_var, size_t offset);
+T ntohv(std::string net_var, size_t offset = 0);
+
+std::tm to_utc(const time_t* time);
+bool is_error_time(std::string data, size_t offset = 0);
+bool is_error_time(sosc::time time);
+std::string pack_time();
+std::string pack_time(sosc::time time);
+std::string pack_error_time();
+sosc::time unpack_time(std::string data, size_t offset = 0);
 }}
 
 #endif
