@@ -9,5 +9,5 @@ file(GLOB_RECURSE server_src
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -static -g")
 add_executable(server ${server_src})
 
-install(TARGETS server RUNTIME DESTINATION bin)
+install(TARGETS server RUNTIME DESTINATION bin) 
  

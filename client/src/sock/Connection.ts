@@ -19,8 +19,9 @@ class Connection {
         return this._isOpen;
     }
 
-    public constructor(address: string, handles: PacketHandle[], useCipher: boolean = false,
-        onOpen: ConnEvent = null, onClose: ConnEvent = null, onError: ConnErrorEvent = null) 
+    public constructor(address: string, handles: PacketHandle[],
+        useCipher: boolean = false, onOpen: ConnEvent = null,
+        onClose: ConnEvent = null, onError: ConnErrorEvent = null)
     {
         this.address = address;
         this.useCipher = useCipher;
@@ -63,8 +64,9 @@ class Connection {
         var raw = new Uint8Array(event.data);
         var msg: Packet;
         try { 
-            msg = !this.useCipher || !Cipher.ready ? Packet.fromBytes(raw)
-                                                   : Packet.fromBytes(Cipher.parse(raw));
+            msg = (!this.useCipher || !Cipher.ready)
+                ? Packet.fromBytes(raw)
+                : Packet.fromBytes(Cipher.parse(raw));
         } catch(e) {
             close();
             return;

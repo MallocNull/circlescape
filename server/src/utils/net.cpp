@@ -82,6 +82,11 @@ std::string sosc::net::pack_error_time() {
     return std::string(6, 0);
 }
 
-sosc::time unpack_time(std::string data, size_t offset = 0) {
+sosc::time unpack_time(std::string data, size_t offset) {
+    if(offset + 6 >= data.length())
+        return pack_error_time();
     
+    struct tm time = tm();
+    time.tm_year = ((data[offset] & 
 }
+
