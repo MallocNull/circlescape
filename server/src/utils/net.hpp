@@ -42,23 +42,44 @@ class IpAddress {
 public:
     
 private:
+    typedef std::pair<uint16_t, uint8_t> addrpart_t;
+    addrpart_t parts[8] = {};
     
+    static addrpart_t ParsePart(std::string part);
 };
 
 bool is_big_endian();
-template<typename T = uint32_t>
-std::string htonv(T host_var);
-template<typename T = uint32_t>
-T ntohv(std::string net_var, size_t offset = 0);
-
-std::tm to_utc(const time_t* time);
-sosc::time error_time();
-bool is_error_time(std::string data, size_t offset = 0);
-bool is_error_time(sosc::time time);
-std::string pack_time();
-std::string pack_time(sosc::time time);
-std::string pack_error_time();
-sosc::time unpack_time(std::string data, size_t offset = 0);
+template<typename T>
+std::string htonv(T host_var) {
+    int byte_count = sizeof(T);
+    std::string net_var(byte_count, 0);
+    
+    for(int b = 0; b < byte_count; ++b) {
+        int i = is_big_endian()
+            ? b : byte_count - b - 1;
+            
+        net_var[i] = ((uint8_t*)&host_var)[b];
+    }
+    
+    return net_var;
+}
+template<typename T>
+T ntohv(std::string net_var, size_t offset = 0) {
+    int byte_count = sizeof(T);
+    T host_var = 0;
+    
+    for(int b = 0; b < byte_count; ++b) {
+        if(offset + b >= net_var.length())
+            break;
+        
+        int i = is_big_endian()
+            ? b : byte_count - b - 1;
+            
+        ((uint8_t*)&host_var)[i] = net_var[offset + b];
+    }
+    
+    return host_var;
+}
 }}
 
 #endif

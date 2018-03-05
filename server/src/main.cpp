@@ -3,6 +3,7 @@
 #include "sock/tcpsock.hpp"
 #include "utils/string.hpp"
 #include "utils/net.hpp"
+#include "utils/time.hpp"
 
 int main(int argc, char **argv) {
     //auto sock = sosc::TcpClient();
@@ -17,7 +18,7 @@ int main(int argc, char **argv) {
     std::string net = HTONUL(test);
     test = NTOHUL(net);
     
-    std::cout << std::hex << test << std::hex << net << std::endl;
+    std::string time = sosc::clk::pack_time();
     
     return 0;
 }
