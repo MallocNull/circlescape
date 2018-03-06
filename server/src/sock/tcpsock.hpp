@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include "../utils/net.hpp"
 
 #define SOSC_TCP_BUFLEN 2048
 
@@ -35,12 +36,13 @@ public:
     bool Init(std::string host, std::uint16_t port);
     
     ~TcpClient();
-protected:
+private:
     bool Init(SOSC_SOCK_T sock, SOSC_ADDR_T addr, int addr_len);
     
     SOSC_SOCK_T sock;
     bool sock_open;
     
+    net::IpAddress ip;
     SOSC_ADDR_T addr;
     int addr_len;
     
@@ -54,7 +56,7 @@ public:
     TcpServer();
     
     ~TcpServer();
-protected:
+private:
     SOSC_SOCK_T sock;
 };
 }
