@@ -18,7 +18,10 @@ int main(int argc, char **argv) {
     std::string net = HTONUL(test);
     test = NTOHUL(net);
     
-    std::string time = sosc::clk::pack_time();
+    sosc::net::IpAddress ip1, ip2;
+    ip1.Parse("::*:FE:EF:F**F");
+    ip2.Parse("::ABCD:F*:*:F00F");
+    bool same = ip1 == ip2;
     
     return 0;
 }

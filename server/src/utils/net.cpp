@@ -3,8 +3,17 @@
 // BEGIN IPADDRESS CLASS
 
 sosc::net::IpAddress::IpAddress() {
+    this->Reset();
+}
+
+void sosc::net::IpAddress::Reset() {
     for(int i = 0; i < 8; ++i)
         this->parts[i] = std::make_pair(0, 0);
+}
+
+bool sosc::net::IpAddress::ParseError() {
+    this->Reset();
+    return false;
 }
 
 bool sosc::net::IpAddress::Parse(const std::string& addr) {
@@ -12,24 +21,25 @@ bool sosc::net::IpAddress::Parse(const std::string& addr) {
     
     auto parts = str::split(addr_trim, '.');
     if(parts.size() == 4)
-        return ParseIPv4Parts(parts);
+        return ParseIPv4Parts(parts) 
+            ? true : ParseError();
     else if(parts.size() != 1)
-        return false;
+        return ParseError();
     
     parts = str::split(addr_trim, "::");
     if(parts.size() == 1) {
         if(ParseIPv6Part(parts[0], true) != 8)
-            return false;
+            return ParseError();
     } else if(parts.size() == 2) {
         int left_cnt, right_cnt;
         if((left_cnt = ParseIPv6Part(parts[0], true)) == -1)
-            return false;
+            return ParseError();
         if((right_cnt = ParseIPv6Part(parts[1], false)) == -1)
-            return false;
+            return ParseError();
         if(left_cnt + right_cnt > 8)
-            return false;
+            return ParseError();
     } else
-        return false;
+        return ParseError();
     
     return true;
 }
@@ -92,11 +102,15 @@ int sosc::net::IpAddress::ParseIPv6Part
             if(part[i] == '*') {
                 part[i] = '0';
                 ptr->second |= 1 << (part_len - i - 1);
+            } else if(!(part[i] >= 'a' && part[i] <= 'f')
+                   && !(part[i] >= 'A' && part[i] <= 'F')
+                   && !(part[i] >= '0' && part[i] <= '9'))
+            {
+                return -1;
             }
         }
         
-        try        { ptr->first = std::stoi(part, NULL, 16); }
-        catch(...) { return -1; }
+        ptr->first = std::stoi(part, NULL, 16);
     }
     
     return parts.size();
@@ -111,7 +125,31 @@ sosc::net::IpAddress::operator const char* () const {
 }
 
 std::string sosc::net::IpAddress::ToString(bool force_ipv6) const {
-    return "TODO THIS";
+    // TODO THIS
+    return "::";
+}
+
+bool sosc::net::IpAddress::operator == (const IpAddress& rhs) const {
+    for(int i = 0; i < 8; ++i) {
+        uint8_t wildcards = this->parts[i].second | rhs.parts[i].second;
+        uint16_t mask = 0xFFFF;
+        
+        if(wildcards != 0) {
+            for(int j = 0; j < 4; ++j) {
+                if((wildcards & (1 << j)) != 0)
+                    mask &= ~(0xF << (4*j));
+            }
+        }
+        
+        if((this->parts[i].first & mask) != (rhs.parts[i].first & mask))
+            return false;
+    }
+    
+    return true;
+}
+
+bool sosc::net::IpAddress::operator != (const IpAddress& rhs) const {
+    return !(*this == rhs);
 }
 
 bool sosc::net::IpAddress::IsIdentical(const IpAddress& rhs) const {

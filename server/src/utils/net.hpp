@@ -76,9 +76,12 @@ private:
     
     typedef std::pair<uint16_t, uint8_t> addrpart_t;
     std::string tostr_cache;
+    bool tostr_cache_inval = true;
     addrpart_t parts[8];
     
-    bool ParseIPv4Parts(const std::vector<std:string>& parts);
+    void Reset();
+    bool ParseError();
+    bool ParseIPv4Parts(const std::vector<std::string>& parts);
     int ParseIPv6Part(const std::string& addr_part, bool from_start);
 };
 
