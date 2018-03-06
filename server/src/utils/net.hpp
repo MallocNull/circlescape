@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <string>
 #include <cstring>
+#include "string.hpp"
 
 #undef HTONS
 #undef HTONUS
@@ -40,12 +41,45 @@ namespace sosc {
 namespace net {    
 class IpAddress {
 public:
+    // all strings taken as arguments will accept both IPv4 and IPv6 addrs
+    // IPv4 addrs will be stored as IPv6 in this format:
+    //      127.126.0.255
+    //   -> ::FFFF:7F7E:FF
+    //          ^  ^ ^ ^
+    //          |--|-|-|----- UNIQUE PREFIX VALUE (decimal 65535)
+    //             |-|-|----- FIRST OCTET AS HEXADECIMAL (127 -> 7F)
+    //               |-|----- SECOND OCTET AS HEXADECIMAL (126 -> 7E)
+    //                 |---+- THIRD OCTET IS HIDDEN SINCE FOURTH IS LOWER
+    //                     +- (0.255 -> 00FF -{equiv. to}-> FF)
     
+    IpAddress();
+    bool Parse(const std::string& addr);
+    
+    operator std::string () const;
+    operator const char* () const;
+    std::string ToString(bool force_ipv6 = false) const;
+    
+    bool operator == (const IpAddress& rhs) const;
+    bool operator != (const IpAddress& rhs) const;
+    
+    bool IsIdentical(const IpAddress& rhs) const;
+    bool IsIPv4() const;
 private:
-    typedef std::pair<uint16_t, uint8_t> addrpart_t;
-    addrpart_t parts[8] = {};
+    // pair item 1 is the two bytes in an IPv6 address
+    // pair item 2 is a wildcard bitmask on the nibble in the address
+    //  4 msbits unused, 4 lsbits indicate wildcards if bit is set
+    //  ex. ::F F F F (IPv6 address)
+    //        0 1 1 0 (bitmask)
+    //        4 3 2 1 (bit position where 1 is LSB)
+    //      would treat the middle two nibbles as wildcards; so this ip 
+    //      would match eg. ::F00F, ::FAAF, ::FEAF etc.
     
-    static addrpart_t ParsePart(std::string part);
+    typedef std::pair<uint16_t, uint8_t> addrpart_t;
+    std::string tostr_cache;
+    addrpart_t parts[8];
+    
+    bool ParseIPv4Parts(const std::vector<std:string>& parts);
+    int ParseIPv6Part(const std::string& addr_part, bool from_start);
 };
 
 bool is_big_endian();
