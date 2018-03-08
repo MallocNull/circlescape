@@ -15,21 +15,18 @@ int main(int argc, char **argv) {
         std::cout << i << std::endl;
     });*/
     
-    sosc::TcpClient client;
-    sosc::TcpServer server;
-    
-    server.Listen(1111);
-    server.Accept(&client);
+    /*sosc::TcpClient client;
+    client.Open("127.0.0.1", 1111);
     
     client.Send("test");
-    std::string got;
+    std::string got = "abc";
 
     while(client.IsOpen()) {
-        int length = client.Recv(&got);
+        int length = client.Receive(&got);
         
         if(length > 0)
             std::cout << got << std::endl;
-    }
+    }*/
     
     return 0;
 }

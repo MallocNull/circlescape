@@ -1,7 +1,7 @@
 #include "tcpsock.hpp"
 #ifdef _WIN32
 
-void init_wsa() {
+static void init_wsa() {
     static bool is_inited = false;
     if(is_inited) return;
     
@@ -80,7 +80,7 @@ void sosc::TcpClient::Open
     this->ip.Parse(buffer);
 }
 
-int sosc::TcpClient::Recv(std::string* str, bool append) {
+int sosc::TcpClient::Receive(std::string* str, bool append) {
     if(!this->sock_open)
         return -1;
     

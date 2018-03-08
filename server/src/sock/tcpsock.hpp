@@ -36,13 +36,16 @@
 
 #define SOSC_TCP_BUFLEN 2048
 
+#define SOSC_TCP_APPEND 1
+#define SOSC_TCP_BLOCK  2
+
 namespace sosc {
 class TcpClient {
 public:
     TcpClient();
     bool Open(std::string host, std::uint16_t port);
     
-    int Recv(std::string* str, bool append = false);
+    int Receive(std::string* str, int flags = 0);
     int Send(const std::string& str);
     
     bool IsDataReady();
