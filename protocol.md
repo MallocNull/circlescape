@@ -10,15 +10,16 @@ All references to the 'byte' in this document refers to individual 8-bit octets,
 
 Because the body of the packet is a sequence of many different regions of byte data that is not delimited, it is necessary for the header of the packet to determine boundaries for the regions of data.
 
-* The first four bytes will always be 0xF0, 0x9F, 0xA6, 0x91. If this is not set properly, the endpoint must close the connection.
-* The fifth byte is the packet id, the meanings of which are defined in the [_Packet IDs_](#packet-ids) section.
-* The sixth byte is the number of byte regions in the packet.
-* The bytes following the sixth byte are a list of binary length segments, each of which correspond to the number of bytes in its respective region. They each follow this format:
+* The first two bytes will always be 0xB0 and 0X0B. If this is not set properly, the endpoint must close the connection.
+* The next four bytes are the total length of the entire packet, including the whole header.
+* The seventh byte is the packet id, the meanings of which are defined in the [_Packet IDs_](#packet-ids) section.
+* The eighth byte is the number of byte regions in the packet.
+* The bytes following the eighth byte are a list of binary length segments, each of which correspond to the number of bytes in its respective region. They each follow this format:
     * If length is less than 254, the length of the region is stored in a single byte.
-    * If length is greater than or equal to 254 but less than 65,536, the first byte of the lenght segment should be 254 and the following two bytes is the length of the region.
-    * If length is greater than or equal to 65,536, the first byte of the length segment should be 255 and the following four bytes is the length of the region.
+    * If length is greater than or equal to 254 but less than 65,536, the first byte of the length segment will be 254 and the following two bytes is the length of the region.
+    * If length is greater than or equal to 65,536, the first byte of the length segment will be 255 and the following four bytes is the length of the region.
     
-The number of length segments should be equal to the number of byte regions as defined in the second byte. The length of any single section may not exceed (2^32)-1 bytes.
+The number of length segments must equal the number of byte regions as defined in the second byte. The combined length of the regions must not exceed 2^32-n where n is the length of the header.
 
 ## Body
 

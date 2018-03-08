@@ -80,13 +80,18 @@ void sosc::TcpClient::Open
     this->ip.Parse(buffer);
 }
 
-int sosc::TcpClient::Receive(std::string* str, bool append) {
+int sosc::TcpClient::Receive(std::string* str, int flags) {
     if(!this->sock_open)
         return -1;
     
+    bool append = (flags & SOSC_TCP_APPEND) != 0,
+         block  = (flags & SOSC_TCP_BLOCK) != 0;
+         
     int total_length = 0;
     bool first_recv = true;
-    while(this->IsDataReady()) {
+    while(block ? (first_recv ? true : this->IsDataReady()) 
+                : this->IsDataReady()) 
+    {
         int length = recv(this->sock, this->buffer, SOSC_TCP_BUFLEN, 0);
         if(length <= 0) {
             this->Close();
