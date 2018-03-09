@@ -10,7 +10,7 @@ All references to the 'byte' in this document refers to individual 8-bit octets,
 
 Because the body of the packet is a sequence of many different regions of byte data that is not delimited, it is necessary for the header of the packet to determine boundaries for the regions of data.
 
-* The first two bytes will always be 0xB0 and 0X0B. If this is not set properly, the endpoint must close the connection.
+* The first two bytes will always be 0xB0 and 0x0B. If this is not set properly, the endpoint must close the connection.
 * The next four bytes are the total length of the entire packet, including the whole header.
 * The seventh byte is the packet id, the meanings of which are defined in the [_Packet IDs_](#packet-ids) section.
 * The eighth byte is the number of byte regions in the packet.

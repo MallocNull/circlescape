@@ -1,6 +1,7 @@
 #ifndef SOSC_PACKET_H
 #define SOSC_PACKET_H
 
+#include <numeric>
 #include <vector>
 #include <string>
 #include <cstdarg>
@@ -17,6 +18,10 @@
 namespace sosc {
 class Packet {
 public:
+    void Clear();
+    void AddRegion(int index = -1);
+    std::string ToString() const;
+    
     int Parse(const std::string& data, std::string* extra = nullptr);
     bool Check(int region_count, ...);
     

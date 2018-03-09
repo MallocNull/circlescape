@@ -22,33 +22,47 @@ int sosc::Packet::Parse(const std::string& data, std::string* extra) {
     
     this->id = data[6];
     std::vector<uint32_t> region_lengths;
-    int region_count = data[7], ptr = 8;
+    uint32_t region_count = data[7], 
+        ptr = 8, body_length = 0;
     for(int i = 0; i < region_count; ++i) {
         if(ptr >= length)
             return PCK_ERR;
         
+        uint32_t region_length;
         switch(raw[ptr]) {
             default:
-                region_lengths.push_back(raw[ptr]);
+                region_length = raw[ptr];
                 break;
             case 254:
                 if(ptr + 2 >= length)
                     return PCK_ERR;
                 
-                region_lengths.push_back(
-                    net::ntohv<uint16_t>(data, ptr + 1)
-                );
+                region_length = net::ntohv<uint16_t>(data, ptr + 1);
                 break;
             case 255:
                 if(ptr + 4 >= length)
                     return PCK_ERR;
                 
-                region_lengths.push_back(
-                    net::ntohv<uint32_t>(data, ptr + 1);
-                );
+                region_length = net::ntohv<uint32_t>(data, ptr + 1);
                 break;
         }
+        
+        region_lengths.push_back(region_length);
+        body_length += region_length;
     }
+    
+    if(body_length - ptr != 0)
+        return PCK_ERR;
+    
+    for(int i = 0; i < region_count; ++i) {
+        this->regions[i] = data.substr(ptr, region_lengths[i]);
+        ptr += region_lengths[i];
+    }
+    
+    if(length > expected_length)
+        *extra = data.substr(expected_length);
+    
+    return PCK_OK;
 }
 
 bool sosc::Packet::Check(int region_count, ...) {
@@ -62,6 +76,7 @@ bool sosc::Packet::Check(int region_count, ...) {
         if(length != PCK_ANY && this->regions[i].length() != length)
             return false;
     }
+    va_end(args);
     
     return true;
 }
