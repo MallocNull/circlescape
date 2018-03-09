@@ -1,5 +1,20 @@
 #include "packet.hpp"
 
+bool sosc::Packet::AddRegion(std::string data) {
+    if(this->regions.size() == 256)
+        return false;
+    
+    this->regions.push_back(data);
+    return true;
+}
+
+bool sosc::Packet::AddRegions(std::vector<std::string> data) {
+    if(this->regions.size() + data.size() > 256)
+        return false;
+    
+    
+}
+
 int sosc::Packet::Parse(const std::string& data, std::string* extra) {
     const unsigned char* raw = 
         (const unsigned char*)data.c_str();
