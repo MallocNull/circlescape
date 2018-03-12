@@ -26,14 +26,14 @@ public:
     
     void DeleteRegion(uint8_t index);
     void DeleteRegions(uint8_t start, uint8_t length);
-    inline void Clear() const {
+    inline void Clear() {
         this->regions.clear();
     }
     
     int Parse(const std::string& data, std::string* extra = nullptr);
     bool Check(int region_count, ...);
     
-    inline void SetId(uint8_t id) const {
+    inline void SetId(uint8_t id) {
         this->id = id;
     }
     

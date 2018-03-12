@@ -4,6 +4,10 @@
 /* BEGIN INTRACONNECTION CODE */
 /******************************/
 
+sosc::IntraConnection::IntraConnection() {
+    this->client_open = false;
+}
+
 sosc::IntraConnection::IntraConnection(TcpClient client) {
     this->client = client;
     this->client_open = true;
@@ -36,7 +40,11 @@ bool sosc::IntraConnection::Send(const Packet& packet) {
     if(!this->client_open)
         return false;
     
-    
+    return this->client.Send(packet.ToString()) == 0;
+}
+
+sosc::IntraConnection::~IntraConnection() {
+    this->Close();
 }
 
 /****************************/
@@ -44,6 +52,33 @@ bool sosc::IntraConnection::Send(const Packet& packet) {
 /****************************/
 /*  BEGIN INTRASERVER CODE  */
 /****************************/
+
+sosc::IntraServer::IntraServer() {
+    this->server_open = false;
+}
+
+bool sosc::IntraServer::Listen(uint16_t port) {
+    if(this->server_open)
+        return false;
+    
+    return this->server.Listen(port);
+}
+
+int sosc::IntraServer::Accept(IntraConnection* client) {
+    if(!this->server_open)
+        return -1;
+    
+    TcpClient new_client;
+    if(this->server.Accept(&new_client) == 0) {
+        *client = IntraConnection(new_client);
+        return 0;
+    } else
+        return -1;
+}
+
+sosc::IntraServer::~IntraServer() {
+    this->Close();
+}
 
 /****************************/
 /*   END INTRASERVER CODE   */

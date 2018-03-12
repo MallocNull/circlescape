@@ -7,6 +7,8 @@
 namespace sosc {
 class IntraConnection {
 public:
+    IntraConnection();
+    
     int Receive(Packet* packet, bool block = false);
     bool Send(const Packet& packet);
     
@@ -14,7 +16,11 @@ public:
         return this->client_open;
     }
     
-    void Close();
+    inline void Close() {
+        this->client_open = false;
+        this->client.Close();
+    }
+    
     ~IntraConnection();
 private:
     IntraConnection(TcpClient client);
@@ -28,14 +34,20 @@ private:
 
 class IntraServer {
 public:
+    IntraServer();
+    
     bool Listen(uint16_t port);
-    int Accept(IntraConnection *client);
+    int Accept(IntraConnection* client);
     
     inline bool IsOpen() const {
         return this->server_open;
     }
     
-    void Close();
+    inline void Close() {
+        this->server_open = false;
+        this->server.Close();
+    }
+    
     ~IntraServer();
 private:
     bool server_open;
