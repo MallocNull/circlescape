@@ -21,7 +21,7 @@ public:
     bool AddRegion(std::string data);
     bool AddRegions(std::vector<std::string> data);
     
-    void SetRegion(uint8_t index);
+    void SetRegion(uint8_t index, std::string data);
     void SetRegions(uint8_t start, std::vector<std::string> data);
     
     void DeleteRegion(uint8_t index);
@@ -41,10 +41,14 @@ public:
         return this->id;
     }
     
+    inline int RegionCount() const {
+        return this->regions.size();
+    }
+    
     inline std::string operator []
         (const std::vector<std::string>::size_type index) const
     {
-        return regions[index];
+        return this->regions[index];
     }
     
     std::string ToString() const;

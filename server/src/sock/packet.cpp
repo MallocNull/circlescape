@@ -1,7 +1,7 @@
 #include "packet.hpp"
 
 bool sosc::Packet::AddRegion(std::string data) {
-    if(this->regions.size() == 256)
+    if(this->regions.size() >= 256)
         return false;
     
     this->regions.push_back(data);
@@ -12,7 +12,43 @@ bool sosc::Packet::AddRegions(std::vector<std::string> data) {
     if(this->regions.size() + data.size() > 256)
         return false;
     
+    for(auto i = data.begin(); i != data.end(); ++i)
+        this->regions.push_back(*i);
+}
+
+void sosc::Packet::SetRegion(uint8_t index, std::string data) {
+    if(index >= this->regions.size())
+        this->regions.resize(index + 1);
     
+    this->regions[index] = data;
+}
+
+void sosc::Packet::SetRegions
+    (uint8_t start, std::vector<std::string> data)
+{
+    if(start + data.size() > 256)
+        return;
+    
+    if(start + data.size() > this->regions.size())
+        this->regions.resize(start + data.size());
+    
+    for(int i = 0; i < data.size(); ++i)
+        this->regions[start + i] = data[i];
+}
+
+void sosc::Packet::DeleteRegion(uint8_t index) {
+    if(index >= this->regions.size())
+        return;
+    
+    this->regions.erase(this->regions.begin() + index);
+}
+
+void sosc::Packet::DeleteRegions(uint8_t start, uint8_t length) {
+    if(start + length > 256)
+        return;
+    
+    for(int i = 0; i < length; ++i)
+        this->regions.erase(this->regions.begin() + start);
 }
 
 int sosc::Packet::Parse(const std::string& data, std::string* extra) {
@@ -74,8 +110,10 @@ int sosc::Packet::Parse(const std::string& data, std::string* extra) {
         ptr += region_lengths[i];
     }
     
-    if(length > expected_length)
+    if(length > expected_length && extra != nullptr)
         *extra = data.substr(expected_length);
+    else
+        *extra = "";
     
     return PCK_OK;
 }
