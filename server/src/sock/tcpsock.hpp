@@ -43,7 +43,7 @@ namespace sosc {
 class TcpClient {
 public:
     TcpClient();
-    bool Open(std::string host, std::uint16_t port);
+    bool Open(std::string host, uint16_t port);
     
     int Receive(std::string* str, int flags = 0);
     int Send(const std::string& str);

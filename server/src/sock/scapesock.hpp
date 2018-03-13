@@ -23,7 +23,7 @@ public:
     
     ~ScapeConnection();
 private:
-    ScapeConnection(TcpClient client);
+    void Open(TcpClient client);
     
     bool client_open;
     TcpClient client;

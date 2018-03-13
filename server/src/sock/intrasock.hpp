@@ -5,9 +5,10 @@
 #include "packet.hpp"
 
 namespace sosc {
-class IntraConnection {
+class IntraClient {
 public:
-    IntraConnection();
+    IntraClient();
+    bool Open(std::string host, uint16_t port);
     
     int Receive(Packet* packet, bool block = false);
     bool Send(const Packet& packet);
@@ -21,9 +22,9 @@ public:
         this->client.Close();
     }
     
-    ~IntraConnection();
+    ~IntraClient();
 private:
-    IntraConnection(TcpClient client);
+    void Open(TcpClient client);
     
     bool client_open;
     TcpClient client;
@@ -37,7 +38,7 @@ public:
     IntraServer();
     
     bool Listen(uint16_t port);
-    int Accept(IntraConnection* client);
+    int Accept(IntraClient* client);
     
     inline bool IsOpen() const {
         return this->server_open;
