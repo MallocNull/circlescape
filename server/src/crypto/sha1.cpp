@@ -48,19 +48,19 @@ static uint32_t K(uint8_t t) {
         return 0xCA62C1D6;
 }
 
-std::string sosc::cgc::sha1(const std::string& data) {
+std::string sosc::cgc::sha1(const std::string& data, bool raw) {
     int last_block = data.length() % 64, 
         pad_size = SHA1_BLOCK_SIZE - last_block;
         
     if(last_block >= 55)
         pad_size += SHA1_BLOCK_SIZE;
     
-    std::string padding(0, pad_size);
+    std::string padding(pad_size, 0);
     padding[0] = 0x80;
     
     for(int i = 0; i < 8; ++i) {
         padding[padding.length() - i - 1] =
-            (padding.length() >> (8 * i)) & 0xFF;
+            ((data.length() * 8ull) >> (8 * i)) & 0xFF;
     }
            
     uint32_t H[5] = {
@@ -76,8 +76,10 @@ std::string sosc::cgc::sha1(const std::string& data) {
         for(int j = 0; j < 16; ++j) {
             W[j] = 0;
             for(int k = 0; k < 4; ++k) {
-                W[j] |= (((i + j + k < data.length()) 
-                    ? data : padding)[i + j + k] >> (8 * (3 - i))) & 0xFF;
+                W[j] |= (((i + j * 4 + k < data.length()) 
+                    ? data[i + j * 4 + k] 
+                    : padding[(i + j * 4 + k) - data.length()]) & 0xFF)
+                        << (8 * (3 - k));
             }
         }
         
@@ -100,5 +102,23 @@ std::string sosc::cgc::sha1(const std::string& data) {
             H[j] += O[j];
     }
     
-    return "";
+    if(raw) {
+        std::string hash(20, 0);
+        for(int i = 0; i < 5; ++i) {
+            for(int j = 0; j < 4; ++j)
+                hash[i * 4 + j] = (H[i] >> (8 * (3 - j))) & 0xFF;
+        }
+        
+        return hash;
+    } else {
+        std::stringstream stream;
+        for(int i = 0; i < 5; ++i) {
+            stream << std::setfill('0') 
+                << std::setw(8)
+                << std::hex 
+                << H[i];
+        }
+            
+        return stream.str();
+    }
 }

@@ -6,6 +6,7 @@
 #include "utils/time.hpp"
 #include "sock/tcpsock.hpp"
 #include "crypto/sha1.hpp"
+#include "crypto/base64.hpp"
 
 int main(int argc, char **argv) {
     //auto sock = sosc::TcpClient();
@@ -29,7 +30,9 @@ int main(int argc, char **argv) {
             std::cout << got << std::endl;
     }*/
     
-    std::string a = sosc::cgc::sha1("test");
+    //std::string a = sosc::cgc::sha1("test", true);
+    
+    std::cout << sosc::cgc::base64_encode("this is a longer test");
     
     return 0;
 }
