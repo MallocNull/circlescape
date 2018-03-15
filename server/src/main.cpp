@@ -5,6 +5,7 @@
 #include "utils/net.hpp"
 #include "utils/time.hpp"
 #include "sock/tcpsock.hpp"
+#include "crypto/sha1.hpp"
 
 int main(int argc, char **argv) {
     //auto sock = sosc::TcpClient();
@@ -28,7 +29,7 @@ int main(int argc, char **argv) {
             std::cout << got << std::endl;
     }*/
     
-    
+    std::string a = sosc::cgc::sha1("test");
     
     return 0;
 }

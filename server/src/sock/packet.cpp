@@ -133,3 +133,7 @@ bool sosc::Packet::Check(int region_count, ...) {
     
     return true;
 }
+
+std::string sosc::Packet::ToString() const {
+    return "TODO";
+}
