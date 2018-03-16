@@ -32,7 +32,5 @@ int main(int argc, char **argv) {
     
     //std::string a = sosc::cgc::sha1("test", true);
     
-    std::cout << sosc::cgc::base64_encode("this is a longer test");
-    
     return 0;
 }

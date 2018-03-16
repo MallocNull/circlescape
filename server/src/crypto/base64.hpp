@@ -1,7 +1,9 @@
 #ifndef SOSC_CRYPTO_BASE64
 #define SOSC_CRYPTO_BASE64
 
+#include <vector>
 #include <string>
+#include <iostream>
 
 namespace sosc {
 namespace cgc {
