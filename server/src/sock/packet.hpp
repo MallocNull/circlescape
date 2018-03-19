@@ -55,9 +55,6 @@ public:
     inline operator std::string () const {
         return this->ToString();
     }
-    inline operator const char* () const {
-        return this->ToString().c_str();
-    }
 private:
     uint8_t id;
     std::vector<std::string> regions;
