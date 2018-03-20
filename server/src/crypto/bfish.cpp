@@ -184,14 +184,48 @@ static const uint32_t init_sbox[4][256] = {
      0xb74e6132, 0xce77e25b, 0x578fdfe3, 0x3ac372e6}
 };
 
+static void swap(uint32_t& a, uint32_t& b) {
+    uint32_t temp = a;
+    a = b;
+    b = temp;
+}
+
+static void pack_bytes
+    (const std::string& data, std::string::size_type i,
+     uint32_t& left, uint32_t& right)
+{
+    left = right = 0;
+    for(int j = 0; j < 8; ++j) {
+        if(j < 4)
+            left = (left << 8) | (data[(i + j) % data.length()] & 0xFF);
+        else
+            right = (right << 8) | (data[(i + j) % data.length()] & 0xFF);
+    }
+}
+
+static void unpack_bytes
+    (std::string& data, std::string::size_type i, 
+     uint32_t left, uint32_t right)
+{
+    for(int j = 0; j < 8; ++j) {
+        if(j < 4) {
+            data[i + (3 - j)] = left & 0xFF;
+            left >>= 8;
+        } else {
+            data[i + (7 - j + 4)] = right & 0xFF;
+            right >>= 8;
+        }
+    }
+}
+
 sosc::cgc::Blowfish::Blowfish(const std::string& key) {
+    std::memcpy(this->parr, init_parr, sizeof(init_parr));
+    std::memcpy(this->sbox, init_sbox, sizeof(init_sbox));
+    
     this->SetKey(key.c_str(), key.length());
 }
 
 void sosc::cgc::Blowfish::SetKey(const char* key, size_t length) {
-    std::memcpy(this->parr, init_parr, sizeof(init_parr));
-    std::memcpy(this->sbox, init_sbox, sizeof(init_sbox));
-    
     for(int i = 0; i < 18; ++i) {
         uint32_t data = 0;
         for(int j = 0; j < 4; ++j)
@@ -216,19 +250,99 @@ void sosc::cgc::Blowfish::SetKey(const char* key, size_t length) {
     }
 }
 
+void sosc::cgc::Blowfish::SetEksKey
+    (const std::string& data, const std::string& key)
+{
+    for(int i = 0; i < 18; ++i) {
+        uint32_t pack = 0;
+        for(int j = 0; j < 4; ++j)
+            pack = (pack << 8) | key[(i * 4 + j) % key.length()];
+            
+        this->parr[i] ^= pack;
+    }
+    
+    for(int i = 0; i < 18; i += 2) {
+        
+    }
+}
+
 std::string sosc::cgc::Blowfish::Encrypt(std::string data) const {
-    size_t pad_length = data.size() % sizeof(uint64_t);
+    int pad_length = data.length() % sizeof(uint64_t);
     pad_length = sizeof(uint64_t) - pad_length;
     
-    for(size_t i = 0; i < pad_length; ++i)
+    for(int i = 0; i < pad_length; ++i)
         data.push_back(0);
     
-    for(int i = 0; i < data.size() / sizeof(uint64_t); ++i) {
-        uint32_t* left = &(((uint32_t*)data.data())[i * 2]);
-        uint32_t* right = &(((uint32_t*)data.data())[i * 2 + 1]);
+    for(std::string::size_type i = 0; i < data.size(); i += 8) {
+        uint32_t left, right;
         
-        EncryptBlock(left, right);
+        pack_bytes(data, i, left, right);
+        this->EncryptBlock(&left, &right);
+        unpack_bytes(data, i, left, right);
     }
+    
+    return data;
+}
+
+std::string sosc::cgc::Blowfish::Decrypt(std::string data) const {
+    if(data.length() % sizeof(uint64_t) != 0)
+        return "";
+    
+    for(std::string::size_type i = 0; i < data.size(); i += 8) {
+        uint32_t left, right;
+        
+        pack_bytes(data, i, left, right);
+        this->DecryptBlock(&left, &right);
+        unpack_bytes(data, i, left, right);
+    }
+    
+    int i = 0;
+    for(;; i++)
+        if(data[data.length() - i - 1] != 0)
+            break;
+    
+    data.resize(data.length() - i);
+    return data;
+}
+
+void sosc::cgc::Blowfish::EncryptBlock
+    (uint32_t* left, uint32_t* right) const 
+{
+    uint32_t left_t = *left,
+            right_t = *right;
+              
+    for(int i = 0; i < 16; ++i) {
+        left_t ^= this->parr[i];
+        right_t ^= this->Feistel(left_t);
+        swap(left_t, right_t);
+    }
+    
+    swap(left_t, right_t);
+    right_t ^= this->parr[16];
+    left_t ^= this->parr[17];
+             
+    *left = left_t;
+    *right = right_t;
+}
+
+void sosc::cgc::Blowfish::DecryptBlock
+    (uint32_t* left, uint32_t* right) const
+{
+    uint32_t left_t = *left,
+            right_t = *right;
+            
+    for(int i = 17; i > 1; --i) {
+        left_t ^= this->parr[i];
+        right_t ^= this->Feistel(left_t);
+        swap(left_t, right_t);
+    }
+    
+    swap(left_t, right_t);
+    right_t ^= this->parr[1];
+    left_t ^= this->parr[0];
+    
+    *left = left_t;
+    *right = right_t;
 }
 
 uint32_t sosc::cgc::Blowfish::Feistel(uint32_t input) const {

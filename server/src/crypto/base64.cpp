@@ -3,14 +3,18 @@
 #define B64_IGNORE  0xFE
 #define B64_PADDING 0xFF
 
-std::string sosc::cgc::base64_encode(const std::string& data) {
+std::string sosc::cgc::base64_encode(const std::string& data, bool unix) {
     return base64_encode(data.c_str(), data.length());
 }
 
-std::string sosc::cgc::base64_encode(const void* raw, size_t length) {
+std::string sosc::cgc::base64_encode
+    (const void* raw, size_t length, bool unix) 
+{
     uint8_t* data = (uint8_t*)raw;
     const std::string char_table
-        = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        = (unix)
+        ? "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+        : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
         
     std::string encoded;
     for(size_t i = 0; i < length; i += 3) {
@@ -27,12 +31,28 @@ std::string sosc::cgc::base64_encode(const void* raw, size_t length) {
                 
         for(int j = 0; j < 4 - padding; ++j)
             encoded += char_table[(index >> (6 * (3 - j))) & 0x3F];
-            
-        for(int j = 0; j < padding; ++j)
-            encoded += '=';
+        
+        if(!unix)
+            for(int j = 0; j < padding; ++j)
+                encoded += '=';
     }
     
     return encoded;
+}
+
+static uint8_t radix64_decode_char(char c) {
+    if(c >= '0' && c <= '9')
+        return c - '0' + 2;
+    else if(c >= 'A' && c <= 'Z')
+        return c - 'A' + 12;
+    else if(c >= 'a' && c <= 'z')
+        return c - 'a' + 38;
+    else if(c == '.')
+        return 0;
+    else if(c == '/')
+        return 1;
+    else
+        return B64_IGNORE;
 }
 
 static uint8_t base64_decode_char(char c) {
@@ -62,12 +82,13 @@ static void base64_decode_append(std::string* decoded, int data) {
         *decoded += (char)data;
 }
 
-std::string sosc::cgc::base64_decode(const std::string& data) {    
+std::string sosc::cgc::base64_decode(const std::string& data, bool unix) {    
     std::string decoded;
     int index = 0, j = 0;
     
     for(std::string::size_type i = 0; i < data.length(); ++i) {
-        int sextet = base64_decode_char(data[i]);
+        int sextet = unix ? radix64_decode_char(data[i])
+                          : base64_decode_char(data[i]);
             
         if(sextet == B64_IGNORE || sextet == B64_PADDING) {
             if(sextet == B64_PADDING && i >= data.length() - 2 && j > 1)

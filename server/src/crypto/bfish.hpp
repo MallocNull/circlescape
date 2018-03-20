@@ -3,6 +3,7 @@
 
 #include <string>
 #include <cstring>
+#include "bcrypt.hpp"
 
 namespace sosc {
 namespace cgc {
@@ -11,9 +12,11 @@ public:
     Blowfish(const std::string& key);
     
     std::string Encrypt(std::string data) const;
-    std::string Decrypt(const std::string& data) const;
+    std::string Decrypt(std::string data) const;
 private:
+    Blowfish();
     void SetKey(const char* key, size_t length);
+    void SetEksKey(const std::string& data, const std::string& key);
     
     void EncryptBlock(uint32_t* left, uint32_t* right) const;
     void DecryptBlock(uint32_t* left, uint32_t* right) const;
@@ -21,6 +24,8 @@ private:
     
     uint32_t parr[18];
     uint32_t sbox[4][256];
+    
+    friend std::string sosc::cgc::bcrypt_hash(const std::string&);
 };
 }}
 

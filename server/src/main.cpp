@@ -7,6 +7,8 @@
 #include "sock/tcpsock.hpp"
 #include "crypto/sha1.hpp"
 #include "crypto/base64.hpp"
+#include "crypto/bfish.hpp"
+#include "utils/csprng.hpp"
 
 int main(int argc, char **argv) {
     //auto sock = sosc::TcpClient();
@@ -31,6 +33,13 @@ int main(int argc, char **argv) {
     }*/
     
     //std::string a = sosc::cgc::sha1("test", true);
+    
+    sosc::cgc::Blowfish fish("");
+    
+    std::string test = fish.Encrypt("imagine a test");
+    std::string testd = fish.Decrypt(test);
+    
+    uint32_t teest = sosc::csprng::next<uint32_t>();
     
     return 0;
 }
