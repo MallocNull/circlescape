@@ -190,7 +190,17 @@ static void swap(uint32_t& a, uint32_t& b) {
     b = temp;
 }
 
-static void pack_bytes
+static uint32_t pack_word 
+    (const std::string& data, std::string::size_type i)
+{
+    uint32_t word;
+    for(int j = 0; j < 4; ++j)
+        word = (word << 8) | data[(i + j) % data.length()];
+    
+    return word;
+}
+
+static void pack_block
     (const std::string& data, std::string::size_type i,
      uint32_t& left, uint32_t& right)
 {
@@ -203,36 +213,33 @@ static void pack_bytes
     }
 }
 
-static void unpack_bytes
+static void unpack_block
     (std::string& data, std::string::size_type i, 
      uint32_t left, uint32_t right)
 {
     for(int j = 0; j < 8; ++j) {
         if(j < 4) {
-            data[i + (3 - j)] = left & 0xFF;
+            data[(i + (3 - j)) % data.length()] = left & 0xFF;
             left >>= 8;
         } else {
-            data[i + (7 - j + 4)] = right & 0xFF;
+            data[(i + (7 - j + 4)) % data.length()] = right & 0xFF;
             right >>= 8;
         }
     }
 }
 
-sosc::cgc::Blowfish::Blowfish(const std::string& key) {
+sosc::cgc::Blowfish::Blowfish() {
     std::memcpy(this->parr, init_parr, sizeof(init_parr));
     std::memcpy(this->sbox, init_sbox, sizeof(init_sbox));
-    
+}
+
+sosc::cgc::Blowfish::Blowfish(const std::string& key) : Blowfish() {
     this->SetKey(key.c_str(), key.length());
 }
 
 void sosc::cgc::Blowfish::SetKey(const char* key, size_t length) {
-    for(int i = 0; i < 18; ++i) {
-        uint32_t data = 0;
-        for(int j = 0; j < 4; ++j)
-            data = (data << 8) | key[(i * 4 + j) % length];
-        
-        this->parr[i] ^= data;
-    }
+    for(int i = 0; i < 18; ++i)
+        this->parr[i] ^= pack_word(key, i * 4);
     
     uint32_t left = 0, right = 0;
     for(int i = 0; i < 18; i += 2) {
@@ -253,16 +260,32 @@ void sosc::cgc::Blowfish::SetKey(const char* key, size_t length) {
 void sosc::cgc::Blowfish::SetEksKey
     (const std::string& data, const std::string& key)
 {
-    for(int i = 0; i < 18; ++i) {
-        uint32_t pack = 0;
-        for(int j = 0; j < 4; ++j)
-            pack = (pack << 8) | key[(i * 4 + j) % key.length()];
-            
-        this->parr[i] ^= pack;
+    for(int i = 0; i < 18; ++i)
+        this->parr[i] ^= pack_word(key, i * 4);
+    
+    uint32_t left, right, ptr = 0;
+    for(int i = 0; i < 18; i += 2) {
+        left = pack_word(data, ptr);
+        right = pack_word(data, ptr + 4);
+        
+        this->EncryptBlock(&left, &right);
+        
+        this->parr[i] = left;
+        this->parr[i + 1] = right;
+        ptr += 8;
     }
     
-    for(int i = 0; i < 18; i += 2) {
-        
+    for(int i = 0; i < 4; ++i) {
+        for(int j = 0; j < 256; j += 2) {
+            left = pack_word(data, ptr);
+            right = pack_word(data, ptr + 4);
+            
+            this->EncryptBlock(&left, &right);
+            
+            this->sbox[i][j] = left;
+            this->sbox[i][j + 1] = right;
+            ptr += 8;
+        }
     }
 }
 
@@ -276,9 +299,9 @@ std::string sosc::cgc::Blowfish::Encrypt(std::string data) const {
     for(std::string::size_type i = 0; i < data.size(); i += 8) {
         uint32_t left, right;
         
-        pack_bytes(data, i, left, right);
+        pack_block(data, i, left, right);
         this->EncryptBlock(&left, &right);
-        unpack_bytes(data, i, left, right);
+        unpack_block(data, i, left, right);
     }
     
     return data;
@@ -291,9 +314,9 @@ std::string sosc::cgc::Blowfish::Decrypt(std::string data) const {
     for(std::string::size_type i = 0; i < data.size(); i += 8) {
         uint32_t left, right;
         
-        pack_bytes(data, i, left, right);
+        pack_block(data, i, left, right);
         this->DecryptBlock(&left, &right);
-        unpack_bytes(data, i, left, right);
+        unpack_block(data, i, left, right);
     }
     
     int i = 0;

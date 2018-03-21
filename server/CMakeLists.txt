@@ -21,3 +21,4 @@ else()
 endif()
 
 install(TARGETS server RUNTIME DESTINATION bin)
+ 

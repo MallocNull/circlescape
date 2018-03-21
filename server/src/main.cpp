@@ -9,6 +9,7 @@
 #include "crypto/base64.hpp"
 #include "crypto/bfish.hpp"
 #include "utils/csprng.hpp"
+#include "crypto/bcrypt.hpp"
 
 int main(int argc, char **argv) {
     //auto sock = sosc::TcpClient();
@@ -34,12 +35,16 @@ int main(int argc, char **argv) {
     
     //std::string a = sosc::cgc::sha1("test", true);
     
-    sosc::cgc::Blowfish fish("");
+    /*sosc::cgc::Blowfish fish("TESTKEY");
     
     std::string test = fish.Encrypt("imagine a test");
     std::string testd = fish.Decrypt(test);
     
     uint32_t teest = sosc::csprng::next<uint32_t>();
+    std::cout << std::hex << teest;*/
+    
+    std::string hash = sosc::cgc::bcrypt_hash("test pwd");
+    std::cout << hash;
     
     return 0;
 }

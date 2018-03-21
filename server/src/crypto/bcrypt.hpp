@@ -2,6 +2,7 @@
 #define SOSC_CRYPTO_BCRYPT_H
 
 #include <sstream>
+#include <cstring>
 #include <string>
 #include "base64.hpp"
 #include "bfish.hpp"

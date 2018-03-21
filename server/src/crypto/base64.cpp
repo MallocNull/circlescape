@@ -4,7 +4,7 @@
 #define B64_PADDING 0xFF
 
 std::string sosc::cgc::base64_encode(const std::string& data, bool unix) {
-    return base64_encode(data.c_str(), data.length());
+    return base64_encode(data.c_str(), data.length(), unix);
 }
 
 std::string sosc::cgc::base64_encode
@@ -18,7 +18,7 @@ std::string sosc::cgc::base64_encode
         
     std::string encoded;
     for(size_t i = 0; i < length; i += 3) {
-        if(i > 0 && ((i / 3) * 4) % 76 == 0)
+        if(i > 0 && ((i / 3) * 4) % 76 == 0 && !unix)
             encoded += "\r\n";
         
         int index = 0, padding = 0;
