@@ -25,7 +25,8 @@ private:
     uint32_t parr[18];
     uint32_t sbox[4][256];
     
-    friend std::string sosc::cgc::bcrypt_hash(const std::string&);
+    friend std::string sosc::cgc::bcrypt_hash_raw
+        (const std::string& input, const std::string& salt, uint32_t cost);
 };
 }}
 

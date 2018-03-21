@@ -10,6 +10,7 @@
 #include "crypto/bfish.hpp"
 #include "utils/csprng.hpp"
 #include "crypto/bcrypt.hpp"
+#include "utils/bigint.hpp"
 
 int main(int argc, char **argv) {
     //auto sock = sosc::TcpClient();
@@ -43,8 +44,12 @@ int main(int argc, char **argv) {
     uint32_t teest = sosc::csprng::next<uint32_t>();
     std::cout << std::hex << teest;*/
     
-    std::string hash = sosc::cgc::bcrypt_hash("test pwd");
-    std::cout << hash;
+    /*std::string hash = sosc::cgc::bcrypt_hash("test pwd");
+    std::cout << hash << std::endl;
+    std::cout << sosc::cgc::bcrypt_check("test pwd", hash);*/
+    
+    sosc::BigUInt bi;
+    bi.Parse("abcdef0", 10);
     
     return 0;
 }
