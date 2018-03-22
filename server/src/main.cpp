@@ -48,8 +48,16 @@ int main(int argc, char **argv) {
     std::cout << hash << std::endl;
     std::cout << sosc::cgc::bcrypt_check("test pwd", hash);*/
     
-    sosc::BigUInt bi;
-    bi.Parse("abcdef0", 10);
+    sosc::BigUInt a, b;
+    
+    a.Parse("ff0000");
+    b.Parse("fff");
+    //assert(a - b == sosc::BigUInt("feff01"));
+    
+    //a += b;
+    a *= b;
+    
+    std::cout << a.ToString() << std::endl;
     
     return 0;
 }

@@ -21,9 +21,9 @@ bool sosc::BigUInt::Parse(std::string hex_str, int byte_count) {
         hex_str.insert(hex_str.begin(), '0');
     
     int str_byte_count = hex_str.length() / 2;
-    byte_count = std::max(byte_count, str_byte_count);
-    
-    this->value = std::vector<uint8_t>(byte_count, 0);
+    this->value = 
+        std::vector<uint8_t>(std::max(byte_count, str_byte_count), 0);
+        
     for(int i = 0; i < hex_str.length(); i += 2) {
         if(!is_hex_char(hex_str[i]) || !is_hex_char(hex_str[i + 1]))
             return false;
@@ -32,6 +32,8 @@ bool sosc::BigUInt::Parse(std::string hex_str, int byte_count) {
             = std::stoi(hex_str.substr(i, 2), 0, 16);
     }
     
+    if(byte_count != -1)
+        this->value.resize(byte_count, 0);
     return true;
 }
 
@@ -42,12 +44,36 @@ void sosc::BigUInt::Random(int byte_count) {
         this->value[i] = random_str[i];
 }
 
+sosc::BigUInt sosc::BigUInt::GenerateRandom(int byte_count) {
+    BigUInt num;
+    num.Random(byte_count);
+    return num;
+}
+
 void sosc::BigUInt::RandomPrime(int byte_count) {
     do {
         this->Random(byte_count);
         this->value[0] |= 0x01;
         this->value[byte_count - 1] |= 0x80;
     } while(!this->IsProbablePrime());
+}
+
+sosc::BigUInt sosc::BigUInt::GenerateRandomPrime(int byte_count) {
+    BigUInt num;
+    num.RandomPrime(byte_count);
+    return num;
+}
+
+size_t sosc::BigUInt::UsedByteCount() const {
+    size_t ptr = this->ByteCount() - 1;
+    for(;; --ptr) {
+        if(this->value[ptr] != 0)
+            break;
+        if(ptr == 0)
+            return 0;
+    }
+    
+    return ptr + 1;
 }
 
 bool sosc::BigUInt::IsZero() const {
@@ -70,25 +96,67 @@ bool sosc::BigUInt::IsEven() const {
     return !this->GetBit(0);
 }
 
-bool sosc::BigUInt::IsProbablePrime() const {
-    // TODO rabin-miller
-    return false;
+bool sosc::BigUInt::IsProbablePrime(uint16_t rounds) const {
+    if(this->IsOne())
+        return false;
+    
+    if    (*this == BigUInt(2u) 
+        || *this == BigUInt(3u)
+        || *this == BigUInt(5u))
+    {
+        return true;
+    }
+    
+    if    (this->IsEven() 
+        || this->IsDivisibleBy(BigUInt(3u))
+        || this->IsDivisibleBy(BigUInt(5u)))
+    {
+        return false;
+    }
+    
+    if(*this < BigUInt(25u))
+        return true;
+    
+    for(uint16_t i = 0; i < rounds; ++i) {
+        BigUInt rnd = BigUInt::GenerateRandom(this->ByteCount());
+        rnd = (rnd < BigUInt(2u))
+            ? BigUInt(2u)
+            : (rnd > *this - BigUInt(2u))
+                ? *this - BigUInt(2u)
+                : rnd;
+        
+        if(BigUInt::ModPow(rnd, *this - BigUInt(1u), *this).IsOne())
+            return false;
+    }
+    
+    return true;
 }
 
-std::tuple<sosc::BigUInt, sosc::BigUInt> sosc::BigUInt::DivideWithRemainder
+bool sosc::BigUInt::IsDivisibleBy(const BigUInt& value) const {
+    if(value.IsZero())
+        return false;
+    if(value.IsOne())
+        return true;
+    if(value == BigUInt(2u))
+        return value.IsEven();
+    
+    return (*this % value).IsZero();
+}
+
+sosc::division_t sosc::BigUInt::DivideWithRemainder
     (const BigUInt& num, const BigUInt& denom)
 {
     if(num.IsZero())
-        return std::make_tuple(BigUInt(), BigUInt());
+        return division_t(BigUInt(), BigUInt());
     if(denom.IsZero())
         throw "BigUInt division by zero";
     if(denom.IsOne())
-        return std::make_tuple(num, BigUInt());
+        return division_t(num, BigUInt());
     if(denom > num)
-        return std::make_tuple(BigUInt(), num);
+        return division_t(BigUInt(), num);
     
     BigUInt quotient, remainder;
-    for(uint64_t i = num.ByteCount() * 8 - 1;; --i) {
+    for(size_t i = num.ByteCount() * 8 - 1;; --i) {
         remainder = remainder << 1;
         remainder.SetBit(0, num.GetBit(i));
         
@@ -101,7 +169,7 @@ std::tuple<sosc::BigUInt, sosc::BigUInt> sosc::BigUInt::DivideWithRemainder
             break;
     }
     
-    return std::make_tuple(quotient, remainder);
+    return division_t(quotient, remainder);
 }
 
 sosc::BigUInt sosc::BigUInt::ModPow
@@ -123,7 +191,7 @@ sosc::BigUInt sosc::BigUInt::ModPow
 }
 
 void sosc::BigUInt::SetBit(uint64_t bit, bool value) {
-    uint64_t byte = bit / 8;
+    size_t byte = bit / 8;
     if(byte >= this->ByteCount())
         this->value.resize(byte + 1);
     
@@ -134,7 +202,7 @@ void sosc::BigUInt::SetBit(uint64_t bit, bool value) {
 }
 
 bool sosc::BigUInt::GetBit(uint64_t bit) const {
-    uint64_t byte = bit / 8;
+    size_t byte = bit / 8;
     if(byte >= this->ByteCount())
         return false;
     
@@ -142,13 +210,26 @@ bool sosc::BigUInt::GetBit(uint64_t bit) const {
 }
 
 sosc::BigUInt sosc::BigUInt::operator + (const BigUInt& rhs) const {
-    uint64_t sum_range = std::min(this->ByteCount(), rhs.ByteCount());
+    size_t sum_range = std::max(this->ByteCount(), rhs.ByteCount());
+    
+    auto rhs_v = rhs.value;
+    auto this_v = this->value;
+    rhs_v.resize(sum_range, 0);
+    this_v.resize(sum_range, 0);
     
     BigUInt sum;
+    sum.value.clear();
+    
     uint8_t carry = 0;
-    for(uint64_t i = 0; i < sum_range; ++i) {
+    for(size_t i = 0; i < sum_range; ++i) {
+        uint16_t result = this_v[i] + rhs_v[i] + carry;
+        carry = result >> 8;
         
+        sum.value.push_back(result);
     }
+    
+    if(carry != 0)
+        sum.value.push_back(carry);
     
     return sum;
 }
@@ -156,4 +237,207 @@ sosc::BigUInt sosc::BigUInt::operator + (const BigUInt& rhs) const {
 sosc::BigUInt& sosc::BigUInt::operator += (const BigUInt& rhs) {
     this->Copy(*this + rhs);
     return *this;
+}
+
+sosc::BigUInt sosc::BigUInt::operator - (const BigUInt& rhs) const {
+    if(*this < rhs)
+        return BigUInt();
+    
+    size_t sub_range = std::max(this->ByteCount(), rhs.ByteCount());
+    
+    auto rhs_v = rhs.value;
+    auto this_v = this->value;
+    rhs_v.resize(sub_range, 0);
+    this_v.resize(sub_range, 0);
+    
+    BigUInt sub;
+    sub.value.clear();
+    
+    uint8_t carry = 0;
+    for(size_t i = 0; i < sub_range; ++i) {
+        uint8_t result = this_v[i] - rhs_v[i] - carry;
+        carry = (rhs_v[i] + carry > this_v[i]) ? 1 : 0;
+            
+        sub.value.push_back(result);
+    }
+    
+    return sub;
+}
+
+sosc::BigUInt& sosc::BigUInt::operator -= (const BigUInt& rhs) {
+    this->Copy(*this - rhs);
+    return *this;
+}
+
+sosc::BigUInt sosc::BigUInt::operator * (const BigUInt& rhs) const {
+    if(this->IsZero() || rhs.IsZero())
+        return BigUInt();
+    if(this->IsOne())
+        return rhs;
+    if(rhs.IsOne())
+        return *this;
+    
+    size_t prod_range = std::max(this->ByteCount(), rhs.ByteCount());
+    
+    auto rhs_v = rhs.value;
+    auto this_v = this->value;
+    rhs_v.resize(prod_range, 0);
+    this_v.resize(prod_range, 0);
+    
+    BigUInt product;
+    for(size_t i = 0; i < prod_range; ++i) {
+        if(rhs_v[i] == 0)
+            continue;
+        
+        for(size_t j = 0; j < prod_range; ++j) {
+            if(this_v[j] == 0)
+                continue;
+            
+            BigUInt result((uint16_t)((uint16_t)this_v[j] * rhs_v[i]));
+            product += (result << (8 * (i + j)));
+        }
+    }
+    
+    return product;
+}
+
+sosc::BigUInt& sosc::BigUInt::operator *= (const BigUInt& rhs) {
+    this->Copy(*this * rhs);
+    return *this;
+}
+
+sosc::BigUInt sosc::BigUInt::operator / (const BigUInt& rhs) const {
+    return BigUInt::DivideWithRemainder(*this, rhs).result;
+}
+
+sosc::BigUInt& sosc::BigUInt::operator /= (const BigUInt& rhs) {
+    this->Copy(*this / rhs);
+    return *this;
+}
+
+sosc::BigUInt sosc::BigUInt::operator % (const BigUInt& rhs) const {
+    return BigUInt::DivideWithRemainder(*this, rhs).remainder;
+}
+
+bool sosc::BigUInt::operator == (const BigUInt& rhs) const {
+    if(this->UsedByteCount() != rhs.UsedByteCount())
+        return false;
+    
+    size_t cmp_range = std::max(this->ByteCount(), rhs.ByteCount());
+    for(size_t i = 0; i < cmp_range; ++i) {
+        uint8_t a = i < this->ByteCount() ? this->value[i] : 0;
+        uint8_t b = i < rhs.ByteCount() ? rhs.value[i] : 0;
+        
+        if(a != b)
+            return false;
+    }
+    
+    return true;
+}
+
+bool sosc::BigUInt::operator != (const BigUInt& rhs) const {
+    return !(*this == rhs);
+}
+
+bool sosc::BigUInt::operator > (const BigUInt& rhs) const {
+    if(this->UsedByteCount() < rhs.UsedByteCount())
+        return false;
+    
+    size_t cmp_range = std::max(this->ByteCount(), rhs.ByteCount());
+    
+    for(size_t i = cmp_range - 1;; --i) {
+        uint8_t a = i < this->ByteCount() ? this->value[i] : 0;
+        uint8_t b = i < rhs.ByteCount() ? rhs.value[i] : 0;
+        
+        if(a > b)
+            return true;
+        if(i == 0)
+            break;
+    }
+    
+    return false;
+}
+
+bool sosc::BigUInt::operator >= (const BigUInt& rhs) const {
+    return (*this > rhs) || (*this == rhs);
+}
+
+bool sosc::BigUInt::operator < (const BigUInt& rhs) const {
+    return !(*this > rhs) && *this != rhs;
+}
+
+bool sosc::BigUInt::operator <= (const BigUInt& rhs) const {
+    return !(*this > rhs) || *this == rhs;
+}
+
+sosc::BigUInt sosc::BigUInt::operator >> (const uint64_t& rhs) const {
+    size_t bytes = rhs / 8;
+    uint8_t bits = rhs % 8;
+    if(bytes >= this->ByteCount())
+        return BigUInt();
+    
+    std::vector<uint8_t> this_v
+        (this->value.begin() + bytes, this->value.end());
+    std::vector<uint8_t> buffer(this_v.size(), 0);
+    
+    if(bits != 0) {
+        uint8_t carry = 0, mask = 0;
+        for(uint8_t i = 0; i < bits; ++i)
+            mask |= (1 << i);
+        
+        for(size_t i = this_v.size() - 1;; --i) {
+            buffer[i] = carry | (this_v[i] >> bits);
+            carry = (buffer[i] & mask) << (8 - bits);
+            
+            if(i == 0)
+                break;
+        }
+    }
+    
+    sosc::BigUInt shifted;
+    shifted.value = bits == 0 ? this_v : buffer;
+    return shifted;
+}
+
+sosc::BigUInt sosc::BigUInt::operator << (const uint64_t& rhs) const {
+    size_t bytes = rhs / 8;
+    uint8_t bits = rhs % 8;
+    
+    std::vector<uint8_t> this_v = this->value;
+    for(size_t i = 0; i < bytes; ++i)
+        this_v.insert(this_v.begin(), 0);
+    std::vector<uint8_t> buffer(this_v.size(), 0);
+    
+    if(bits != 0) {
+        uint8_t carry = 0, mask = 0;
+        for(uint8_t i = 0; i < bits; ++i)
+            mask |= (0x80 >> i);
+        
+        for(size_t i = bytes; i < this_v.size(); i++) {
+            buffer[i] = carry | (this_v[i] << bits);
+            carry = (this_v[i] & mask) >> (8 - bits);
+        }
+        
+        if(carry != 0)
+            this_v.push_back(carry);
+    }
+    
+    sosc::BigUInt shifted;
+    shifted.value = bits == 0 ? this_v : buffer;
+    return shifted;
+}
+
+std::string sosc::BigUInt::ToString() const {
+    std::stringstream stream;
+    for(size_t i = this->ByteCount() - 1;; --i) {
+        stream << std::setfill('0') 
+               << std::setw(2) 
+               << std::hex 
+               << (int)this->value[i];
+              
+        if(i == 0)
+            break;
+    }
+    
+    return stream.str();
 }
