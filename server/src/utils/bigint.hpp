@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <algorithm>
 #include "csprng.hpp"
 
 namespace sosc {
@@ -34,19 +35,19 @@ public:
     void SetBit(uint64_t bit, bool value);
     bool GetBit(uint64_t bit) const;
         
-    BigUInt& operator +  (const BigUInt& rhs) const;
+    BigUInt  operator +  (const BigUInt& rhs) const;
     BigUInt& operator += (const BigUInt& rhs);
     
-    BigUInt& operator -  (const BigUInt& rhs) const;
+    BigUInt  operator -  (const BigUInt& rhs) const;
     BigUInt& operator -= (const BigUInt& rhs);
     
-    BigUInt& operator *  (const BigUInt& rhs) const;
+    BigUInt  operator *  (const BigUInt& rhs) const;
     BigUInt& operator *= (const BigUInt& rhs);
     
-    BigUInt& operator /  (const BigUInt& rhs) const;
+    BigUInt  operator /  (const BigUInt& rhs) const;
     BigUInt& operator /= (const BigUInt& rhs);
     
-    BigUInt& operator %  (const BigUInt& rhs) const;
+    BigUInt  operator %  (const BigUInt& rhs) const;
     
     bool operator == (const BigUInt& rhs) const;
     bool operator >  (const BigUInt& rhs) const;
@@ -62,6 +63,10 @@ public:
         return this->ToString();
     }
 private:
+    inline void Copy(const BigUInt& from) {
+        
+    }
+    
     std::vector<uint8_t> value;
 };
 }

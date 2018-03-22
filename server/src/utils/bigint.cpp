@@ -50,8 +50,29 @@ void sosc::BigUInt::RandomPrime(int byte_count) {
     } while(!this->IsProbablePrime());
 }
 
+bool sosc::BigUInt::IsZero() const {
+    return
+        std::all_of(this->value.begin(), this->value.end(), 
+            [](uint8_t x) { return x == 0; });
+}
+
+bool sosc::BigUInt::IsOne() const {
+    if(this->value[0] != 1)
+        return false;
+    
+    return this->value.size() == 1
+        ? true
+        : std::all_of(this->value.begin() + 1, this->value.end(),
+            [](uint8_t x) { return x == 0; });
+}
+
+bool sosc::BigUInt::IsEven() const {
+    return !this->GetBit(0);
+}
+
 bool sosc::BigUInt::IsProbablePrime() const {
     // TODO rabin-miller
+    return false;
 }
 
 std::tuple<sosc::BigUInt, sosc::BigUInt> sosc::BigUInt::DivideWithRemainder
@@ -99,4 +120,40 @@ sosc::BigUInt sosc::BigUInt::ModPow
     }
     
     return accum;
+}
+
+void sosc::BigUInt::SetBit(uint64_t bit, bool value) {
+    uint64_t byte = bit / 8;
+    if(byte >= this->ByteCount())
+        this->value.resize(byte + 1);
+    
+    if(value)
+        this->value[byte] |= (1 << (bit % 8));
+    else
+        this->value[byte] &= ~(1 << (bit % 8));
+}
+
+bool sosc::BigUInt::GetBit(uint64_t bit) const {
+    uint64_t byte = bit / 8;
+    if(byte >= this->ByteCount())
+        return false;
+    
+    return (this->value[byte] & (1 << (bit % 8))) != 0;
+}
+
+sosc::BigUInt sosc::BigUInt::operator + (const BigUInt& rhs) const {
+    uint64_t sum_range = std::min(this->ByteCount(), rhs.ByteCount());
+    
+    BigUInt sum;
+    uint8_t carry = 0;
+    for(uint64_t i = 0; i < sum_range; ++i) {
+        
+    }
+    
+    return sum;
+}
+
+sosc::BigUInt& sosc::BigUInt::operator += (const BigUInt& rhs) {
+    this->Copy(*this + rhs);
+    return *this;
 }
