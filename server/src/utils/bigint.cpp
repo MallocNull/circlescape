@@ -6,66 +6,103 @@ static bool is_hex_char(char c) {
         || ((c >= '0') && (c <= '9'));
 }
 
+static const uint32_t left_shift_masks[32] = {
+    0x00000000, 0x00000001, 0x00000003, 0x00000007, 0x0000000f, 0x0000001f, 
+    0x0000003f, 0x0000007f, 0x000000ff, 0x000001ff, 0x000003ff, 0x000007ff, 
+    0x00000fff, 0x00001fff, 0x00003fff, 0x00007fff, 0x0000ffff, 0x0001ffff, 
+    0x0003ffff, 0x0007ffff, 0x000fffff, 0x001fffff, 0x003fffff, 0x007fffff, 
+    0x00ffffff, 0x01ffffff, 0x03ffffff, 0x07ffffff, 0x0fffffff, 0x1fffffff, 
+    0x3fffffff, 0x7fffffff
+};
+
+static const uint32_t right_shift_masks[32] = {
+    0x00000000, 0x80000000, 0xc0000000, 0xe0000000, 0xf0000000, 0xf8000000, 
+    0xfc000000, 0xfe000000, 0xff000000, 0xff800000, 0xffc00000, 0xffe00000, 
+    0xfff00000, 0xfff80000, 0xfffc0000, 0xfffe0000, 0xffff0000, 0xffff8000, 
+    0xffffc000, 0xffffe000, 0xfffff000, 0xfffff800, 0xfffffc00, 0xfffffe00, 
+    0xffffff00, 0xffffff80, 0xffffffc0, 0xffffffe0, 0xfffffff0, 0xfffffff8, 
+    0xfffffffc, 0xfffffffe
+};
+
 sosc::BigUInt::BigUInt() {
     this->value = { 0 };
 }
 
-sosc::BigUInt::BigUInt(std::string hex_str, int byte_count) {
+sosc::BigUInt::BigUInt(std::string hex_str, uint64_t byte_count) {
     this->Parse(hex_str, byte_count);
 }
 
-bool sosc::BigUInt::Parse(std::string hex_str, int byte_count) {
-    if(hex_str.length() == 0)
-        hex_str = "00";
-    if(hex_str.length() % 2 != 0)
-        hex_str.insert(hex_str.begin(), '0');
+bool sosc::BigUInt::Parse(std::string hex_str, uint64_t byte_count) {
+    if(hex_str.length() == 0) 
+        hex_str = "00000000";
+    if(hex_str.length() % 8 != 0)
+        for(int i = hex_str.length() % 8; i < 8; ++i)
+            hex_str.insert(hex_str.begin(), '0');
     
-    int str_byte_count = hex_str.length() / 2;
+    uint64_t word_count = WORD_CNT(byte_count);
+    uint64_t str_word_count = hex_str.length() / 8;
     this->value = 
-        std::vector<uint8_t>(std::max(byte_count, str_byte_count), 0);
+        std::vector<uint32_t>(std::max(word_count, str_word_count), 0);
         
-    for(int i = 0; i < hex_str.length(); i += 2) {
-        if(!is_hex_char(hex_str[i]) || !is_hex_char(hex_str[i + 1]))
-            return false;
+    for(int i = 0; i < hex_str.length(); i += 8) {
+        for(int j = 0; j < 8; ++j)
+            if(!is_hex_char(hex_str[i * 8 + j]))
+                return false;
         
-        this->value[str_byte_count - (i / 2) - 1] 
-            = std::stoi(hex_str.substr(i, 2), 0, 16);
+        this->value[str_word_count - (i / 8) - 1] 
+            = std::stoul(hex_str.substr(i, 8), 0, 16);
     }
     
-    if(byte_count != -1)
-        this->value.resize(byte_count, 0);
+    if(byte_count != 0)
+        this->value.resize(word_count, 0);
+        
     return true;
 }
 
-void sosc::BigUInt::Random(int byte_count) {
-    this->value = std::vector<uint8_t>(byte_count, 0);
+void sosc::BigUInt::Random(uint64_t byte_count) {
+    this->value = std::vector<uint32_t>(WORD_CNT(byte_count), 0);
     std::string random_str = csprng::next_bytes(byte_count);
-    for(int i = 0; i < byte_count; ++i)
-        this->value[i] = random_str[i];
+    for(int i = 0; i < this->value.size(); i++)
+        for(int j = 0; j < 4; ++j)
+            this->value[i] |= 
+                (i * 4 + j < byte_count)
+                    ? random_str[i * 4 + j] << (8 * j)
+                    : 0;
 }
 
-sosc::BigUInt sosc::BigUInt::GenerateRandom(int byte_count) {
+sosc::BigUInt sosc::BigUInt::GenerateRandom(uint64_t byte_count) {
     BigUInt num;
     num.Random(byte_count);
     return num;
 }
 
-void sosc::BigUInt::RandomPrime(int byte_count) {
+void sosc::BigUInt::RandomPrime(uint64_t byte_count) {
     do {
         this->Random(byte_count);
         this->value[0] |= 0x01;
-        this->value[byte_count - 1] |= 0x80;
+        this->value[this->value.size()]
+            |= (0x80 << (8 * BYTE_OFF(byte_count)));
     } while(!this->IsProbablePrime());
 }
 
-sosc::BigUInt sosc::BigUInt::GenerateRandomPrime(int byte_count) {
+sosc::BigUInt sosc::BigUInt::GenerateRandomPrime(uint64_t byte_count) {
     BigUInt num;
     num.RandomPrime(byte_count);
     return num;
 }
 
 size_t sosc::BigUInt::UsedByteCount() const {
-    size_t ptr = this->ByteCount() - 1;
+    uint64_t msw_off = this->UsedWordCount() - 1;
+    uint32_t msw = this->value[msw_off];
+    
+    int count = 0;
+    for(; (msw & 0xFF000000) != 0; msw <<= 8);
+    
+    return msw_off * 8 + (4 - count);
+}
+
+size_t sosc::BigUInt::UsedWordCount() const {
+    size_t ptr = this->WordCount() - 1;
     for(;; --ptr) {
         if(this->value[ptr] != 0)
             break;
@@ -79,7 +116,7 @@ size_t sosc::BigUInt::UsedByteCount() const {
 bool sosc::BigUInt::IsZero() const {
     return
         std::all_of(this->value.begin(), this->value.end(), 
-            [](uint8_t x) { return x == 0; });
+            [](uint32_t x) { return x == 0; });
 }
 
 bool sosc::BigUInt::IsOne() const {
@@ -89,7 +126,7 @@ bool sosc::BigUInt::IsOne() const {
     return this->value.size() == 1
         ? true
         : std::all_of(this->value.begin() + 1, this->value.end(),
-            [](uint8_t x) { return x == 0; });
+            [](uint32_t x) { return x == 0; });
 }
 
 bool sosc::BigUInt::IsEven() const {
@@ -118,7 +155,7 @@ bool sosc::BigUInt::IsProbablePrime(uint16_t rounds) const {
         return true;
     
     for(uint16_t i = 0; i < rounds; ++i) {
-        BigUInt rnd = BigUInt::GenerateRandom(this->ByteCount());
+        BigUInt rnd = BigUInt::GenerateRandom(this->WordCount());
         rnd = (rnd < BigUInt(2u))
             ? BigUInt(2u)
             : (rnd > *this - BigUInt(2u))
@@ -156,7 +193,7 @@ sosc::division_t sosc::BigUInt::DivideWithRemainder
         return division_t(BigUInt(), num);
     
     BigUInt quotient, remainder;
-    for(size_t i = num.ByteCount() * 8 - 1;; --i) {
+    for(size_t i = num.UsedByteCount() * 8 - 1;; --i) {
         remainder = remainder << 1;
         remainder.SetBit(0, num.GetBit(i));
                   
@@ -179,42 +216,38 @@ sosc::BigUInt sosc::BigUInt::ModPow
     BigUInt x = exp;
     BigUInt bpow = base;
     
-    uint64_t iterations = 0;
-    while(!x.IsZero()) {
-        ++iterations;
-        
+    for(uint64_t i = 0; i < exp.UsedByteCount() * 4; ++i) {
         if(!x.IsEven())
             accum = (accum * bpow) % mod;
         
         x = x >> 1;
         bpow = (bpow * bpow) % mod;
     }
-    std::cout << std::endl << iterations << std::endl;
     
     return accum;
 }
 
 void sosc::BigUInt::SetBit(uint64_t bit, bool value) {
-    size_t byte = bit / 8;
-    if(byte >= this->ByteCount())
-        this->value.resize(byte + 1);
+    size_t word = bit / 32;
+    if(word >= this->WordCount())
+        this->value.resize(word + 1);
     
     if(value)
-        this->value[byte] |= (1 << (bit % 8));
+        this->value[word] |= (1 << (bit % 32));
     else
-        this->value[byte] &= ~(1 << (bit % 8));
+        this->value[word] &= ~(1 << (bit % 32));
 }
 
 bool sosc::BigUInt::GetBit(uint64_t bit) const {
-    size_t byte = bit / 8;
-    if(byte >= this->ByteCount())
+    size_t word = bit / 32;
+    if(word >= this->WordCount())
         return false;
     
-    return (this->value[byte] & (1 << (bit % 8))) != 0;
+    return (this->value[word] & (1 << (bit % 32))) != 0;
 }
 
 sosc::BigUInt sosc::BigUInt::operator + (const BigUInt& rhs) const {
-    size_t sum_range = std::max(this->ByteCount(), rhs.ByteCount());
+    size_t sum_range = std::max(this->WordCount(), rhs.WordCount());
     
     auto rhs_v = rhs.value;
     auto this_v = this->value;
@@ -224,10 +257,10 @@ sosc::BigUInt sosc::BigUInt::operator + (const BigUInt& rhs) const {
     BigUInt sum;
     sum.value.clear();
     
-    uint8_t carry = 0;
+    uint32_t carry = 0;
     for(size_t i = 0; i < sum_range; ++i) {
-        uint16_t result = this_v[i] + rhs_v[i] + carry;
-        carry = result >> 8;
+        uint64_t result = this_v[i] + rhs_v[i] + carry;
+        carry = result >> 32;
         
         sum.value.push_back(result);
     }
@@ -247,7 +280,7 @@ sosc::BigUInt sosc::BigUInt::operator - (const BigUInt& rhs) const {
     if(*this < rhs)
         return BigUInt();
     
-    size_t sub_range = std::max(this->ByteCount(), rhs.ByteCount());
+    size_t sub_range = std::max(this->WordCount(), rhs.WordCount());
     
     auto rhs_v = rhs.value;
     auto this_v = this->value;
@@ -257,9 +290,9 @@ sosc::BigUInt sosc::BigUInt::operator - (const BigUInt& rhs) const {
     BigUInt sub;
     sub.value.clear();
     
-    uint8_t carry = 0;
+    uint64_t carry = 0;
     for(size_t i = 0; i < sub_range; ++i) {
-        uint8_t result = this_v[i] - rhs_v[i] - carry;
+        uint32_t result = this_v[i] - rhs_v[i] - carry;
         carry = (rhs_v[i] + carry > this_v[i]) ? 1 : 0;
             
         sub.value.push_back(result);
@@ -281,7 +314,7 @@ sosc::BigUInt sosc::BigUInt::operator * (const BigUInt& rhs) const {
     if(rhs.IsOne())
         return *this;
     
-    size_t prod_range = std::max(this->ByteCount(), rhs.ByteCount());
+    size_t prod_range = std::max(this->WordCount(), rhs.WordCount());
     
     auto rhs_v = rhs.value;
     auto this_v = this->value;
@@ -297,8 +330,8 @@ sosc::BigUInt sosc::BigUInt::operator * (const BigUInt& rhs) const {
             if(this_v[j] == 0)
                 continue;
             
-            BigUInt result((uint16_t)((uint16_t)this_v[j] * rhs_v[i]));
-            product += (result << (8 * (i + j)));
+            BigUInt result((uint64_t)((uint64_t)this_v[j] * rhs_v[i]));
+            product += (result << (32 * (i + j)));
         }
     }
     
@@ -324,10 +357,10 @@ sosc::BigUInt sosc::BigUInt::operator % (const BigUInt& rhs) const {
 }
 
 bool sosc::BigUInt::operator == (const BigUInt& rhs) const {
-    if(this->UsedByteCount() != rhs.UsedByteCount())
+    if(this->UsedWordCount() != rhs.UsedWordCount())
         return false;
     
-    for(size_t i = 0; i < this->UsedByteCount(); ++i)
+    for(size_t i = 0; i < this->UsedWordCount(); ++i)
         if(this->value[i] != rhs.value[i])
             return false;
     
@@ -339,12 +372,12 @@ bool sosc::BigUInt::operator != (const BigUInt& rhs) const {
 }
 
 bool sosc::BigUInt::operator > (const BigUInt& rhs) const {
-    if(this->UsedByteCount() < rhs.UsedByteCount())
+    if(this->UsedWordCount() < rhs.UsedWordCount())
         return false;
-    if(this->UsedByteCount() > rhs.UsedByteCount())
+    if(this->UsedWordCount() > rhs.UsedWordCount())
         return true;
     
-    size_t msb = this->UsedByteCount() - 1;
+    size_t msb = this->UsedWordCount() - 1;
     for(size_t i = msb;; --i) {
         if(this->value[i] != rhs.value[i])
             return this->value[i] > rhs.value[i];
@@ -367,23 +400,21 @@ bool sosc::BigUInt::operator <= (const BigUInt& rhs) const {
 }
 
 sosc::BigUInt sosc::BigUInt::operator >> (const uint64_t& rhs) const {
-    size_t bytes = rhs / 8;
-    uint8_t bits = rhs % 8;
-    if(bytes >= this->ByteCount())
+    size_t words = rhs / 32;
+    uint32_t bits = rhs % 32;
+    if(words >= this->WordCount())
         return BigUInt();
     
-    std::vector<uint8_t> this_v
-        (this->value.begin() + bytes, this->value.end());
-    std::vector<uint8_t> buffer(this_v.size(), 0);
+    std::vector<uint32_t> this_v
+        (this->value.begin() + words, this->value.end());
+    std::vector<uint32_t> buffer(this_v.size(), 0);
     
     if(bits != 0) {
-        uint8_t carry = 0, mask = 0;
-        for(uint8_t i = 0; i < bits; ++i)
-            mask |= (1 << i);
+        uint8_t carry = 0, mask = left_shift_masks[bits];
         
         for(size_t i = this_v.size() - 1;; --i) {
             buffer[i] = carry | (this_v[i] >> bits);
-            carry = (buffer[i] & mask) << (8 - bits);
+            carry = (buffer[i] & mask) << (32 - bits);
             
             if(i == 0)
                 break;
@@ -396,22 +427,20 @@ sosc::BigUInt sosc::BigUInt::operator >> (const uint64_t& rhs) const {
 }
 
 sosc::BigUInt sosc::BigUInt::operator << (const uint64_t& rhs) const {
-    size_t bytes = rhs / 8;
-    uint8_t bits = rhs % 8;
+    size_t words = rhs / 32;
+    uint32_t bits = rhs % 32;
     
-    std::vector<uint8_t> this_v = this->value;
-    for(size_t i = 0; i < bytes; ++i)
+    std::vector<uint32_t> this_v = this->value;
+    for(size_t i = 0; i < words; ++i)
         this_v.insert(this_v.begin(), 0);
-    std::vector<uint8_t> buffer(this_v.size(), 0);
+    std::vector<uint32_t> buffer(this_v.size(), 0);
     
     if(bits != 0) {
-        uint8_t carry = 0, mask = 0;
-        for(uint8_t i = 0; i < bits; ++i)
-            mask |= (0x80 >> i);
+        uint8_t carry = 0, mask = right_shift_masks[bits];
         
-        for(size_t i = bytes; i < this_v.size(); i++) {
+        for(size_t i = words; i < this_v.size(); i++) {
             buffer[i] = carry | (this_v[i] << bits);
-            carry = (this_v[i] & mask) >> (8 - bits);
+            carry = (this_v[i] & mask) >> (32 - bits);
         }
         
         if(carry != 0)
@@ -425,11 +454,11 @@ sosc::BigUInt sosc::BigUInt::operator << (const uint64_t& rhs) const {
 
 std::string sosc::BigUInt::ToString() const {
     std::stringstream stream;
-    for(size_t i = this->ByteCount() - 1;; --i) {
+    for(size_t i = this->WordCount() - 1;; --i) {
         stream << std::setfill('0') 
-               << std::setw(2) 
+               << std::setw(8) 
                << std::hex 
-               << (int)this->value[i];
+               << this->value[i];
               
         if(i == 0)
             break;

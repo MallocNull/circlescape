@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <ctime>
 #include "sock/tcpsock.hpp"
 #include "utils/string.hpp"
 #include "utils/net.hpp"
@@ -50,7 +51,10 @@ int main(int argc, char **argv) {
     
     sosc::BigUInt a, b;
     
+    /*
     a.Parse("368BEADA711E83274DAF974D1A1A10EB915023D016CFC8BFAB58E5D848CF8D45");
+    b.Parse("abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd");
+    */
     
     //assert(a - b == sosc::BigUInt("feff01"));
     
@@ -64,8 +68,15 @@ int main(int argc, char **argv) {
     //std::cout << sosc::BigUInt::GenerateRandomPrime(64).ToString();
     //std::cout << a.IsProbablePrime();
     
-    for(int i = 0; i < 250; ++i)
-        a*a;
+    //for(int i = 0; i < 250; ++i)
+    
+    /*time_t start = time(NULL);
+    sosc::BigUInt::ModPow(a, a, b);
+    std::cout << (time(NULL) - start) << std::endl;*/
+    
+    a.Parse("ff0000ff00000000");
+    a = a >> 8;
+    std::cout << a.ToString();
     
     //std::cout << a.ToString();
     

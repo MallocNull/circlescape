@@ -13,6 +13,9 @@
 #include <algorithm>
 #include "csprng.hpp"
 
+#define BYTE_OFF(X) ((X - 1) % 4)
+#define WORD_CNT(X) (X == 0 ? 0 : ((X - 1) / 4 + 1))
+
 namespace sosc {
 struct division_t;
     
@@ -25,19 +28,20 @@ public:
     BigUInt(uint32_t value) { this->Initialize(value); }
     BigUInt(uint64_t value) { this->Initialize(value); }
     
-    BigUInt(std::string hex_str, int byte_count = -1);
-    bool Parse(std::string hex_str, int byte_count = -1);
+    BigUInt(std::string hex_str, uint64_t byte_count = 0);
+    bool Parse(std::string hex_str, uint64_t byte_count = 0);
     inline void Resize(uint64_t byte_count) {
-        this->value.resize(byte_count, 0);
+        this->value.resize(WORD_CNT(byte_count), 0);
     }
     
-    void Random(int byte_count);
-    void RandomPrime(int byte_count);
-    static BigUInt GenerateRandom(int byte_count);
-    static BigUInt GenerateRandomPrime(int byte_count);
+    void Random(uint64_t byte_count);
+    void RandomPrime(uint64_t byte_count);
+    static BigUInt GenerateRandom(uint64_t byte_count);
+    static BigUInt GenerateRandomPrime(uint64_t byte_count);
     
     size_t UsedByteCount() const;
-    inline size_t ByteCount() const {
+    size_t UsedWordCount() const;
+    inline size_t WordCount() const {
         return value.size();
     }
     
@@ -87,9 +91,10 @@ public:
 private:
     template<typename T>
     void Initialize(T value) {
-        for(int i = 0; i < sizeof(T); ++i) {
-            this->value.push_back(value & 0xFF);
-            value >>= 8;
+        this->value.clear();
+        for(int i = 0; i < WORD_CNT(sizeof(T)); ++i) {
+            this->value.push_back(value & 0xFFFFFFFF);
+            value >>= 32;
         }
     }
     
@@ -97,7 +102,7 @@ private:
         this->value = from.value;
     }
     
-    std::vector<uint8_t> value;
+    std::vector<uint32_t> value;
 };
 
 struct division_t {
