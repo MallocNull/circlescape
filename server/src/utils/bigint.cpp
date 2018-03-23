@@ -159,7 +159,7 @@ sosc::division_t sosc::BigUInt::DivideWithRemainder
     for(size_t i = num.ByteCount() * 8 - 1;; --i) {
         remainder = remainder << 1;
         remainder.SetBit(0, num.GetBit(i));
-        
+                  
         if(remainder >= denom) {
             remainder -= denom;
             quotient.SetBit(i, true);
@@ -179,13 +179,17 @@ sosc::BigUInt sosc::BigUInt::ModPow
     BigUInt x = exp;
     BigUInt bpow = base;
     
+    uint64_t iterations = 0;
     while(!x.IsZero()) {
+        ++iterations;
+        
         if(!x.IsEven())
             accum = (accum * bpow) % mod;
         
         x = x >> 1;
         bpow = (bpow * bpow) % mod;
     }
+    std::cout << std::endl << iterations << std::endl;
     
     return accum;
 }
@@ -323,14 +327,9 @@ bool sosc::BigUInt::operator == (const BigUInt& rhs) const {
     if(this->UsedByteCount() != rhs.UsedByteCount())
         return false;
     
-    size_t cmp_range = std::max(this->ByteCount(), rhs.ByteCount());
-    for(size_t i = 0; i < cmp_range; ++i) {
-        uint8_t a = i < this->ByteCount() ? this->value[i] : 0;
-        uint8_t b = i < rhs.ByteCount() ? rhs.value[i] : 0;
-        
-        if(a != b)
+    for(size_t i = 0; i < this->UsedByteCount(); ++i)
+        if(this->value[i] != rhs.value[i])
             return false;
-    }
     
     return true;
 }
@@ -342,20 +341,17 @@ bool sosc::BigUInt::operator != (const BigUInt& rhs) const {
 bool sosc::BigUInt::operator > (const BigUInt& rhs) const {
     if(this->UsedByteCount() < rhs.UsedByteCount())
         return false;
+    if(this->UsedByteCount() > rhs.UsedByteCount())
+        return true;
     
-    size_t cmp_range = std::max(this->ByteCount(), rhs.ByteCount());
-    
-    for(size_t i = cmp_range - 1;; --i) {
-        uint8_t a = i < this->ByteCount() ? this->value[i] : 0;
-        uint8_t b = i < rhs.ByteCount() ? rhs.value[i] : 0;
+    size_t msb = this->UsedByteCount() - 1;
+    for(size_t i = msb;; --i) {
+        if(this->value[i] != rhs.value[i])
+            return this->value[i] > rhs.value[i];
         
-        if(a > b)
-            return true;
         if(i == 0)
-            break;
+            return false;
     }
-    
-    return false;
 }
 
 bool sosc::BigUInt::operator >= (const BigUInt& rhs) const {
@@ -419,7 +415,7 @@ sosc::BigUInt sosc::BigUInt::operator << (const uint64_t& rhs) const {
         }
         
         if(carry != 0)
-            this_v.push_back(carry);
+            buffer.push_back(carry);
     }
     
     sosc::BigUInt shifted;

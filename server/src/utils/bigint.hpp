@@ -1,6 +1,8 @@
 #ifndef SOSC_UTIL_BIGINT_H
 #define SOSC_UTIL_BIGINT_H
 
+#include <iostream>
+
 #include <cassert>
 #include <tuple>
 #include <string>

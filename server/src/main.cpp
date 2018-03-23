@@ -50,14 +50,29 @@ int main(int argc, char **argv) {
     
     sosc::BigUInt a, b;
     
-    a.Parse("ff0000");
-    b.Parse("fff");
+    a.Parse("368BEADA711E83274DAF974D1A1A10EB915023D016CFC8BFAB58E5D848CF8D45");
+    
     //assert(a - b == sosc::BigUInt("feff01"));
     
-    //a += b;
-    a *= b;
+    //auto d = sosc::BigUInt::DivideWithRemainder(a, b);
     
-    std::cout << a.ToString() << std::endl;
+    /*for(int i = a.ByteCount() * 8 - 1; i >= 0; --i) {
+        std::cout << a.GetBit(i);
+        b.SetBit(i, a.GetBit(i));
+    }*/
+    
+    //std::cout << sosc::BigUInt::GenerateRandomPrime(64).ToString();
+    //std::cout << a.IsProbablePrime();
+    
+    for(int i = 0; i < 250; ++i)
+        a*a;
+    
+    //std::cout << a.ToString();
+    
+    /*std::cout << std::endl << std::endl 
+              << d.result.ToString() 
+              << std::endl
+              << d.remainder.ToString();*/
     
     return 0;
 }
