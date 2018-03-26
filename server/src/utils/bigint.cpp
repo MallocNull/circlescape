@@ -6,7 +6,7 @@ static bool is_hex_char(char c) {
         || ((c >= '0') && (c <= '9'));
 }
 
-static const uint32_t left_shift_masks[32] = {
+static const uint32_t right_shift_masks[32] = {
     0x00000000, 0x00000001, 0x00000003, 0x00000007, 0x0000000f, 0x0000001f, 
     0x0000003f, 0x0000007f, 0x000000ff, 0x000001ff, 0x000003ff, 0x000007ff, 
     0x00000fff, 0x00001fff, 0x00003fff, 0x00007fff, 0x0000ffff, 0x0001ffff, 
@@ -15,7 +15,7 @@ static const uint32_t left_shift_masks[32] = {
     0x3fffffff, 0x7fffffff
 };
 
-static const uint32_t right_shift_masks[32] = {
+static const uint32_t left_shift_masks[32] = {
     0x00000000, 0x80000000, 0xc0000000, 0xe0000000, 0xf0000000, 0xf8000000, 
     0xfc000000, 0xfe000000, 0xff000000, 0xff800000, 0xffc00000, 0xffe00000, 
     0xfff00000, 0xfff80000, 0xfffc0000, 0xfffe0000, 0xffff0000, 0xffff8000, 
@@ -46,7 +46,7 @@ bool sosc::BigUInt::Parse(std::string hex_str, uint64_t byte_count) {
         
     for(int i = 0; i < hex_str.length(); i += 8) {
         for(int j = 0; j < 8; ++j)
-            if(!is_hex_char(hex_str[i * 8 + j]))
+            if(!is_hex_char(hex_str[i + j]))
                 return false;
         
         this->value[str_word_count - (i / 8) - 1] 
@@ -96,9 +96,10 @@ size_t sosc::BigUInt::UsedByteCount() const {
     uint32_t msw = this->value[msw_off];
     
     int count = 0;
-    for(; (msw & 0xFF000000) != 0; msw <<= 8);
+    for(; (msw & 0xFF000000) == 0; ++count)
+        msw <<= 8;
     
-    return msw_off * 8 + (4 - count);
+    return msw_off * 4 + (4 - count);
 }
 
 size_t sosc::BigUInt::UsedWordCount() const {
@@ -216,7 +217,7 @@ sosc::BigUInt sosc::BigUInt::ModPow
     BigUInt x = exp;
     BigUInt bpow = base;
     
-    for(uint64_t i = 0; i < exp.UsedByteCount() * 4; ++i) {
+    for(uint64_t i = 0; i < exp.UsedByteCount() * 8; ++i) {
         if(!x.IsEven())
             accum = (accum * bpow) % mod;
         
@@ -233,9 +234,9 @@ void sosc::BigUInt::SetBit(uint64_t bit, bool value) {
         this->value.resize(word + 1);
     
     if(value)
-        this->value[word] |= (1 << (bit % 32));
+        this->value[word] |= (1ul << (bit % 32));
     else
-        this->value[word] &= ~(1 << (bit % 32));
+        this->value[word] &= ~(1ul << (bit % 32));
 }
 
 bool sosc::BigUInt::GetBit(uint64_t bit) const {
@@ -243,7 +244,7 @@ bool sosc::BigUInt::GetBit(uint64_t bit) const {
     if(word >= this->WordCount())
         return false;
     
-    return (this->value[word] & (1 << (bit % 32))) != 0;
+    return (this->value[word] & (1ul << (bit % 32))) != 0;
 }
 
 sosc::BigUInt sosc::BigUInt::operator + (const BigUInt& rhs) const {
@@ -259,7 +260,7 @@ sosc::BigUInt sosc::BigUInt::operator + (const BigUInt& rhs) const {
     
     uint32_t carry = 0;
     for(size_t i = 0; i < sum_range; ++i) {
-        uint64_t result = this_v[i] + rhs_v[i] + carry;
+        uint64_t result = (uint64_t)this_v[i] + rhs_v[i] + carry;
         carry = result >> 32;
         
         sum.value.push_back(result);
@@ -410,11 +411,11 @@ sosc::BigUInt sosc::BigUInt::operator >> (const uint64_t& rhs) const {
     std::vector<uint32_t> buffer(this_v.size(), 0);
     
     if(bits != 0) {
-        uint8_t carry = 0, mask = left_shift_masks[bits];
+        uint32_t carry = 0, mask = right_shift_masks[bits];
         
         for(size_t i = this_v.size() - 1;; --i) {
             buffer[i] = carry | (this_v[i] >> bits);
-            carry = (buffer[i] & mask) << (32 - bits);
+            carry = (this_v[i] & mask) << (32 - bits);
             
             if(i == 0)
                 break;
@@ -436,7 +437,7 @@ sosc::BigUInt sosc::BigUInt::operator << (const uint64_t& rhs) const {
     std::vector<uint32_t> buffer(this_v.size(), 0);
     
     if(bits != 0) {
-        uint8_t carry = 0, mask = right_shift_masks[bits];
+        uint32_t carry = 0, mask = left_shift_masks[bits];
         
         for(size_t i = words; i < this_v.size(); i++) {
             buffer[i] = carry | (this_v[i] << bits);

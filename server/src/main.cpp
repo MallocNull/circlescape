@@ -49,12 +49,13 @@ int main(int argc, char **argv) {
     std::cout << hash << std::endl;
     std::cout << sosc::cgc::bcrypt_check("test pwd", hash);*/
     
-    sosc::BigUInt a, b;
+    sosc::BigUInt a, b, c;
     
-    /*
-    a.Parse("368BEADA711E83274DAF974D1A1A10EB915023D016CFC8BFAB58E5D848CF8D45");
-    b.Parse("abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd");
-    */
+    
+    bool z = a.Parse("ffeeddccbbaa1010");
+    bool y = b.Parse("aabbccddeeff");
+    bool x = c.Parse("b0b0");
+    
     
     //assert(a - b == sosc::BigUInt("feff01"));
     
@@ -70,13 +71,17 @@ int main(int argc, char **argv) {
     
     //for(int i = 0; i < 250; ++i)
     
-    /*time_t start = time(NULL);
-    sosc::BigUInt::ModPow(a, a, b);
-    std::cout << (time(NULL) - start) << std::endl;*/
+    //time_t start = time(NULL);
     
-    a.Parse("ff0000ff00000000");
-    a = a >> 8;
-    std::cout << a.ToString();
+    /*auto d = sosc::BigUInt::DivideWithRemainder(a, b);
+    std::cout << d.result.ToString() << std::endl
+              << d.remainder.ToString() << std::endl;*/
+    
+    std::cout << sosc::BigUInt::ModPow(a, b, c).ToString();
+    
+    //std::cout << (time(NULL) - start) << std::endl;
+    
+    //std::cout << a.ToString();
     
     //std::cout << a.ToString();
     

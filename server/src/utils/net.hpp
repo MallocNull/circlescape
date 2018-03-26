@@ -46,10 +46,10 @@ public:
     //      127.126.0.255
     //   -> ::FFFF:7F7E:FF
     //          ^  ^ ^ ^
-    //          |--|-|-|----- UNIQUE PREFIX VALUE (decimal 65535)
-    //             |-|-|----- FIRST OCTET AS HEXADECIMAL (127 -> 7F)
-    //               |-|----- SECOND OCTET AS HEXADECIMAL (126 -> 7E)
-    //                 |---+- THIRD OCTET IS HIDDEN SINCE FOURTH IS LOWER
+    //          +--|-|-|----- UNIQUE PREFIX VALUE (decimal 65535)
+    //             +-|-|----- FIRST OCTET AS HEXADECIMAL (127 -> 7F)
+    //               +-|----- SECOND OCTET AS HEXADECIMAL (126 -> 7E)
+    //                 +---+- THIRD OCTET IS HIDDEN SINCE FOURTH IS LOWER
     //                     +- (0.255 -> 00FF -{equiv. to}-> FF)
     
     IpAddress();
