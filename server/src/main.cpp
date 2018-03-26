@@ -51,11 +51,9 @@ int main(int argc, char **argv) {
     
     sosc::BigUInt a, b, c;
     
-    
-    bool z = a.Parse("ffeeddccbbaa1010");
-    bool y = b.Parse("aabbccddeeff");
-    bool x = c.Parse("b0b0");
-    
+    /*a = sosc::BigUInt::GenerateRandom(128);
+    b = sosc::BigUInt::GenerateRandom(128);
+    c = sosc::BigUInt::GenerateRandom(128);*/
     
     //assert(a - b == sosc::BigUInt("feff01"));
     
@@ -71,15 +69,24 @@ int main(int argc, char **argv) {
     
     //for(int i = 0; i < 250; ++i)
     
-    //time_t start = time(NULL);
+    time_t start = time(NULL);
     
     /*auto d = sosc::BigUInt::DivideWithRemainder(a, b);
     std::cout << d.result.ToString() << std::endl
               << d.remainder.ToString() << std::endl;*/
     
-    std::cout << sosc::BigUInt::ModPow(a, b, c).ToString();
+    std::cout //<< a.ToString() << std::endl
+              //<< b.ToString() << std::endl
+              //<< (a * b).ToString() << std::endl;
+              //<< c.ToString() << std::endl << std::endl
+              //<< sosc::BigUInt::ModPow(a, b, c).ToString() << std::endl;
+              
+              << sosc::BigUInt::GenerateRandomPrime(32).ToString() << std::endl
+              << sosc::BigUInt::GenerateRandomPrime(32).ToString() << std::endl
+              << sosc::BigUInt::GenerateRandomPrime(32).ToString() << std::endl;
+              
     
-    //std::cout << (time(NULL) - start) << std::endl;
+    std::cout << (time(NULL) - start) << std::endl;
     
     //std::cout << a.ToString();
     

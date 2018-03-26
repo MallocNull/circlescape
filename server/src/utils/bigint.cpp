@@ -56,6 +56,7 @@ bool sosc::BigUInt::Parse(std::string hex_str, uint64_t byte_count) {
     if(byte_count != 0)
         this->value.resize(word_count, 0);
         
+    this->TrimLeadingZeroes();
     return true;
 }
 
@@ -66,7 +67,7 @@ void sosc::BigUInt::Random(uint64_t byte_count) {
         for(int j = 0; j < 4; ++j)
             this->value[i] |= 
                 (i * 4 + j < byte_count)
-                    ? random_str[i * 4 + j] << (8 * j)
+                    ? (uint8_t)random_str[i * 4 + j] << (8 * j)
                     : 0;
 }
 
@@ -80,7 +81,7 @@ void sosc::BigUInt::RandomPrime(uint64_t byte_count) {
     do {
         this->Random(byte_count);
         this->value[0] |= 0x01;
-        this->value[this->value.size()]
+        this->value[this->value.size() - 1]
             |= (0x80 << (8 * BYTE_OFF(byte_count)));
     } while(!this->IsProbablePrime());
 }
@@ -92,42 +93,19 @@ sosc::BigUInt sosc::BigUInt::GenerateRandomPrime(uint64_t byte_count) {
 }
 
 size_t sosc::BigUInt::UsedByteCount() const {
-    uint64_t msw_off = this->UsedWordCount() - 1;
-    uint32_t msw = this->value[msw_off];
-    
-    int count = 0;
-    for(; (msw & 0xFF000000) == 0; ++count)
-        msw <<= 8;
-    
-    return msw_off * 4 + (4 - count);
+    return this->UsedWordCount() * 4;
 }
 
 size_t sosc::BigUInt::UsedWordCount() const {
-    size_t ptr = this->WordCount() - 1;
-    for(;; --ptr) {
-        if(this->value[ptr] != 0)
-            break;
-        if(ptr == 0)
-            return 0;
-    }
-    
-    return ptr + 1;
+    return this->WordCount();
 }
 
 bool sosc::BigUInt::IsZero() const {
-    return
-        std::all_of(this->value.begin(), this->value.end(), 
-            [](uint32_t x) { return x == 0; });
+    return this->value.size() == 1 && this->value[0] == 0;
 }
 
 bool sosc::BigUInt::IsOne() const {
-    if(this->value[0] != 1)
-        return false;
-    
-    return this->value.size() == 1
-        ? true
-        : std::all_of(this->value.begin() + 1, this->value.end(),
-            [](uint32_t x) { return x == 0; });
+    return this->value.size() == 1 && this->value[0] == 1;
 }
 
 bool sosc::BigUInt::IsEven() const {
@@ -138,22 +116,12 @@ bool sosc::BigUInt::IsProbablePrime(uint16_t rounds) const {
     if(this->IsOne())
         return false;
     
-    if    (*this == BigUInt(2u) 
-        || *this == BigUInt(3u)
-        || *this == BigUInt(5u))
-    {
-        return true;
-    }
-    
     if    (this->IsEven() 
         || this->IsDivisibleBy(BigUInt(3u))
         || this->IsDivisibleBy(BigUInt(5u)))
     {
         return false;
     }
-    
-    if(*this < BigUInt(25u))
-        return true;
     
     for(uint16_t i = 0; i < rounds; ++i) {
         BigUInt rnd = BigUInt::GenerateRandom(this->WordCount());
@@ -193,8 +161,9 @@ sosc::division_t sosc::BigUInt::DivideWithRemainder
     if(denom > num)
         return division_t(BigUInt(), num);
     
+    size_t upper_bound = num.UsedByteCount() * 8 - 1;
     BigUInt quotient, remainder;
-    for(size_t i = num.UsedByteCount() * 8 - 1;; --i) {
+    for(size_t i = upper_bound;; --i) {
         remainder = remainder << 1;
         remainder.SetBit(0, num.GetBit(i));
                   
@@ -207,6 +176,8 @@ sosc::division_t sosc::BigUInt::DivideWithRemainder
             break;
     }
     
+    if(remainder.value[remainder.value.size() - 1] == 0)
+        remainder.value.erase(remainder.value.end() - 1);
     return division_t(quotient, remainder);
 }
 
@@ -217,11 +188,11 @@ sosc::BigUInt sosc::BigUInt::ModPow
     BigUInt x = exp;
     BigUInt bpow = base;
     
-    for(uint64_t i = 0; i < exp.UsedByteCount() * 8; ++i) {
-        if(!x.IsEven())
+    uint64_t upper_bound = exp.UsedByteCount() * 8;
+    for(uint64_t i = 0; i < upper_bound; ++i) {
+        if(x.GetBit(i))
             accum = (accum * bpow) % mod;
         
-        x = x >> 1;
         bpow = (bpow * bpow) % mod;
     }
     
@@ -299,6 +270,7 @@ sosc::BigUInt sosc::BigUInt::operator - (const BigUInt& rhs) const {
         sub.value.push_back(result);
     }
     
+    sub.TrimLeadingZeroes();
     return sub;
 }
 
@@ -317,13 +289,13 @@ sosc::BigUInt sosc::BigUInt::operator * (const BigUInt& rhs) const {
     
     size_t prod_range = std::max(this->WordCount(), rhs.WordCount());
     
-    auto rhs_v = rhs.value;
+    /*auto rhs_v = rhs.value;
     auto this_v = this->value;
     rhs_v.resize(prod_range, 0);
-    this_v.resize(prod_range, 0);
+    this_v.resize(prod_range, 0);*/
     
     BigUInt product;
-    for(size_t i = 0; i < prod_range; ++i) {
+    /*for(size_t i = 0; i < prod_range; ++i) {
         if(rhs_v[i] == 0)
             continue;
         
@@ -334,6 +306,15 @@ sosc::BigUInt sosc::BigUInt::operator * (const BigUInt& rhs) const {
             BigUInt result((uint64_t)((uint64_t)this_v[j] * rhs_v[i]));
             product += (result << (32 * (i + j)));
         }
+    }*/
+    
+    BigUInt this_cpy = *this;
+    uint64_t upper_bound = rhs.UsedByteCount() * 8;
+    for(uint64_t i = 0; i < upper_bound; ++i) { 
+        if(rhs.GetBit(i))
+            product += this_cpy;
+        
+        this_cpy = this_cpy << 1;
     }
     
     return product;
@@ -389,7 +370,7 @@ bool sosc::BigUInt::operator > (const BigUInt& rhs) const {
 }
 
 bool sosc::BigUInt::operator >= (const BigUInt& rhs) const {
-    return (*this > rhs) || (*this == rhs);
+    return *this > rhs || *this == rhs;
 }
 
 bool sosc::BigUInt::operator < (const BigUInt& rhs) const {
@@ -420,6 +401,9 @@ sosc::BigUInt sosc::BigUInt::operator >> (const uint64_t& rhs) const {
             if(i == 0)
                 break;
         }
+        
+        if(buffer[buffer.size() - 1] == 0)
+            buffer.erase(buffer.end() - 1);
     }
     
     sosc::BigUInt shifted;

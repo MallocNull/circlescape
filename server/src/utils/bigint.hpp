@@ -23,8 +23,6 @@ class BigUInt {
 public:
     BigUInt();
     
-    BigUInt(uint8_t value)  { this->Initialize(value); }
-    BigUInt(uint16_t value) { this->Initialize(value); }
     BigUInt(uint32_t value) { this->Initialize(value); }
     BigUInt(uint64_t value) { this->Initialize(value); }
     
@@ -100,6 +98,13 @@ private:
     
     inline void Copy(const BigUInt& from) {
         this->value = from.value;
+    }
+    
+    void TrimLeadingZeroes() {
+        while(!this->value.empty() && this->value.back() == 0)
+            this->value.pop_back();
+        if(this->value.size() == 0)
+            this->value.push_back(0);
     }
     
     std::vector<uint32_t> value;
