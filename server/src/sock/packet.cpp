@@ -1,5 +1,14 @@
 #include "packet.hpp"
 
+sosc::Packet::Packet() {
+    this->id = 0;
+}
+
+sosc::Packet::Packet(uint8_t id, std::vector<std::string> data) {
+    this->SetId(id);
+    this->regions = data;
+}
+
 bool sosc::Packet::AddRegion(std::string data) {
     if(this->regions.size() >= 256)
         return false;

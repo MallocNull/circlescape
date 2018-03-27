@@ -18,6 +18,9 @@
 namespace sosc {
 class Packet {
 public:
+    Packet();
+    Packet(uint8_t id, std::vector<std::string> data);
+    
     bool AddRegion(std::string data);
     bool AddRegions(std::vector<std::string> data);
     

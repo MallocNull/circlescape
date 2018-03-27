@@ -82,6 +82,7 @@ public:
     BigUInt operator >> (const uint64_t& rhs) const;
     BigUInt operator << (const uint64_t& rhs) const;
     
+    std::string ToRawString(uint64_t byte_count = 0) const;
     std::string ToString() const;
     inline operator std::string () const {
         return this->ToString();

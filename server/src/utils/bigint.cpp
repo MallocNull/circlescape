@@ -437,6 +437,11 @@ sosc::BigUInt sosc::BigUInt::operator << (const uint64_t& rhs) const {
     return shifted;
 }
 
+std::string sosc::BigUInt::ToRawString(uint64_t byte_count) const {
+    std::string raw(byte_count == 0 ? this->UsedByteCount() : byte_count, 0);
+    
+}
+
 std::string sosc::BigUInt::ToString() const {
     std::stringstream stream;
     for(size_t i = this->WordCount() - 1;; --i) {
