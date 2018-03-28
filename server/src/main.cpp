@@ -81,9 +81,11 @@ int main(int argc, char **argv) {
               //<< c.ToString() << std::endl << std::endl
               //<< sosc::BigUInt::ModPow(a, b, c).ToString() << std::endl;
               
-              << sosc::BigUInt::GenerateRandomPrime(32).ToString() << std::endl
-              << sosc::BigUInt::GenerateRandomPrime(32).ToString() << std::endl
-              << sosc::BigUInt::GenerateRandomPrime(32).ToString() << std::endl;
+              << sosc::BigUInt::GenerateRandomPrime(16).ToString() << std::endl
+              << sosc::BigUInt::GenerateRandomPrime(16).ToString() << std::endl
+              << sosc::BigUInt::GenerateRandomPrime(16).ToString() << std::endl
+              << sosc::BigUInt::GenerateRandomPrime(16).ToString() << std::endl;
+              
               
     
     std::cout << (time(NULL) - start) << std::endl;

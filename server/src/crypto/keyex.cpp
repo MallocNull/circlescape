@@ -1,18 +1,19 @@
 #include "keyex.hpp"
 
+sosc::BigUInt sosc::cgc::KeyExchange::secret;
+
 sosc::cgc::KeyExchange::KeyExchange() {
     if(KeyExchange::secret.IsZero())
-        KeyExchange::secret = 
-            BigUInt::GenerateRandomPrime(this->key_size_bytes);
+        KeyExchange::secret = FastRandomPrime();
             
-    this->modulus = BigUInt::GenerateRandomPrime(this->key_size_bytes);
+    this->modulus = FastRandomPrime();
 }
 
 sosc::Packet sosc::cgc::KeyExchange::GenerateRequest() const {
     return Packet(1, {
         this->generator.ToString(),
         this->modulus.ToString(),
-        BigUInt::ModPow(this->generator, this->secret, this->modulus);
+        BigUInt::ModPow(this->generator, this->secret, this->modulus)
     });
 }
 
@@ -50,3 +51,12 @@ bool sosc::cgc::KeyExchange::ParseResponse(const Packet& response) {
         
     return true;
 }
+
+sosc::BigUInt sosc::cgc::KeyExchange::FastRandomPrime() {
+    BigUInt prime;
+    for(int i = 0; i < this->key_size_bytes; i += 16)
+        prime += BigUInt::GenerateRandomPrime(16) << (i * 8);
+    
+    return prime;
+}
+    

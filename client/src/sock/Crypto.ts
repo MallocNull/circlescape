@@ -9,8 +9,11 @@ class Key {
         return !Key._privateKey.eq(new bigInt(0));
     }
 
-    public static init(): void { 
-        Key.secret = Random.generatePrime(512);
+    public static init(onsuccess: ()=>void): void { 
+        setTimeout(() => {
+            Key.secret = Random.generatePrime(512);
+            onsuccess();
+        }, 0);
     }
 
     public static generateResponsePacket(request: Packet): Packet {

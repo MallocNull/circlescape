@@ -25,6 +25,8 @@ public:
     const int key_size = 512;
     const int key_size_bytes = key_size / 8;
 private:
+    BigUInt FastRandomPrime();
+    
     const BigUInt generator = BigUInt(2u);
     static BigUInt secret;
     BigUInt modulus;

@@ -34,7 +34,10 @@ var Entrypoint = (function () {
     };
     Entrypoint.start = function () {
         var _this = this;
-        Key.init();
+        Key.init(function () {
+            _this.initStatus.keyInit = true;
+            _this.initCheck();
+        });
         FileCache.initCache(
         // SUCCESS 
         function () {
@@ -47,10 +50,12 @@ var Entrypoint = (function () {
         });
     };
     Entrypoint.ready = function () {
+        alert("ready");
     };
     return Entrypoint;
 }());
 Entrypoint.initStatus = {
+    keyInit: false,
     fileCache: false
 };
 var FileCache = (function () {
@@ -71,7 +76,8 @@ var FileCache = (function () {
             db.createObjectStore("metadata", { keyPath: "name", autoIncrement: false });
         };
         request.onerror = function (event) {
-            error("Could not upgrade the client database to the most recent version.");
+            error("Could not upgrade the client database "
+                + "to the most recent version.");
         };
         request.onsuccess = function (event) {
             _this.dbHandle = request.result;
@@ -204,7 +210,6 @@ var Connection = (function () {
     Connection.prototype.open = function () {
         if (this._isOpen)
             return;
-        // FLAG replace hard coded url with one loaded from a config file
         this.sock = new WebSocket(this.address);
         this.sock.binaryType = "arraybuffer";
         this.sock.onopen = this.onOpen;
@@ -224,7 +229,8 @@ var Connection = (function () {
         var raw = new Uint8Array(event.data);
         var msg;
         try {
-            msg = !this.useCipher || !Cipher.ready ? Packet.fromBytes(raw)
+            msg = (!this.useCipher || !Cipher.ready)
+                ? Packet.fromBytes(raw)
                 : Packet.fromBytes(Cipher.parse(raw));
         }
         catch (e) {
@@ -281,8 +287,11 @@ var Key = (function () {
         enumerable: true,
         configurable: true
     });
-    Key.init = function () {
-        Key.secret = Random.generatePrime(512);
+    Key.init = function (onsuccess) {
+        setTimeout(function () {
+            Key.secret = Random.generatePrime(512);
+            onsuccess();
+        }, 0);
     };
     Key.generateResponsePacket = function (request) {
         var generator = new bigInt(request[0].toString(), 16);
@@ -458,7 +467,7 @@ var Packet = (function () {
     };
     return Packet;
 }());
-Packet.magicNumber = new Uint8Array([0xF0, 0x9F, 0xA6, 0x91]);
+Packet.magicNumber = new Uint8Array([0xB0, 0x0B]);
 // ** STRING EXTENSIONS ** \\
 String.prototype.replaceAll = function (needle, replace, ignoreCase) {
     if (ignoreCase === void 0) { ignoreCase = false; }

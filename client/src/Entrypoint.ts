@@ -20,6 +20,7 @@ class SockContext {
 
 class Entrypoint {
     private static initStatus = {
+        keyInit: false,
         fileCache: false
     }
 
@@ -33,7 +34,10 @@ class Entrypoint {
     }
 
     public static start(): void {
-        Key.init();
+        Key.init(() => {
+            this.initStatus.keyInit = true;
+            this.initCheck();
+        });
 
         FileCache.initCache(
             // SUCCESS 
@@ -50,6 +54,6 @@ class Entrypoint {
     }
 
     private static ready(): void {
-        
+        alert("ready");
     }
 }

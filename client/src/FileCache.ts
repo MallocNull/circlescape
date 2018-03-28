@@ -1,7 +1,9 @@
 class FileCache {
     private static dbHandle: IDBDatabase = null;
 
-    public static initCache(success: ()=>void, error: (error: string)=>void): void {
+    public static initCache(success: ()=>void, 
+        error: (error: string)=>void): void 
+    {
         var request = window.indexedDB.open("fileCache", 3);
 
         request.onupgradeneeded = (event: any) => {
@@ -16,12 +18,15 @@ class FileCache {
             if(db.objectStoreNames.contains("hashes"))
                 db.deleteObjectStore("hashes");
 
-            db.createObjectStore("files", {keyPath: "name", autoIncrement: false});
-            db.createObjectStore("metadata", {keyPath: "name", autoIncrement: false});
+            db.createObjectStore("files", 
+                {keyPath: "name", autoIncrement: false});
+            db.createObjectStore("metadata", 
+                {keyPath: "name", autoIncrement: false});
         };
 
         request.onerror = (event: any) => {
-            error("Could not upgrade the client database to the most recent version.");
+            error("Could not upgrade the client database "
+                 +"to the most recent version.");
         };
 
         request.onsuccess = (event: any) => {
@@ -30,7 +35,9 @@ class FileCache {
         };
     }
 
-    public static getMeta(fileName: string, success: (meta: FileMeta)=>void, error: (error: string)=>void): void {
+    public static getMeta(fileName: string, success: (meta: FileMeta)=>void, 
+        error: (error: string)=>void): void 
+    {
         var query = this.dbHandle.transaction("metadata");
         var store = query.objectStore("metadata");
         var request = store.get(fileName);
@@ -50,7 +57,10 @@ class FileCache {
         store.put(meta);
     }
 
-    public static getFile(fileName: string, success: (name: string, data: Uint8Array)=>void, error: (error: string)=>void): void {
+    public static getFile(fileName: string, 
+        success: (name: string, data: Uint8Array)=>void, 
+        error: (error: string)=>void): void 
+    {
         var query = this.dbHandle.transaction("files");
         var store = query.objectStore("files");
         var request = store.get(fileName);

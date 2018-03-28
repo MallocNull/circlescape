@@ -49,7 +49,8 @@ body {
   top:0;
   bottom:0;
   margin: auto;
-  background: url('img/sock.png') center no-repeat;
+  /* NOTE uncomment this when not at work */
+  /* background: url('img/sock.png') center no-repeat; */
   background-size: contain;
 
   /* FLEX BOX - USED TO CENTER CHILD ELEMENTS DYNAMICALLY*/

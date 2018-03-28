@@ -39,7 +39,6 @@ class Connection {
         if(this._isOpen)
             return;
 
-        // FLAG replace hard coded url with one loaded from a config file
         this.sock = new WebSocket(this.address);
         this.sock.binaryType = "arraybuffer";
 
@@ -63,7 +62,7 @@ class Connection {
     private onMessage(event: any): void {
         var raw = new Uint8Array(event.data);
         var msg: Packet;
-        try { 
+        try {                                                                                                                                                                                                           
             msg = (!this.useCipher || !Cipher.ready)
                 ? Packet.fromBytes(raw)
                 : Packet.fromBytes(Cipher.parse(raw));

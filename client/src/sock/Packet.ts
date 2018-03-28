@@ -10,7 +10,7 @@ const enum kSlaveId {
 }
 
 class Packet {
-    private static magicNumber: Uint8Array = new Uint8Array([0xF0, 0x9F, 0xA6, 0x91]);
+    private static magicNumber: Uint8Array = new Uint8Array([0xB0, 0x0B]);
 
     private _id: number;
     public get id(): number {
