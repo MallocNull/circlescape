@@ -438,8 +438,14 @@ sosc::BigUInt sosc::BigUInt::operator << (const uint64_t& rhs) const {
 }
 
 std::string sosc::BigUInt::ToRawString(uint64_t byte_count) const {
-    std::string raw(byte_count == 0 ? this->UsedByteCount() : byte_count, 0);
+    uint64_t used_bytes = this->UsedByteCount();
+    byte_count = byte_count == 0 ? used_bytes : byte_count;
+    std::string raw(byte_count, 0);
     
+    for(uint64_t i = 0; i < std::min(byte_count, used_bytes); ++i)
+        raw[i] = (this->value[i / 4] >> (8 * (i % 4))) & 0xFF;
+    
+    return raw;
 }
 
 std::string sosc::BigUInt::ToString() const {
