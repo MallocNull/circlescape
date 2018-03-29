@@ -34,6 +34,9 @@ class Entrypoint {
     }
 
     public static start(): void {
+        var conn = new Connection("ws://127.0.0.1:8080", []);
+        conn.open();
+
         Key.init(() => {
             this.initStatus.keyInit = true;
             this.initCheck();
@@ -54,6 +57,6 @@ class Entrypoint {
     }
 
     private static ready(): void {
-        alert("ready");
+        //alert("ready");
     }
 }

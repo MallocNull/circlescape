@@ -33,6 +33,8 @@ std::string join(const std::vector<std::string>& parts,
 
 bool starts(const std::string& str, const std::string& start);
 bool ends(const std::string& str, const std::string& end);
+
+bool contains(const std::string& haystack, const std::string& needle);
 }}
 
 #endif

@@ -114,3 +114,9 @@ bool sosc::str::ends
             end.begin(), end.end(), str.end() - end.length()
         ).first == end.end();
 }
+
+bool sosc::str::contains
+    (const std::string& haystack, const std::string& needle) 
+{
+    return haystack.find(needle) != std::string::npos;
+}

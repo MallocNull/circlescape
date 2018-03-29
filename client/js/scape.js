@@ -34,6 +34,8 @@ var Entrypoint = (function () {
     };
     Entrypoint.start = function () {
         var _this = this;
+        var conn = new Connection("ws://127.0.0.1:8080", []);
+        conn.open();
         Key.init(function () {
             _this.initStatus.keyInit = true;
             _this.initCheck();
@@ -50,7 +52,7 @@ var Entrypoint = (function () {
         });
     };
     Entrypoint.ready = function () {
-        alert("ready");
+        //alert("ready");
     };
     return Entrypoint;
 }());
