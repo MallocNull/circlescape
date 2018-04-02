@@ -12,21 +12,32 @@
 #include "utils/csprng.hpp"
 #include "crypto/bcrypt.hpp"
 #include "utils/bigint.hpp"
+#include "sock/scapesock.hpp"
 
 int main(int argc, char **argv) {
-    sosc::TcpServer server;
-    sosc::TcpClient client;
+    sosc::ScapeServer server;
+    sosc::ScapeConnection client;
     std::string buffer;
     
-    server.Listen(8080);
+    if(!server.Listen(8080)) {
+        std::cout << "Listening failed." << std::endl;
+        return -1;
+    }
     std::cout << "Listening ..." << std::endl;
-    server.Accept(&client);
-    std::cout << "Reading ..." << std::endl;
     
-    while(true) {
-        client.Receive(&buffer, SOSC_TCP_BLOCK);
-        std::cout << buffer;
+    server.Accept(&client);
+    std::cout << "Shaking ..." << std::endl;
+    
+    bool loop = true;
+    while(loop) {
+        if(!client.Handshaked())
+            client.Handshake();
+        else
+            break;
+        //client.Receive(&buffer, SOSC_TCP_BLOCK);
+        //std::cout << buffer;
     }
     
+    server.Close();
     return 0;
 }

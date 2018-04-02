@@ -47,7 +47,7 @@ public:
     ScapeServer();
     
     bool Listen(uint16_t port);
-    int Accept(ScapeConnection* client);
+    bool Accept(ScapeConnection* client);
     
     inline bool IsOpen() const {
         return this->server_open;

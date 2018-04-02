@@ -1,4 +1,4 @@
-var SockContext = (function () {
+var SockContext = /** @class */ (function () {
     function SockContext() {
     }
     Object.defineProperty(SockContext, "masterSock", {
@@ -19,10 +19,10 @@ var SockContext = (function () {
         if (this.didInit)
             return;
     };
+    SockContext.didInit = false;
     return SockContext;
 }());
-SockContext.didInit = false;
-var Entrypoint = (function () {
+var Entrypoint = /** @class */ (function () {
     function Entrypoint() {
     }
     Entrypoint.initCheck = function () {
@@ -54,13 +54,13 @@ var Entrypoint = (function () {
     Entrypoint.ready = function () {
         //alert("ready");
     };
+    Entrypoint.initStatus = {
+        keyInit: false,
+        fileCache: false
+    };
     return Entrypoint;
 }());
-Entrypoint.initStatus = {
-    keyInit: false,
-    fileCache: false
-};
-var FileCache = (function () {
+var FileCache = /** @class */ (function () {
     function FileCache() {
     }
     FileCache.initCache = function (success, error) {
@@ -125,15 +125,15 @@ var FileCache = (function () {
         store = query.objectStore("metadata");
         store.delete(fileName);
     };
+    FileCache.dbHandle = null;
     return FileCache;
 }());
-FileCache.dbHandle = null;
-var FileMeta = (function () {
+var FileMeta = /** @class */ (function () {
     function FileMeta() {
     }
     return FileMeta;
 }());
-var MasterProtocol = (function () {
+var MasterProtocol = /** @class */ (function () {
     function MasterProtocol() {
     }
     Object.defineProperty(MasterProtocol, "packetHandlers", {
@@ -158,7 +158,7 @@ var MasterProtocol = (function () {
     };
     return MasterProtocol;
 }());
-var SlaveProtocol = (function () {
+var SlaveProtocol = /** @class */ (function () {
     function SlaveProtocol() {
     }
     Object.defineProperty(SlaveProtocol, "packetHandlers", {
@@ -175,12 +175,12 @@ var SlaveProtocol = (function () {
     };
     return SlaveProtocol;
 }());
-var Rendering = (function () {
+var Rendering = /** @class */ (function () {
     function Rendering() {
     }
     return Rendering;
 }());
-var Connection = (function () {
+var Connection = /** @class */ (function () {
     function Connection(address, handles, useCipher, onOpen, onClose, onError) {
         if (useCipher === void 0) { useCipher = false; }
         if (onOpen === void 0) { onOpen = null; }
@@ -272,7 +272,7 @@ var Connection = (function () {
     };
     return Connection;
 }());
-var Key = (function () {
+var Key = /** @class */ (function () {
     function Key() {
     }
     Object.defineProperty(Key, "privateKey", {
@@ -303,10 +303,10 @@ var Key = (function () {
         Key._privateKey = serverKey.modPow(Key.secret, modulus);
         return Packet.create(1 /* KeyExchange */, [clientKey.toString(16)]);
     };
+    Key._privateKey = new bigInt(0);
     return Key;
 }());
-Key._privateKey = new bigInt(0);
-var Cipher = (function () {
+var Cipher = /** @class */ (function () {
     function Cipher() {
     }
     Object.defineProperty(Cipher, "ready", {
@@ -355,10 +355,10 @@ var Cipher = (function () {
     Cipher.close = function () {
         Cipher._ready = false;
     };
+    Cipher._ready = false;
     return Cipher;
 }());
-Cipher._ready = false;
-var Packet = (function () {
+var Packet = /** @class */ (function () {
     function Packet() {
         this._regions = [];
     }
@@ -467,9 +467,14 @@ var Packet = (function () {
         });
         return buffer;
     };
+    Packet.magicNumber = new Uint8Array([0xB0, 0x0B]);
     return Packet;
 }());
-Packet.magicNumber = new Uint8Array([0xB0, 0x0B]);
+var LoadingBar = /** @class */ (function () {
+    function LoadingBar() {
+    }
+    return LoadingBar;
+}());
 // ** STRING EXTENSIONS ** \\
 String.prototype.replaceAll = function (needle, replace, ignoreCase) {
     if (ignoreCase === void 0) { ignoreCase = false; }
@@ -619,7 +624,7 @@ bigInt.prototype.toByteArray = function (byteCount) {
     }
     return byteArray;
 };
-var CriticalStop = (function () {
+var CriticalStop = /** @class */ (function () {
     function CriticalStop() {
     }
     CriticalStop.redirect = function (message) {
@@ -627,7 +632,7 @@ var CriticalStop = (function () {
     };
     return CriticalStop;
 }());
-var Random = (function () {
+var Random = /** @class */ (function () {
     function Random() {
     }
     Random.generatePrime = function (bitCount) {

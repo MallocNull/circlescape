@@ -38,7 +38,7 @@ public:
     IntraServer();
     
     bool Listen(uint16_t port);
-    int Accept(IntraClient* client);
+    bool Accept(IntraClient* client);
     
     inline bool IsOpen() const {
         return this->server_open;

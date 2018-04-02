@@ -72,16 +72,16 @@ bool sosc::IntraServer::Listen(uint16_t port) {
     return this->server.Listen(port);
 }
 
-int sosc::IntraServer::Accept(IntraClient* client) {
+bool sosc::IntraServer::Accept(IntraClient* client) {
     if(!this->server_open)
-        return -1;
+        return false;
     
     TcpClient new_client;
     if(this->server.Accept(&new_client) == 0) {
         client->Open(new_client);
-        return 0;
+        return true;
     } else
-        return -1;
+        return false;
 }
 
 sosc::IntraServer::~IntraServer() {

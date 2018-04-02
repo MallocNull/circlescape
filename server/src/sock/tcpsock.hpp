@@ -81,7 +81,7 @@ public:
     TcpServer();
     bool Listen(uint16_t port);
     
-    int Accept(TcpClient* client);
+    bool Accept(TcpClient* client);
     
     void Close();
     ~TcpServer();

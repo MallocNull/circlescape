@@ -24,8 +24,6 @@ int sosc::ScapeConnection::Handshake() {
         return SOSC_SHAKE_CONT;
     
     this->client.Receive(&this->buffer, SOSC_TCP_APPEND);
-    if(!str::contains(this->buffer, "\r\n\r\n"))
-        return SOSC_SHAKE_CONT;
     
     if(!str::starts(this->buffer, "GET")) {
         this->Close();
@@ -33,6 +31,10 @@ int sosc::ScapeConnection::Handshake() {
     }
     
     auto lines = str::split(this->buffer, "\r\n");
+    
+    
+    if(!str::contains(this->buffer, "\r\n\r\n"))
+        return SOSC_SHAKE_CONT;
     
     this->handshaked = true;
     return SOSC_SHAKE_DONE;
@@ -58,12 +60,15 @@ bool sosc::ScapeServer::Listen(uint16_t port) {
     return true;
 }
 
-int sosc::ScapeServer::Accept(ScapeConnection* client) {
+bool sosc::ScapeServer::Accept(ScapeConnection* client) {
     TcpClient raw_client;
-    int status = this->server.Accept(&raw_client);
-    if(status != 0)
-        return status;
+    if(!this->server.Accept(&raw_client))
+        return false;
     
-    
-    return 0;
+    client->Open(raw_client);
+    return true;
+}
+
+sosc::ScapeServer::~ScapeServer() {
+    this->Close();
 }
