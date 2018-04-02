@@ -35,6 +35,9 @@ bool starts(const std::string& str, const std::string& start);
 bool ends(const std::string& str, const std::string& end);
 
 bool contains(const std::string& haystack, const std::string& needle);
+
+std::string  tolower(std::string  str);
+std::string* tolower(std::string* str);
 }}
 
 #endif

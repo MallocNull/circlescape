@@ -30,11 +30,34 @@ int sosc::ScapeConnection::Handshake() {
         return SOSC_SHAKE_ERR;
     }
     
-    auto lines = str::split(this->buffer, "\r\n");
-    
-    
     if(!str::contains(this->buffer, "\r\n\r\n"))
         return SOSC_SHAKE_CONT;
+    
+    std::string websocket_key = "";
+    auto lines = str::split(this->buffer, "\r\n");
+    for(auto line_r = lines.begin() + 1; line_r != lines.end(); ++line_r) {
+        std::string line = str::trim(*line_r);
+        
+        if(str::starts(line, "Sec-WebSocket-Key")) {
+            auto parts = str::split(line, ':');
+            if(parts.size() < 2)
+                break;
+            
+            websocket_key = str::trim(parts[1]);
+            break;
+        }
+    }
+    
+    if(websocket_key == "") {
+        this->Close();
+        return SOSC_SHAKE_ERR;
+    }
+    
+    std::stringstream stream;
+    stream << "HTTP/1.1 101 Switching Protocols\r\n"
+           << "Upgrade: websocket\r\n"
+           << "Connection: Upgrade\r\n"
+           << "Sec-WebSock";
     
     this->handshaked = true;
     return SOSC_SHAKE_DONE;

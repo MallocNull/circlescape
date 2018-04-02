@@ -120,3 +120,13 @@ bool sosc::str::contains
 {
     return haystack.find(needle) != std::string::npos;
 }
+
+std::string sosc::str::tolower(std::string str) {
+    std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    return str;
+}
+
+std::string* sosc::str::tolower(std::string* str) {
+    std::transform(str->begin(), str->end(), str->begin(), ::tolower);
+    return str;
+}
