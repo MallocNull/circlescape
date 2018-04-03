@@ -223,9 +223,9 @@ bool sosc::TcpServer::Listen(uint16_t port) {
     return true;
 }
 
-int sosc::TcpServer::Accept(TcpClient* client) {
+bool sosc::TcpServer::Accept(TcpClient* client) {
     if(!this->sock_open)
-        return -1;
+        return false;
     
     SOSC_SOCK_T sock;
     SOSC_ADDR_T addr;
@@ -234,12 +234,12 @@ int sosc::TcpServer::Accept(TcpClient* client) {
     sock = accept(this->sock, (struct sockaddr*)&addr, &addr_len);
     if(sock == INVALID_SOCKET) {
         this->Close();
-        return -1;
+        return false;
     }
     
     client->Close();
     client->Open(sock, addr, addr_len);
-    return 0;
+    return true;
 }
 
 void sosc::TcpServer::Close() {

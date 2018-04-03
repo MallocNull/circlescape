@@ -34,8 +34,6 @@ int main(int argc, char **argv) {
             client.Handshake();
         else
             break;
-        //client.Receive(&buffer, SOSC_TCP_BLOCK);
-        //std::cout << buffer;
     }
     
     server.Close();

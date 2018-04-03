@@ -53,14 +53,22 @@ int sosc::ScapeConnection::Handshake() {
         return SOSC_SHAKE_ERR;
     }
     
+    websocket_key += "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+    websocket_key = cgc::base64_encode(cgc::sha1(websocket_key, true));
+    
     std::stringstream stream;
     stream << "HTTP/1.1 101 Switching Protocols\r\n"
            << "Upgrade: websocket\r\n"
            << "Connection: Upgrade\r\n"
-           << "Sec-WebSock";
+           << "Sec-WebSocket-Accept: " << websocket_key << "\r\n\r\n";
+    this->client.Send(stream.str());
     
     this->handshaked = true;
     return SOSC_SHAKE_DONE;
+}
+
+sosc::ScapeConnection::~ScapeConnection() {
+    this->Close();
 }
 
 /******************************/

@@ -1,6 +1,8 @@
 #ifndef SOSC_SCAPESOCK_H
 #define SOSC_SCAPESOCK_H
 
+#include "../crypto/sha1.hpp"
+#include "../crypto/base64.hpp"
 #include "packet.hpp"
 #include "tcpsock.hpp"
 
