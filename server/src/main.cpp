@@ -25,15 +25,17 @@ int main(int argc, char **argv) {
     }
     std::cout << "Listening ..." << std::endl;
     
-    server.Accept(&client);
+    bool check = server.Accept(&client);
     std::cout << "Shaking ..." << std::endl;
     
     bool loop = true;
     while(loop) {
         if(!client.Handshaked())
             client.Handshake();
-        else
+        else {
+            std::cout << "Shook." << std::endl;
             break;
+        }
     }
     
     server.Close();
