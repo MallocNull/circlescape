@@ -21,8 +21,6 @@ public:
         this->client_open = false;
         this->client.Close();
     }
-    
-    ~IntraClient();
 private:
     void Open(TcpClient client);
     
@@ -48,8 +46,6 @@ public:
         this->server_open = false;
         this->server.Close();
     }
-    
-    ~IntraServer();
 private:
     bool server_open;
     TcpServer server;

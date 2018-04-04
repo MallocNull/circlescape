@@ -48,11 +48,9 @@ bool sosc::IntraClient::Send(const Packet& packet) {
     if(!this->client_open)
         return false;
     
-    return this->client.Send(packet.ToString()) == 0;
-}
-
-sosc::IntraClient::~IntraClient() {
-    this->Close();
+    std::string packet_raw;
+    packet.ToString(&packet_raw);
+    return this->client.Send(packet_raw) == 0;
 }
 
 /****************************/
@@ -82,10 +80,6 @@ bool sosc::IntraServer::Accept(IntraClient* client) {
         return true;
     } else
         return false;
-}
-
-sosc::IntraServer::~IntraServer() {
-    this->Close();
 }
 
 /****************************/

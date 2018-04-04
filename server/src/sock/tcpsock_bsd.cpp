@@ -154,10 +154,6 @@ void sosc::TcpClient::Close() {
     close(this->sock);
 }
 
-sosc::TcpClient::~TcpClient() {
-    this->Close();
-}
-
 /****************************/
 /*    END TCPCLIENT CODE    */
 /****************************/
@@ -232,10 +228,6 @@ void sosc::TcpServer::Close() {
     this->sock_open = false;
     shutdown(this->sock, SHUT_RDWR);
     close(this->sock);
-}
-
-sosc::TcpServer::~TcpServer() {
-    this->Close();
 }
 
 /****************************/

@@ -33,8 +33,9 @@ int main(int argc, char **argv) {
         if(!client.Handshaked())
             client.Handshake();
         else {
-            std::cout << "Shook." << std::endl;
-            break;
+            sosc::Packet pck;
+            client.Receive(&pck, true);
+            std::cout << pck.RegionCount() << std::endl;
         }
     }
     

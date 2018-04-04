@@ -1,8 +1,10 @@
 #ifndef SOSC_SCAPESOCK_H
 #define SOSC_SCAPESOCK_H
 
+#include <queue>
 #include "../crypto/sha1.hpp"
 #include "../crypto/base64.hpp"
+#include "frame.hpp"
 #include "packet.hpp"
 #include "tcpsock.hpp"
 
@@ -31,15 +33,15 @@ public:
         this->client_open = false;
         this->client.Close();
     }
-    
-    ~ScapeConnection();
 private:
     void Open(TcpClient client);
     
     bool client_open;
     bool handshaked;
     TcpClient client;
+    
     std::string buffer;
+    std::queue<ws::Frame> frameQueue;
     
     friend class ScapeServer;
 };
@@ -59,8 +61,6 @@ public:
         this->server_open = false;
         this->server.Close();
     }
-    
-    ~ScapeServer();
 private:
     bool server_open;
     TcpServer server;

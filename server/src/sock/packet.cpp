@@ -121,7 +121,7 @@ int sosc::Packet::Parse(const std::string& data, std::string* extra) {
     
     if(length > expected_length && extra != nullptr)
         *extra = data.substr(expected_length);
-    else
+    else if(extra != nullptr)
         *extra = "";
     
     return PCK_OK;
@@ -143,6 +143,35 @@ bool sosc::Packet::Check(int region_count, ...) {
     return true;
 }
 
+std::string* sosc::Packet::ToString(std::string* packet) const {
+    *packet = std::string(8, 0);
+    (*packet)[0] = 0xB0;
+    (*packet)[1] = 0x0B;
+    (*packet)[6] = this->id;
+    (*packet)[7] = regions.size();
+    
+    for(auto i = this->regions.begin(); i != this->regions.end(); ++i) {
+        if(i->size() < 0xFE)
+            *packet += (char)i->size();
+        else if(i->size() <= 0xFFFF) {
+            *packet += (char)0xFE;
+            *packet += net::htonv<uint16_t>(i->size());
+        } else {
+            *packet += (char)0xFF;
+            *packet += net::htonv<uint32_t>(i->size());
+        }
+    }
+    
+    for(auto i = this->regions.begin(); i != this->regions.end(); ++i)
+        *packet += *i;
+    
+    packet->assign(net::htonv<uint32_t>(packet->length()), 2, 4);
+    
+    return packet;
+}
+
 std::string sosc::Packet::ToString() const {
-    return "TODO";
+    std::string packet;
+    this->ToString(&packet);
+    return packet;
 }

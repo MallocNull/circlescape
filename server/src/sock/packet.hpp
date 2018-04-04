@@ -54,6 +54,7 @@ public:
         return this->regions[index];
     }
     
+    std::string* ToString(std::string* packet) const;
     std::string ToString() const;
     inline operator std::string () const {
         return this->ToString();

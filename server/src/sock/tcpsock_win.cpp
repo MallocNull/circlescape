@@ -168,10 +168,6 @@ void sosc::TcpClient::Close() {
     this->sock_open = false;
 }
 
-sosc::TcpClient::~TcpClient() {
-    this->Close();
-}
-
 /****************************/
 /*    END TCPCLIENT CODE    */
 /****************************/
@@ -249,10 +245,6 @@ void sosc::TcpServer::Close() {
     shutdown(this->sock, SD_BOTH);
     closesocket(this->sock);
     this->sock_open = false;
-}
-
-sosc::TcpServer::~TcpServer() {
-    this->Close();
 }
    
 /****************************/

@@ -59,7 +59,6 @@ public:
     }
     
     void Close();
-    ~TcpClient();
 private:
     void Open(SOSC_SOCK_T sock, SOSC_ADDR_T addr, int addr_len);
     void SetBlocking(bool will_block);
@@ -84,7 +83,6 @@ public:
     bool Accept(TcpClient* client);
     
     void Close();
-    ~TcpServer();
 private:
     SOSC_SOCK_T sock;
     bool sock_open;
