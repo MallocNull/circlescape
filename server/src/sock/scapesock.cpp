@@ -94,8 +94,16 @@ int sosc::ScapeConnection::Receive(Packet* packet, bool block) {
     this->frameQueue.push(frame);
     if(frame.IsFinal()) {
         std::string pck;
-        while(!this->frameQueue.empty())
-            pck.
+        while(!this->frameQueue.empty()) {
+            pck += this->frameQueue.front().GetBody();
+            this->frameQueue.pop();
+        }
+        
+        if(packet->Parse(pck) == PCK_OK)
+            return PCK_OK;
+        else
+            return PCK_ERR;
+            
     } else
         return PCK_MORE;
 }
