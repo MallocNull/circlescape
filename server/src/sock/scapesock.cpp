@@ -91,15 +91,9 @@ int sosc::ScapeConnection::Receive(Packet* packet, bool block) {
     }
     
     // TODO optimize
-    this->frameQueue.push(frame);
+    this->multiframe_buffer += frame.GetBody();
     if(frame.IsFinal()) {
-        std::string pck;
-        while(!this->frameQueue.empty()) {
-            pck += this->frameQueue.front().GetBody();
-            this->frameQueue.pop();
-        }
-        
-        if(packet->Parse(pck) == PCK_OK)
+        if(packet->Parse(this->multiframe_buffer) == PCK_OK)
             return PCK_OK;
         else
             return PCK_ERR;
