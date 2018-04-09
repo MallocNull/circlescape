@@ -6,6 +6,8 @@ template<typename T>
 class Pool {
 public:
     
+protected:
+    virtual void ProcessClient(T* client);
 private:
     
 };
