@@ -91,13 +91,13 @@ int sosc::ScapeConnection::Receive(Packet* packet, bool block) {
     }
     
     // TODO optimize
-    this->multiframe_buffer += frame.GetBody();
+    // TODO determine if packet->Parse should write back to pck_frames on o/f
+    this->pck_frames += frame.GetBody();
     if(frame.IsFinal()) {
-        if(packet->Parse(this->multiframe_buffer) == PCK_OK)
+        if(packet->Parse(this->pck_frames, &this->pck_frames) == PCK_OK)
             return PCK_OK;
         else
             return PCK_ERR;
-            
     } else
         return PCK_MORE;
 }

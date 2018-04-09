@@ -41,7 +41,7 @@ private:
     TcpClient client;
     
     std::string buffer;
-    std::string multiframe_buffer;
+    std::string pck_frames;
     
     friend class ScapeServer;
 };
