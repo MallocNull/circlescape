@@ -7,7 +7,7 @@ class Pool {
 public:
     
 protected:
-    virtual void ProcessClient(T* client);
+    virtual void ProcessClient(T* client) = 0;
 private:
     
 };
