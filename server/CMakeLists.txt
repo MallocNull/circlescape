@@ -20,5 +20,5 @@ else()
     target_link_libraries(server pthread socket nsl resolv)
 endif()
 
-install(TARGETS server RUNTIME DESTINATION bin)
+install(TARGETS server RUNTIME DESTINATION bin) 
  
