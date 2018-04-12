@@ -13,6 +13,13 @@
 #include "crypto/bcrypt.hpp"
 #include "utils/bigint.hpp"
 #include "sock/scapesock.hpp"
+#include "sock/pool.hpp"
+
+class User;
+class Test : sosc::Pool<User> {
+protected:
+    void ProcessClient(User* client) override;
+};
 
 int main(int argc, char **argv) {
     sosc::ScapeServer server;
