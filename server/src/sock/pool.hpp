@@ -1,6 +1,7 @@
 #ifndef SOSC_POOL_H
 #define SOSC_POOL_H
 
+#include <numeric>
 #include <vector>
 #include <list>
 #include <thread>
@@ -33,6 +34,8 @@ public:
     
     void Start();
     bool AddClient(T* client);
+    int ClientCount() const;
+    
     void Stop();
 protected:
     virtual void ProcessClient(T* client) = 0;
@@ -85,6 +88,14 @@ bool Pool<T>::AddClient(T* client) {
     
     
     return false;
+}
+
+template<class T>
+int Pool<T>::ClientCount() const {
+    int count = 0;
+    for(auto i = this->stacks.begin(); i != this->stacks.end(); ++i)
+        count += i->ClientCount();
+    return count;
 }
 }
 
