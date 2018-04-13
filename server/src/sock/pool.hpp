@@ -1,7 +1,6 @@
 #ifndef SOSC_POOL_H
 #define SOSC_POOL_H
 
-#include <numeric>
 #include <vector>
 #include <list>
 #include <thread>
@@ -42,7 +41,7 @@ protected:
 private:
     class Stack {
     public:
-        Stack(Pool<T> *pool);
+        Stack(Pool<T>* pool);
         void Start();
         
         void AddClient(T* client);
@@ -50,6 +49,8 @@ private:
         
         void Stop();
     private:
+        void StackThread();
+        
         std::thread thread;
         Pool<T> *pool;
         bool is_open;
@@ -61,6 +62,7 @@ private:
     poolinfo_t info;
     bool is_running;
     std::vector<Stack> stacks;
+    
     friend class Stack;
 };
 
@@ -72,7 +74,7 @@ Pool<T>::Pool(const poolinfo_t& info) {
 
 template<class T>
 void Pool<T>::Start() {
-    if(this->is_running == true)
+    if(this->is_running)
         return;
     
     for(int i = 0; i < this->info.initial_count; ++i) {
@@ -85,17 +87,48 @@ void Pool<T>::Start() {
 
 template<class T>
 bool Pool<T>::AddClient(T* client) {
-    
+    // TODO
     
     return false;
 }
 
 template<class T>
 int Pool<T>::ClientCount() const {
+    if(!this->is_running)
+        return 0;
+    
     int count = 0;
     for(auto i = this->stacks.begin(); i != this->stacks.end(); ++i)
         count += i->ClientCount();
     return count;
+}
+
+template<class T>
+void Pool<T>::Stop() {
+    if(!this->is_running)
+        return;
+    
+    for(auto i = this->stacks.begin(); i != this->stacks.end(); ++i)
+        i->Stop();
+    
+    stacks->clear();
+    this->is_running = false;
+}
+
+template<class T>
+Pool<T>::Stack::Stack(Pool<T>* pool) {
+    this->pool = pool;
+    this->is_open = false;
+}
+
+template<class T>
+void Pool<T>::Stack::Start() {
+    if(this->is_open)
+        return;
+    
+    this->thread = std::thread(this->StackThread, this);
+    
+    this->is_open = true;
 }
 }
 

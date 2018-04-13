@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
     
     bool loop = true;
     while(loop) {
-        if(!client.Handshaked())
+        if(!client.Handshaked()) 
             client.Handshake();
         else {
             sosc::Packet pck;
