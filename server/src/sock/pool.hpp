@@ -79,7 +79,7 @@ void Pool<T>::Start() {
         this->stacks.push_back(Stack(this));
         this->stacks.back().Start();
     }
-        
+    
     this->is_running = true;
 }
 

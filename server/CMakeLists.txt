@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 2.6)
-project(server) 
+project(server)
 
 file(GLOB_RECURSE server_src
     "src/*.hpp"
     "src/*.cpp"
+    "src/*.c"
+    "src/*.h"
 )  
 
 if(CMAKE_COMPILER_IS_GNUCXX)

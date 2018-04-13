@@ -15,7 +15,7 @@
 #include "sock/scapesock.hpp"
 #include "sock/pool.hpp"
 
-class User;
+class User; 
 class Test : sosc::Pool<User> {
 protected:
     void ProcessClient(User* client) override;
