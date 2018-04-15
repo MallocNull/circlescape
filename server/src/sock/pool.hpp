@@ -127,8 +127,17 @@ void Pool<T>::Stack::Start() {
         return;
     
     this->thread = std::thread(this->StackThread, this);
-    
     this->is_open = true;
+}
+
+template<class T>
+void Pool<T>::Stack::AddClient(T* client) {
+    
+}
+
+template<class T>
+int Pool<T>::Stack::ClientCount() const {
+    
 }
 }
 

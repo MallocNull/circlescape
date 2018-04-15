@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
-project(server) 
+project(server)  
 
 file(GLOB_RECURSE server_src
     "src/*.hpp"
@@ -14,12 +14,12 @@ endif()
     
 add_executable(server ${server_src})
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    target_link_libraries(server pthread nsl resolv)
-elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     target_link_libraries(server wsock32 ws2_32)
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    target_link_libraries(server dl pthread nsl resolv)
 else()
-    target_link_libraries(server pthread socket nsl resolv)
+    target_link_libraries(server dl pthread socket nsl resolv)
 endif()
 
 install(TARGETS server RUNTIME DESTINATION bin) 
