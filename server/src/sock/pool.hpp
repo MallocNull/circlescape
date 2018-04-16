@@ -34,10 +34,13 @@ public:
     void Start();
     bool AddClient(T* client);
     int ClientCount() const;
+    inline bool IsOpen() const {
+        return this->is_open;
+    }
     
     void Stop();
 protected:
-    virtual void ProcessClient(T* client) = 0;
+    virtual bool ProcessClient(T* client) = 0;
 private:
     class Stack {
     public:
@@ -46,6 +49,9 @@ private:
         
         void AddClient(T* client);
         int ClientCount() const;
+        inline bool IsOpen() const {
+            return this->is_open;
+        }
         
         void Stop();
     private:
@@ -54,13 +60,15 @@ private:
         std::thread thread;
         Pool<T> *pool;
         bool is_open;
+        bool is_running;
         
         std::list<T*> clients;
         std::mutex clients_mtx;
     };
     
     poolinfo_t info;
-    bool is_running;
+    bool is_open;
+    
     std::vector<Stack> stacks;
     
     friend class Stack;
@@ -119,25 +127,64 @@ template<class T>
 Pool<T>::Stack::Stack(Pool<T>* pool) {
     this->pool = pool;
     this->is_open = false;
+    this->is_running = false;
 }
 
 template<class T>
 void Pool<T>::Stack::Start() {
-    if(this->is_open)
+    if(this->is_open || this->is_running)
         return;
     
-    this->thread = std::thread(this->StackThread, this);
     this->is_open = true;
+    this->is_running = true;
+    this->thread = std::thread(this->StackThread, this);
 }
 
 template<class T>
 void Pool<T>::Stack::AddClient(T* client) {
+    if(!this->is_open || !this->is_running)
+        return;
     
+    this->clients_mtx.lock();
+    this->clients.push_back(client);
+    this->clients_mtx.unlock();
 }
 
 template<class T>
 int Pool<T>::Stack::ClientCount() const {
+    if(!this->is_open || !this->is_running)
+        return 0;
     
+    this->clients_mtx.lock();
+    int count = this->clients.size();
+    this->clients_mtx.unlock();
+    
+    return count;
+}
+
+template<class T>
+void Pool<T>::Stack::StackThread() {
+    while(this->is_running) {
+        for(auto i = this->clients.begin(); i != this->clients.end(); ++i) {
+            if(!this->is_running)
+                break;
+            
+            this->clients_mtx.lock();
+            if(!this->pool->ProcessClient(*i))
+                this->clients.erase(i);
+            this->clients_mtx.unlock();
+        }
+    }
+}
+
+template<class T>
+void Pool<T>::Stack::Stop() {
+    if(!this->is_open || !this->is_running)
+        return;
+    
+    this->is_running = false;
+    this->thread.join();
+    this->is_open = false;
 }
 }
 
