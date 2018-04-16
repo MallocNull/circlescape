@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <ctime>
+#include <thread>
 #include "sock/tcpsock.hpp"
 #include "utils/string.hpp"
 #include "utils/net.hpp"
@@ -15,11 +16,18 @@
 #include "sock/scapesock.hpp"
 #include "sock/pool.hpp"
 
-class User; 
+#include "hosts/master.hpp"
+#include "hosts/slave.hpp"
+
+/*class User; 
 class Test : sosc::Pool<User> {
 protected:
     bool ProcessClient(User* client) override;
-};
+};*/
+
+bool master_intra(uint16_t port);
+bool master_client(uint16_t port);
+bool slave(uint16_t port);
 
 int main(int argc, char **argv) {
     sosc::ScapeServer server;
@@ -48,4 +56,34 @@ int main(int argc, char **argv) {
     
     server.Close();
     return 0;
+}
+
+bool master_intra(uint16_t port, sosc::poolinfo_t info) {
+    using namespace sosc;
+    
+    IntraServer server;
+    IntraClient client;
+    if(!server.Listen(port))
+        return false;
+    
+    MasterIntraPool pool;
+    pool.Configure(info);
+    pool.Start();
+    
+    while(server.Accept(&client))
+        pool.AddClient(MasterIntra(client));
+    
+    return true;
+}
+
+bool master_client(uint16_t port, sosc::poolinfo_t info) {
+    /*
+    auto pooler = std::thread([&]() {
+        
+    });
+    */
+}
+
+bool slave(uint16_t port, sosc::poolinfo_t info) {
+    
 }

@@ -29,7 +29,8 @@ typedef struct {
 template<class T>
 class Pool {
 public:
-    Pool(const poolinfo_t& info);
+    Pool();
+    void Configure(const poolinfo_t& info);
     
     void Start();
     bool AddClient(T* client);
@@ -78,7 +79,12 @@ private:
 };
 
 template<class T>
-Pool<T>::Pool(const poolinfo_t& info) {
+Pool<T>::Pool() {
+    this->info = poolinfo_t();
+}
+
+template<class T>
+void Pool<T>::Configure(const poolinfo_t& info) {
     this->info = info;
     this->is_running = false;
 }
@@ -116,7 +122,7 @@ bool Pool<T>::CanAddStack() const {
 template<class T>
 bool Pool<T>::AddClient(T* client) {
     if(!this->is_running)
-        return;
+        return false;
     
     if(this->info.max_total != -1)
        if(this->ClientCount() >= this->info.max_total)
