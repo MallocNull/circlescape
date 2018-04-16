@@ -42,6 +42,9 @@ public:
 protected:
     virtual bool ProcessClient(T* client) = 0;
 private:
+    bool IsStackFull(int stackCount) const;
+    bool CanAddStack() const;
+    
     class Stack {
     public:
         Stack(Pool<T>* pool);
@@ -94,10 +97,50 @@ void Pool<T>::Start() {
 }
 
 template<class T>
+bool Pool<T>::IsStackFull(int stackCount) const {
+    poolinfo_t *info = &this->info;
+    return info->max_size != -1 
+        && stackCount < 
+            info->initial_size 
+                + (info->size_growth 
+                    * (this->stacks.size() - info->initial_count))
+        && stackCount < info->max_size;
+}
+
+template<class T>
+bool Pool<T>::CanAddStack() const {
+    return this->info.max_count == -1 
+        || this->stacks.size() < this->info.max_count;
+}
+
+template<class T>
 bool Pool<T>::AddClient(T* client) {
-    // TODO
+    if(!this->is_running)
+        return;
     
-    return false;
+    if(this->info.max_total != -1)
+       if(this->ClientCount() >= this->info.max_total)
+           return false;
+    
+    int lowestCount = -1;
+    Stack* lowestStack = nullptr;
+    for(auto i = this->stacks.begin(); i != this->stacks.end(); ++i) {
+        int thisCount;
+        if((thisCount = i->ClientCount()) > lowestCount) {
+            lowestCount = thisCount;
+            lowestStack = &(*i);
+        }
+    }
+    
+    if(lowestStack != nullptr && !this->IsStackFull(lowestCount))
+        lowestStack->AddClient(client);
+    else if(this->CanAddStack()) {
+        this->stacks.push_back(Stack(this));
+        this->stacks.back().AddClient(client);
+    } else
+        return false;
+    
+    return true;
 }
 
 template<class T>

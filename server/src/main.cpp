@@ -18,7 +18,7 @@
 class User; 
 class Test : sosc::Pool<User> {
 protected:
-    void ProcessClient(User* client) override;
+    bool ProcessClient(User* client) override;
 };
 
 int main(int argc, char **argv) {
