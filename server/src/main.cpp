@@ -19,12 +19,6 @@
 #include "hosts/master.hpp"
 #include "hosts/slave.hpp"
 
-/*class User; 
-class Test : sosc::Pool<User> {
-protected:
-    bool ProcessClient(User* client) override;
-};*/
-
 bool master_intra(uint16_t port);
 bool master_client(uint16_t port);
 bool slave(uint16_t port);

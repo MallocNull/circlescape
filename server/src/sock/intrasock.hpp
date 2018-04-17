@@ -17,6 +17,10 @@ public:
         return this->client_open;
     }
     
+    inline net::IpAddress GetIpAddress() const {
+        return this->client.GetIpAddress();
+    }
+    
     inline void Close() {
         this->client_open = false;
         this->client.Close();

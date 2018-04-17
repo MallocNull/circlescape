@@ -29,6 +29,10 @@ public:
         return this->handshaked;
     }
     
+    inline net::IpAddress GetIpAddress() const {
+        return this->client.GetIpAddress();
+    }
+    
     inline void Close() {
         this->client_open = false;
         this->client.Close();

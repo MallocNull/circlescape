@@ -12,7 +12,7 @@ private:
     ScapeConnection sock;
 };
 
-class SlavePool : public Pool<SlaveClient> {
+class SlavePool : public Pool<SlaveClient*> {
 protected:
     bool ProcessClient(SlaveClient* client) override;
 };

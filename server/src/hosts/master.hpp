@@ -17,7 +17,7 @@ private:
 
 class MasterClientPool : public Pool<MasterClient> {
 protected:
-    bool ProcessClient(MasterClient* client) override;
+    bool ProcessClient(MasterClient client) override;
 };
 
 /** MASTER -> SLAVE **/
@@ -31,7 +31,7 @@ private:
 
 class MasterIntraPool : public Pool<MasterIntra> {
 protected:
-    bool ProcessClient(MasterIntra* client) override;
+    bool ProcessClient(MasterIntra client) override;
 };
 }
 
