@@ -76,8 +76,11 @@ bool master_client(uint16_t port, sosc::poolinfo_t info) {
         
     });
     */
+    
+    return true;
 }
 
 bool slave(uint16_t port, sosc::poolinfo_t info) {
     
+    return true;
 }
