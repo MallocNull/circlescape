@@ -9,7 +9,7 @@ class SlaveClient {
 public:
     
 private:
-    ScapeConnection sock;
+    ScapeConnection client;
 };
 
 class SlavePool : public Pool<SlaveClient*> {

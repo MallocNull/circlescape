@@ -12,7 +12,7 @@ class MasterClient {
 public:
     
 private:
-    ScapeConnection sock;
+    ScapeConnection client;
 };
 
 class MasterClientPool : public Pool<MasterClient> {
@@ -25,8 +25,10 @@ protected:
 class MasterIntra {
 public:
     MasterIntra(IntraClient client);
+    
+    void Close();
 private:
-    IntraClient sock;
+    IntraClient client;
 };
 
 class MasterIntraPool : public Pool<MasterIntra> {
