@@ -8,6 +8,7 @@ namespace sosc {
 namespace cgc {
 class Cipher {
 public:
+    Cipher() {};
     Cipher(const KeyExchange& key);
     
     void Parse(std::string* data);

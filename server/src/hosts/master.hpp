@@ -4,6 +4,8 @@
 #include "../sock/intrasock.hpp"
 #include "../sock/scapesock.hpp"
 #include "../sock/pool.hpp"
+#include "../crypto/keyex.hpp"
+#include "../crypto/cipher.hpp"
 
 namespace sosc {
 /** MASTER -> CLIENT **/
@@ -13,6 +15,9 @@ public:
     
 private:
     ScapeConnection client;
+    
+    cgc::KeyExchange key;
+    cgc::Cipher cipher;
 };
 
 class MasterClientPool : public Pool<MasterClient> {
@@ -29,6 +34,9 @@ public:
     void Close();
 private:
     IntraClient client;
+    
+    cgc::KeyExchange key;
+    cgc::Cipher cipher;
 };
 
 class MasterIntraPool : public Pool<MasterIntra> {
