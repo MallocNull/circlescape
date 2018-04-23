@@ -1,9 +1,9 @@
 #include "master.hpp"
 
 sosc::MasterIntra::MasterIntra(IntraClient client) {
-    this->client = client;
+    this->sock = client;
 }
 
-bool sosc::MasterIntraPool::ProcessClient(MasterIntra client) {
-    
+bool sosc::MasterIntra::Process() {
+    return true;
 }

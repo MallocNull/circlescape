@@ -42,7 +42,7 @@ public:
     
     void Stop();
 protected:
-    virtual bool ProcessClient(T client) = 0;
+    virtual bool ProcessClient(T& client) = 0;
 private:
     bool IsStackFull(int stackCount) const;
     bool CanAddStack() const;
@@ -239,7 +239,7 @@ void Pool<T>::Stack::Stop() {
         return;
     
     this->is_running = false;
-    this->thread.join();
+    this->thread->join();
     
     delete this->thread;
     this->is_open = false;

@@ -5,6 +5,9 @@
 #include "../sock/scapesock.hpp"
 #include "../sock/pool.hpp"
 
+#include "../crypto/keyex.hpp"
+#include "../crypto/cipher.hpp"
+
 namespace sosc {
 /** MASTER -> CLIENT **/
     
@@ -12,12 +15,15 @@ class MasterClient {
 public:
     
 private:
-    ScapeConnection client;
+    ScapeConnection sock;
+    
+    cgc::KeyExchange key;
+    cgc::Cipher cipher;
 };
 
 class MasterClientPool : public Pool<MasterClient> {
 protected:
-    bool ProcessClient(MasterClient client) override;
+    bool ProcessClient(MasterClient& client) override;
 };
 
 /** MASTER -> SLAVE **/
@@ -25,15 +31,20 @@ protected:
 class MasterIntra {
 public:
     MasterIntra(IntraClient client);
-    
+    bool Process();
     void Close();
 private:
-    IntraClient client;
+    IntraClient sock;
+    
+    cgc::KeyExchange key;
+    cgc::Cipher cipher;
 };
 
 class MasterIntraPool : public Pool<MasterIntra> {
 protected:
-    bool ProcessClient(MasterIntra client) override;
+    bool ProcessClient(MasterIntra& client) override {
+        return client.Process();
+    }
 };
 }
 

@@ -7,12 +7,12 @@
 namespace sosc {
 class SlaveClient {
 public:
-    
+    SlaveClient(ScapeConnection client);
 private:
-    ScapeConnection client;
+    ScapeConnection sock;
 };
 
-class SlavePool : public Pool<SlaveClient*> {
+class SlaveClientPool : Pool<SlaveClient*> {
 protected:
     bool ProcessClient(SlaveClient* client) override;
 };
