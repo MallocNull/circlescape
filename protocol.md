@@ -63,7 +63,7 @@ Communication between the master server and clients will be done over a WebSocke
  <thead>
   <th colspan="100" class="center">
    ID 1: Key Exchange<br />
-   Requester (resp. StM ID 0)
+   Responder
   </th>
  </thead>
  <thead>
@@ -91,7 +91,26 @@ Communication between the master server and clients will be done over a WebSocke
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-   ID 2: Positive ACK<br />
+   ID 2: Encryption Error<br />
+   Responder
+  </th>
+ </thead>
+ <thead>
+  <th>#</th>
+  <th>Region</th>
+  <th>Type</th>
+ </thead>
+ <tr>
+  <td>1</td>
+  <td>Error Message</td>
+  <td>String</td>
+ </tr>
+</table>
+
+<table style="margin-right: 8px; margin-bottom: 8px;">
+ <thead>
+  <th colspan="100" class="center">
+   ID 3: Positive ACK<br />
    [Encrypted] Responder
   </th>
  </thead>
@@ -110,7 +129,7 @@ Communication between the master server and clients will be done over a WebSocke
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-   ID 3: Negative ACK<br />
+   ID 4: Negative ACK<br />
    [Encrypted] Responder
   </th>
  </thead>
@@ -131,32 +150,13 @@ Communication between the master server and clients will be done over a WebSocke
  </tr>
 </table>
 
-<table style="margin-right: 8px; margin-bottom: 8px;">
- <thead>
-  <th colspan="100" class="center">
-   ID 4: Encryption Error<br />
-   Responder
-  </th>
- </thead>
- <thead>
-  <th>#</th>
-  <th>Region</th>
-  <th>Type</th>
- </thead>
- <tr>
-  <td>1</td>
-  <td>Error Message</td>
-  <td>String</td>
- </tr>
-</table>
-
 #### Slave to Master
 
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 0: Initiation Attempt<br />
-    Blind Requester
+    ID 1: Initiation Attempt<br />
+    Requester
   </th>
  </thead>
  <thead>
@@ -174,8 +174,8 @@ Communication between the master server and clients will be done over a WebSocke
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 1: Key Exchange<br />
-    Responder
+    ID 2: Authentication<br />
+    [Encrypted] Requester
   </th>
  </thead>
  <thead>
@@ -193,36 +193,22 @@ Communication between the master server and clients will be done over a WebSocke
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 2: Status Update<br />
+    ID 3: Status Update<br />
     [Encrypted] Blind Requester
   </th>
  </thead>
  <thead>
-  <th># (<i>r</i>)</th>
+  <th>#</th>
   <th>Region</th>
   <th>Type</th>
  </thead>
  <tr>
   <td class="center">1</td>
-  <td>Server Count (<i>n</i>)</td>
-  <td>Unsigned Byte</td>
- </tr>
- <tr>
-  <td><i>r</i> > 1</td>
-  <td colspan="2">Iterated over <i>n</i> (0 &leq; <i>i</i> &leq; <i>n - 1</i>)</td>
- </tr>
- <tr>
-  <td class="center">2 + 3<i>i</i></td>
-  <td>Server Id</td>
-  <td>Packed Unsigned Short</td>
- </tr>
- <tr>
-  <td class="center">3 + 3<i>i</i></td>
   <td>User Count</td>
   <td>Packed Unsigned Short</td>
  </tr>
  <tr>
-  <td class="center">4 + 3<i>i</i></td>
+  <td class="center">2</td>
   <td>Port</td>
   <td>Packed Unsigned Short</td>
  </tr>
@@ -473,3 +459,9 @@ The indexed list below indicates which byte (first byte being the MSB) contains 
 6. Second quantifier. Ranges from 0 to 59.
 
 In the event that an endpoint cannot evaluate a date required by the protocol as a result of some error, an error sockstamp will be sent in its place. An error sockstamp takes the form of zeroes in all bits. If an endpoint receives a sockstamp where the year quantifier is zero but any other quantifiers are nonzero, there is a communication error and the endpoint must close the connection.
+
+## Status Code Index
+
+### Master / Slave
+
+#### M -> S ID 3

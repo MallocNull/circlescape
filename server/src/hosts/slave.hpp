@@ -14,7 +14,10 @@ private:
 
 class SlaveClientPool : Pool<SlaveClient*> {
 protected:
-    bool ProcessClient(SlaveClient* client) override;
+    bool ProcessClient(SlaveClient*& client) override {
+        // TODO implement
+        return true;
+    }
 };
 }
 

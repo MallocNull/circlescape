@@ -23,7 +23,10 @@ private:
 
 class MasterClientPool : public Pool<MasterClient> {
 protected:
-    bool ProcessClient(MasterClient& client) override;
+    bool ProcessClient(MasterClient& client) override {
+        // TODO implement
+        return true;
+    }
 };
 
 /** MASTER -> SLAVE **/
@@ -32,10 +35,22 @@ class MasterIntra {
 public:
     MasterIntra(IntraClient client);
     bool Process();
-    void Close();
+    bool Close();
 private:
+    enum kSlaveToMasterId {
+        InitAttempt = 1,
+        Authentication,
+        StatusUpdate
+    };
+
+    enum kMasterToSlaveId {
+        KeyExchange = 1,
+        EncryptionError,
+        PositiveAck,
+        NegativeAck
+    };
+
     IntraClient sock;
-    
     cgc::KeyExchange key;
     cgc::Cipher cipher;
 };
