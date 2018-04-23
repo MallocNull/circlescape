@@ -3,8 +3,8 @@
 sosc::BigUInt sosc::cgc::KeyExchange::secret;
 
 sosc::cgc::KeyExchange::KeyExchange() {
-    if(KeyExchange::secret.IsZero())
-        KeyExchange::secret = FastRandomPrime();
+    if(this->secret.IsZero())
+        this->secret = FastRandomPrime();
             
     this->modulus = FastRandomPrime();
 }
