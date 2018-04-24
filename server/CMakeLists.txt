@@ -12,7 +12,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -static")
 endif()
     
-add_executable(server ${server_src})
+add_executable(server ${server_src} src/db/_init_sql.cpp)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     target_link_libraries(server wsock32 ws2_32)

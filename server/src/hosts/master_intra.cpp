@@ -18,12 +18,15 @@ bool sosc::MasterIntra::Process() {
                 return this->Close(Packet(EncryptionError, { "\x01" }));
 
             Packet response;
-            if(!this->key.ParseRequest(pck, &response))
+            if(!this->key.ParseRequest(pck, &response, KeyExchange))
                 return this->Close(Packet(EncryptionError, { "\x02" }));
 
             this->sock.Send(response);
             break;
         case Authentication:
+
+            break;
+        case StatusUpdate:
 
             break;
         default:

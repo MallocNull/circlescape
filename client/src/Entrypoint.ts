@@ -22,7 +22,7 @@ class Entrypoint {
     private static initStatus = {
         keyInit: false,
         fileCache: false
-    }
+    };
 
     private static initCheck(): void {
         var done = true;

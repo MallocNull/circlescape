@@ -18,7 +18,7 @@ sosc::Packet sosc::cgc::KeyExchange::GenerateRequest() const {
 }
 
 bool sosc::cgc::KeyExchange::ParseRequest
-    (const Packet& request, Packet* response) 
+    (const Packet& request, Packet* response, uint8_t id)
 {
     if(request.GetId() != 1 || request.RegionCount() != 3)
         return false;
@@ -33,7 +33,7 @@ bool sosc::cgc::KeyExchange::ParseRequest
     
     this->private_key = BigUInt::ModPow(public_key, this->secret, modulus);
     public_key = BigUInt::ModPow(generator, this->secret, modulus);
-    *response = Packet(1, { public_key.ToString() });
+    *response = Packet(id, { public_key.ToString() });
     
     return true;
 }

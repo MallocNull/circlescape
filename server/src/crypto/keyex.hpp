@@ -11,7 +11,7 @@ public:
     KeyExchange();
     
     Packet GenerateRequest() const;
-    bool ParseRequest(const Packet& request, Packet* response);
+    bool ParseRequest(const Packet& request, Packet* response, uint8_t id);
     bool ParseResponse(const Packet& response);
     
     inline bool Succeeded() const {
