@@ -15,18 +15,11 @@ bool sosc::MasterIntra::Process() {
     switch(pck.GetId()) {
         case InitAttempt:
             if(!pck.Check(1, key.key_size_bytes))
-                return this->Close();
+                return this->Close(Packet(EncryptionError, { "\x01" }));
 
             Packet response;
-            if(!this->key.ParseRequest(pck, &response)) {
-                this->sock.Send(
-                    Packet(EncryptionError, {
-                        ""
-                    })
-                );
-
-                this->Close();
-            }
+            if(!this->key.ParseRequest(pck, &response))
+                return this->Close(Packet(EncryptionError, { "\x02" }));
 
             this->sock.Send(response);
             break;
@@ -44,4 +37,9 @@ bool sosc::MasterIntra::Process() {
 bool sosc::MasterIntra::Close() {
     this->sock.Close();
     return false;
+}
+
+bool sosc::MasterIntra::Close(const Packet &message) {
+    this->sock.Send(message);
+    this->Close();
 }

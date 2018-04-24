@@ -35,7 +35,9 @@ class MasterIntra {
 public:
     MasterIntra(IntraClient client);
     bool Process();
+
     bool Close();
+    bool Close(const Packet& message);
 private:
     enum kSlaveToMasterId {
         InitAttempt = 1,

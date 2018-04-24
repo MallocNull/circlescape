@@ -462,6 +462,15 @@ In the event that an endpoint cannot evaluate a date required by the protocol as
 
 ## Status Code Index
 
+TODO: MAKE THIS SECTION NOT LOOK LIKE SHIT
+
 ### Master / Slave
 
-#### M -> S ID 3
+#### S -> M (ID 1)
+0x01: KEY SIZE WAS INCORRECT
+
+0x02: COULD NOT PARSE KEY
+
+### Master / Client
+
+### Slave / Client
