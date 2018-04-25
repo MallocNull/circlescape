@@ -1,7 +1,8 @@
 #include <vector>
 
 const char* _mem_db_sql =
-    "CREATE TABLE ";
+    "CREATE TABLE SERVER_LIST ( "
+    ");";
 
 const std::vector<const char*> _hard_db_sql = {
     /** START MIGRATION 0 **/

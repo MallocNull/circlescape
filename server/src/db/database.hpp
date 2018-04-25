@@ -3,6 +3,7 @@
 
 #include "sqlite/sqlite3.h"
 #include <vector>
+#include <string>
 
 namespace sosc {
 namespace db {
@@ -15,14 +16,15 @@ private:
 
 class Query {
 public:
-    template<typename T>
-    static T ScalarOnce();
-    static void NonQueryOnce();
-    static ResultSet Once();
+    Query();
+    Query(const std::string& query);
+    void SetQuery(const std::string& query);
 
-
+    void Reset();
+    void Close();
 private:
-
+    std::string query;
+    bool open;
 };
 
 // THE FOLLOWING ARE NOT THREAD SAFE !!
