@@ -21,20 +21,21 @@ public:
 
     template<typename T>
     T Get(int column);
-    std::string Get(int column, int type = DB_COL_TEXT);
+    template<typename T>
+    T Get(int column, int type);
 private:
-    ResultSet(Query* query, sqlite3_stmt* stmt);
-    sqlite3_stmt* statement;
+    ResultSet(Query* query);
     Query* query;
     bool readable;
 
     friend class Query;
 };
 
-double ResultSet::Get<double>(int column);
+/*double ResultSet::Get<double>(int column);
 int32_t ResultSet::Get<int32_t>(int column);
 int64_t ResultSet::Get<int64_t>(int column);
 sosc::time ResultSet::Get<sosc::time>(int column);
+std::string ResultSet::Get<std::string>(int column, int type = DB_COL_TEXT);*/
 
 class Query {
 public:
@@ -44,8 +45,12 @@ public:
 
     void NonQuery();
 
-    ResultSet* GetResults() const;
+    template<typename T>
+    T Scalar();
+    template<typename T>
+    T Scalar(int type);
 
+    ResultSet* GetResults() const;
     inline bool IsOpen() const {
         return this->open;
     }
@@ -59,6 +64,12 @@ private:
     std::string query;
     bool open;
 };
+
+/*double Query::Scalar<double>();
+int32_t Query::Scalar<int32_t>();
+int64_t Query::Scalar<int64_t>();
+sosc::time Query::Scalar<sosc::time>();
+std::string Query::Scalar<std::string>(int type = DB_COL_TEXT);*/
 
 // THE FOLLOWING ARE NOT THREAD SAFE !!
 // CALL THEM ONLY WHEN MASTER POOL IS INACTIVE

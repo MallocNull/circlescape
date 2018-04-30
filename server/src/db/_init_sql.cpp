@@ -1,8 +1,13 @@
 #include <vector>
 
 const char* _mem_db_sql =
-    "CREATE TABLE SERVER_LIST ( "
-    ");";
+    "CREATE TABLE `SERVER_LIST` ("
+        "`ID` INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "`NAME` TEXT NOT NULL,"
+        "`LICENSE` TEXT NOT NULL,"
+        "`IP_ADDR` TEXT NOT NULL,"
+        "`PORT` INTEGER NOT NULL"
+    ");\n";
 
 const std::vector<const char*> _hard_db_sql = {
     /** START MIGRATION 0 **/
@@ -12,6 +17,12 @@ const std::vector<const char*> _hard_db_sql = {
         "`DATE_RAN` INTEGER NOT NULL,"
         "PRIMARY KEY(`ID`)"
     ") WITHOUT ROWID;\n"
+
+    "CREATE TABLE `SERVER_LICENSES` ("
+        "`KEY_ID` TEXT NOT NULL UNIQUE,"
+        "`SECRET` TEXT NOT NULL UNIQUE,"
+        "`ALLOWANCE` INTEGER NOT NULL"
+    ");\n"
 
     "CREATE TABLE `USERS` ("
         "`ID` INTEGER PRIMARY KEY AUTOINCREMENT,"
