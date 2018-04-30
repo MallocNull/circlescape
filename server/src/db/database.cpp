@@ -16,7 +16,7 @@ void sosc::db::init_databases() {
     sqlite3_exec(_ctx.mem_db, _mem_db_sql, nullptr, nullptr, nullptr);
 
     sqlite3_open("scape.db", &_ctx.hard_db);
-
+    
 
     _ctx.ready = true;
 }
