@@ -9,6 +9,9 @@
 #define DB_COL_TEXT 1
 #define DB_COL_BLOB 2
 
+#define DB_USE_HARD   1
+#define DB_USE_MEMORY 2
+
 namespace sosc {
 namespace db {
 class Query;
@@ -40,8 +43,8 @@ std::string ResultSet::Get<std::string>(int column, int type = DB_COL_TEXT);*/
 class Query {
 public:
     Query();
-    Query(const std::string& query);
-    void SetQuery(const std::string& query);
+    Query(const std::string& query, int db = DB_USE_HARD);
+    void SetQuery(const std::string& query, int db = DB_USE_HARD);
 
     void NonQuery();
 

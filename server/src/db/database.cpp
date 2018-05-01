@@ -36,13 +36,32 @@ sosc::db::Query::Query() : results(this) {
     this->open = false;
 }
 
-sosc::db::Query::Query(const std::string& query) : results(this) {
+sosc::db::Query::Query(const std::string& query, int db) : results(this) {
     this->open = false;
-    this->SetQuery(query);
+    this->SetQuery(query, db);
 }
 
-void sosc::db::Query::SetQuery(const std::string &query) {
-    this->Close();
+void sosc::db::Query::SetQuery(const std::string &query, int db) {
+    if(!_ctx.ready)
+        return;
+    if(!this->open)
+        this->Close();
 
-    this->open = true;
+    int status = sqlite3_prepare_v2(
+        db == DB_USE_MEMORY ? _ctx.mem_db : _ctx.hard_db,
+        query.c_str(),
+        query.length() + 1,
+        &this->statement,
+        nullptr
+    );
+
+    if(status == SQLITE_OK)
+        this->open = true;
+}
+
+void sosc::db::Query::NonQuery() {
+    if(!_ctx.ready || !this->open)
+        return;
+
+
 }
