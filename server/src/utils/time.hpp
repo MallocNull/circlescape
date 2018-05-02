@@ -14,6 +14,8 @@ typedef std::chrono::system_clock clock;
 typedef std::chrono::time_point<sosc::clock> time;
 
 namespace clk {
+sosc::time from_unix_time(uint64_t unix);
+
 std::tm to_utc(sosc::time time);
 std::tm to_utc(const time_t* time);
 

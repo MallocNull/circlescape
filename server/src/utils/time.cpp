@@ -1,5 +1,17 @@
 #include "time.hpp"
 
+sosc::time sosc::clk::from_unix_time(uint64_t unix) {
+    std::tm raw = std::tm();
+    raw.tm_year = 70;
+    raw.tm_yday = 0;
+    raw.tm_hour = 0;
+    raw.tm_min = 0;
+    raw.tm_sec = 0;
+
+    return sosc::clock::from_time_t(std::mktime(&raw))
+         + std::chrono::seconds(unix);
+}
+
 std::tm sosc::clk::to_utc(sosc::time time) {
     time_t ctime = sosc::clock::to_time_t(time);
     return to_utc(&ctime);

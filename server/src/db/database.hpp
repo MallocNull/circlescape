@@ -19,17 +19,17 @@ class Query;
 class ResultSet {
 public:
     bool IsOpen() const;
-    bool IsReadable() const;
     bool Step();
 
     template<typename T>
     T Get(int column);
     template<typename T>
     T Get(int column, int type);
+
+    int ColumnCount();
 private:
     ResultSet(Query* query);
     Query* query;
-    bool readable;
 
     friend class Query;
 };
@@ -58,14 +58,15 @@ public:
         return this->open;
     }
 
-    void Reset();
+    void Reset(bool clearBinds = true);
     void Close();
 private:
     ResultSet results;
     sqlite3_stmt* statement;
-
-    std::string query;
+    sqlite3* database;
     bool open;
+
+    friend class ResultSet;
 };
 
 /*double Query::Scalar<double>();
