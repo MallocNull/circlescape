@@ -18,7 +18,7 @@ void sosc::db::init_databases() {
     sqlite3_open("scape.db", &_ctx.hard_db);
     db::Query query("SELECT * FROM MIGRATIONS ORDER BY ID ASC");
     auto results = query.GetResults();
-    while()
+    //while()
 
     _ctx.ready = true;
 }
@@ -62,6 +62,39 @@ void sosc::db::Query::SetQuery(const std::string &query, int db) {
 
     if(status == SQLITE_OK)
         this->open = true;
+}
+
+void sosc::db::Query::Bind<double>(double value, int i) {
+    sqlite3_bind_double(this->statement, i, value);
+}
+
+void sosc::db::Query::Bind<int32_t>(int32_t value, int i) {
+    sqlite3_bind_int(this->statement, i, value);
+}
+
+void sosc::db::Query::Bind<int64_t>(int64_t value, int i) {
+    sqlite3_bind_int64(this->statement, i, value);
+}
+
+void sosc::db::Query::Bind<sosc::time>(sosc::time value, int i) {
+    sqlite3_bind_int64(this->statement, i, clk::to_unix_time(value));
+}
+
+void sosc::db::Query::Bind<std::string>
+    (const std::string& value, int i, int type)
+{
+    if(type == DB_COL_TEXT)
+        sqlite3_bind_text(
+            this->statement, i,
+            value.c_str(), -1,
+            SQLITE_TRANSIENT
+        );
+    else
+        sqlite3_bind_blob(
+            this->statement, i,
+            value.c_str(), value.length(),
+            SQLITE_TRANSIENT
+        );
 }
 
 void sosc::db::Query::NonQuery() {
