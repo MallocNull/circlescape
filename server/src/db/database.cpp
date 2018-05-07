@@ -16,15 +16,31 @@ bool sosc::db::init_databases(std::string* error) {
     sqlite3_exec(_ctx.mem_db, _mem_db_sql, nullptr, nullptr, nullptr);
 
     sqlite3_open("scape.db", &_ctx.hard_db);
-    int32_t result = db::Query::ScalarInt32("SELECT MAX(ID) FROM MIGRATIONS");
+
+    int32_t result = db::Query::ScalarInt32(
+        "SELECT COUNT(*) FROM SQLITE_MASTER WHERE TBL_NAME = 'MIGRATIONS'"
+    );
+    if(result == 0)
+
+
+    result = db::Query::ScalarInt32("SELECT MAX(ID) FROM MIGRATIONS");
     if(result > _hard_db_sql.size()) {
         *error = "HARD DB: RECORDED MIGRATION COUNT TOO HIGH";
         return false;
     }
 
-    
+    Query hasMigration("SELECT COUNT(*) FROM MIGRATIONS WHERE ID = ?"),
+          getMigration("SELECT SQL_HASH FROM MIGRATIONS WHERE ID = ?");
+
+    for(int i = 0; i < _hard_db_sql.size(); ++i) {
+
+    }
+
+    hasMigration.Close();
+    getMigration.Close();
 
     _ctx.ready = true;
+    return true;
 }
 
 void sosc::db::close_databases() {
