@@ -8,17 +8,21 @@ static struct {
     sqlite3* hard_db;
 } _ctx;
 
-void sosc::db::init_databases() {
+bool sosc::db::init_databases(std::string* error) {
     if(_ctx.ready)
-        return;
+        return true;
 
     sqlite3_open(":memory:", &_ctx.mem_db);
     sqlite3_exec(_ctx.mem_db, _mem_db_sql, nullptr, nullptr, nullptr);
 
     sqlite3_open("scape.db", &_ctx.hard_db);
-    db::Query query("SELECT * FROM MIGRATIONS ORDER BY ID ASC");
-    auto results = query.GetResults();
-    //while()
+    int32_t result = db::Query::ScalarInt32("SELECT MAX(ID) FROM MIGRATIONS");
+    if(result > _hard_db_sql.size()) {
+        *error = "HARD DB: RECORDED MIGRATION COUNT TOO HIGH";
+        return false;
+    }
+
+    
 
     _ctx.ready = true;
 }
@@ -64,37 +68,36 @@ void sosc::db::Query::SetQuery(const std::string &query, int db) {
         this->open = true;
 }
 
-void sosc::db::Query::Bind<double>(double value, int i) {
+void sosc::db::Query::BindDouble(double value, int i) {
     sqlite3_bind_double(this->statement, i, value);
 }
 
-void sosc::db::Query::Bind<int32_t>(int32_t value, int i) {
+void sosc::db::Query::BindInt32(int32_t value, int i) {
     sqlite3_bind_int(this->statement, i, value);
 }
 
-void sosc::db::Query::Bind<int64_t>(int64_t value, int i) {
+void sosc::db::Query::BindInt64(int64_t value, int i) {
     sqlite3_bind_int64(this->statement, i, value);
 }
 
-void sosc::db::Query::Bind<sosc::time>(sosc::time value, int i) {
+void sosc::db::Query::BindTime(sosc::time value, int i) {
     sqlite3_bind_int64(this->statement, i, clk::to_unix_time(value));
 }
 
-void sosc::db::Query::Bind<std::string>
-    (const std::string& value, int i, int type)
-{
-    if(type == DB_COL_TEXT)
-        sqlite3_bind_text(
-            this->statement, i,
-            value.c_str(), -1,
-            SQLITE_TRANSIENT
-        );
-    else
-        sqlite3_bind_blob(
-            this->statement, i,
-            value.c_str(), value.length(),
-            SQLITE_TRANSIENT
-        );
+void sosc::db::Query::BindText(const std::string& value, int i) {
+    sqlite3_bind_text(
+        this->statement, i,
+        value.c_str(), -1,
+        SQLITE_TRANSIENT
+    );
+}
+
+void sosc::db::Query::BindBlob(const std::string& value, int i) {
+    sqlite3_bind_blob(
+        this->statement, i,
+        value.c_str(), value.length(),
+        SQLITE_TRANSIENT
+    );
 }
 
 void sosc::db::Query::NonQuery() {
@@ -104,57 +107,142 @@ void sosc::db::Query::NonQuery() {
     this->results.Step();
 }
 
-double sosc::db::Query::Scalar<double>() {
+void sosc::db::Query::NonQuery(const std::string &query) {
+    if(!_ctx.ready)
+        return;
+
+    Query q(query);
+    q.NonQuery();
+    q.Close();
+}
+
+double sosc::db::Query::ScalarDouble() {
     if(!_ctx.ready || !this->open)
         return 0;
 
     if(this->results.Step())
-        return this->results.Get<double>(0);
+        return this->results.GetDouble(0);
     else
         return 0;
 }
 
-int32_t sosc::db::Query::Scalar<int32_t>() {
+int32_t sosc::db::Query::ScalarInt32() {
     if(!_ctx.ready || !this->open)
         return 0;
 
     if(this->results.Step())
-        return this->results.Get<int32_t>(0);
+        return this->results.GetInt32(0);
     else
         return 0;
 }
 
-int64_t sosc::db::Query::Scalar<int64_t>() {
+int64_t sosc::db::Query::ScalarInt64() {
     if(!_ctx.ready || !this->open)
         return 0;
 
     if(this->results.Step())
-        return this->results.Get<int64_t>(0);
+        return this->results.GetInt64(0);
     else
         return 0;
 }
 
-sosc::time sosc::db::Query::Scalar<sosc::time>() {
+sosc::time sosc::db::Query::ScalarTime() {
     if(!_ctx.ready || !this->open)
         return sosc::time::min();
 
     if(this->results.Step())
-        return this->results.Get<sosc::time>(0);
+        return this->results.GetTime(0);
     else
         return sosc::time::min();
 }
 
-std::string sosc::db::Query::Scalar<std::string>(int type) {
+std::string sosc::db::Query::ScalarText() {
     if(!_ctx.ready || !this->open)
         return "";
 
     if(this->results.Step())
-        return this->results.Get<std::string>(0, type);
+        return this->results.GetText(0);
     else
         return "";
 }
 
-sosc::db::ResultSet* sosc::db::Query::GetResults() const {
+std::string sosc::db::Query::ScalarBlob() {
+    if(!_ctx.ready || !this->open)
+        return "";
+
+    if(this->results.Step())
+        return this->results.GetBlob(0);
+    else
+        return "";
+}
+
+double sosc::db::Query::ScalarDouble(const std::string &query) {
+    if(!_ctx.ready)
+        return 0;
+
+    Query q(query);
+    double result = q.ScalarDouble();
+    q.Close();
+
+    return result;
+}
+
+int32_t sosc::db::Query::ScalarInt32(const std::string &query) {
+    if(!_ctx.ready)
+        return 0;
+
+    Query q(query);
+    int32_t result = q.ScalarInt32();
+    q.Close();
+
+    return result;
+}
+
+int64_t sosc::db::Query::ScalarInt64(const std::string &query) {
+    if(!_ctx.ready)
+        return 0;
+
+    Query q(query);
+    int64_t result = q.ScalarInt64();
+    q.Close();
+
+    return result;
+}
+
+sosc::time sosc::db::Query::ScalarTime(const std::string &query) {
+    if(!_ctx.ready)
+        return sosc::time::min();
+
+    Query q(query);
+    sosc::time result = q.ScalarTime();
+    q.Close();
+
+    return result;
+}
+
+std::string sosc::db::Query::ScalarText(const std::string &query) {
+    if(!_ctx.ready)
+        return "";
+
+    Query q(query);
+    std::string result = q.ScalarText();
+    q.Close();
+
+    return result;
+}
+
+std::string sosc::db::Query::ScalarBlob(const std::string &query) {
+    if(!_ctx.ready)
+        return "";
+
+    Query q(query);
+    std::string result = q.ScalarBlob();
+    q.Close();
+
+    return result;
+}
+
+sosc::db::ResultSet* sosc::db::Query::GetResults() {
     return &this->results;
 }
 
@@ -193,29 +281,36 @@ bool sosc::db::ResultSet::Step() {
         throw std::string(sqlite3_errmsg(this->query->database));
 }
 
-double sosc::db::ResultSet::Get<double>(int column) {
+double sosc::db::ResultSet::GetDouble(int column) {
     return sqlite3_column_double(this->query->statement, column);
 }
 
-int32_t sosc::db::ResultSet::Get<int32_t>(int column) {
+int32_t sosc::db::ResultSet::GetInt32(int column) {
     return sqlite3_column_int(this->query->statement, column);
 }
 
-int64_t sosc::db::ResultSet::Get<int64_t>(int column) {
+int64_t sosc::db::ResultSet::GetInt64(int column) {
     return sqlite3_column_int64(this->query->statement, column);
 }
 
-sosc::time sosc::db::ResultSet::Get<sosc::time>(int column) {
+sosc::time sosc::db::ResultSet::GetTime(int column) {
     return clk::from_unix_time(
         sqlite3_column_int64(this->query->statement, column)
     );
 }
 
-std::string sosc::db::ResultSet::Get<std::string>(int column, int type) {
+std::string sosc::db::ResultSet::GetText(int column) {
     auto data = (const char*)
-        (type == DB_COL_TEXT
-            ? sqlite3_column_text(this->query->statement, column)
-            : sqlite3_column_blob(this->query->statement, column));
+        sqlite3_column_text(this->query->statement, column);
+
+    return std::string(
+        data, sqlite3_column_bytes(this->query->statement, column)
+    );
+}
+
+std::string sosc::db::ResultSet::GetBlob(int column) {
+    auto data = (const char*)
+        sqlite3_column_blob(this->query->statement, column);
 
     return std::string(
         data, sqlite3_column_bytes(this->query->statement, column)

@@ -133,11 +133,11 @@ bool Pool<T>::AddClient(T client) {
     
     int lowestCount = -1;
     Stack* lowestStack = nullptr;
-    for(auto i = this->stacks.begin(); i != this->stacks.end(); ++i) {
+    for(const auto& stack : this->stacks) {
         int thisCount;
-        if((thisCount = (*i)->ClientCount()) > lowestCount) {
+        if((thisCount = stack->ClientCount()) > lowestCount) {
             lowestCount = thisCount;
-            lowestStack = *i;
+            lowestStack = stack;
         }
     }
     
@@ -158,8 +158,8 @@ int Pool<T>::ClientCount() {
         return 0;
     
     int count = 0;
-    for(auto i = this->stacks.begin(); i != this->stacks.end(); ++i)
-        count += (*i)->ClientCount();
+    for(const auto& stack : this->stacks)
+        count += stack->ClientCount();
     return count;
 }
 
@@ -167,13 +167,13 @@ template<class T>
 void Pool<T>::Stop() {
     if(!this->is_open)
         return;
-    
-    for(auto i = this->stacks.begin(); i != this->stacks.end(); ++i) {
-        (*i)->Stop();
-        delete *i;
+
+    for(const auto& stack : this->stacks) {
+        stack->Stop();
+        delete stack;
     }
     
-    stacks->clear();
+    this->stacks.clear();
     this->is_open = false;
 }
 
@@ -221,13 +221,16 @@ int Pool<T>::Stack::ClientCount() {
 template<class T>
 void Pool<T>::Stack::StackThread() {
     while(this->is_running) {
-        for(auto i = this->clients.begin(); i != this->clients.end(); ++i) {
+        for(auto client  = this->clients.begin();
+                 client != this->clients.end();
+                 ++client)
+        {
             if(!this->is_running)
                 break;
             
             this->clients_mtx.lock();
-            if(!this->pool->ProcessClient(*i))
-                this->clients.erase(i);
+            if(!this->pool->ProcessClient(*client))
+                this->clients.erase(client);
             this->clients_mtx.unlock();
         }
     }

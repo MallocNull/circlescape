@@ -35,8 +35,8 @@ int sosc::ScapeConnection::Handshake() {
     
     std::string websocket_key = "";
     auto lines = str::split(this->buffer, "\r\n");
-    for(auto line_r = lines.begin() + 1; line_r != lines.end(); ++line_r) {
-        std::string line = str::trim(*line_r);
+    for(const auto& line_r : lines) {
+        std::string line = str::trim(line_r);
         
         if(str::starts(line, "Sec-WebSocket-Key")) {
             auto parts = str::split(line, ':');

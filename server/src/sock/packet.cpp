@@ -20,9 +20,9 @@ bool sosc::Packet::AddRegion(std::string data) {
 bool sosc::Packet::AddRegions(std::vector<std::string> data) {
     if(this->regions.size() + data.size() > 256)
         return false;
-    
-    for(auto i = data.begin(); i != data.end(); ++i)
-        this->regions.push_back(*i);
+
+    for(const auto& i : data)
+        this->regions.push_back(i);
 }
 
 void sosc::Packet::SetRegion(uint8_t index, std::string data) {
@@ -150,20 +150,22 @@ std::string* sosc::Packet::ToString(std::string* packet) const {
     (*packet)[6] = this->id;
     (*packet)[7] = regions.size();
     
-    for(auto i = this->regions.begin(); i != this->regions.end(); ++i) {
-        if(i->size() < 0xFE)
-            *packet += (char)i->size();
-        else if(i->size() <= 0xFFFF) {
+    //for(auto i = this->regions.begin(); i != this->regions.end(); ++i) {
+    for(const auto& i : this->regions) {
+        if(i.size() < 0xFE)
+            *packet += (char)i.size();
+        else if(i.size() <= 0xFFFF) {
             *packet += (char)0xFE;
-            *packet += net::htonv<uint16_t>(i->size());
+            *packet += net::htonv<uint16_t>(i.size());
         } else {
             *packet += (char)0xFF;
-            *packet += net::htonv<uint32_t>(i->size());
+            *packet += net::htonv<uint32_t>(i.size());
         }
     }
     
-    for(auto i = this->regions.begin(); i != this->regions.end(); ++i)
-        *packet += *i;
+    //for(auto i = this->regions.begin(); i != this->regions.end(); ++i)
+    for(const auto& i : this->regions)
+        *packet += i;
     
     packet->assign(net::htonv<uint32_t>(packet->length()), 2, 4);
     

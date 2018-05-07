@@ -3,6 +3,7 @@
 
 #include "sqlite/sqlite3.h"
 #include "../utils/time.hpp"
+#include "../crypto/sha1.hpp"
 #include <vector>
 #include <string>
 
@@ -14,6 +15,7 @@
 
 namespace sosc {
 namespace db {
+
 class Query;
 
 class ResultSet {
@@ -21,10 +23,12 @@ public:
     bool IsOpen() const;
     bool Step();
 
-    template<typename T>
-    T Get(int column);
-    template<typename T>
-    T Get(int column, int type);
+    double GetDouble(int column);
+    int32_t GetInt32(int column);
+    int64_t GetInt64(int column);
+    sosc::time GetTime(int column);
+    std::string GetText(int column);
+    std::string GetBlob(int column);
 
     int ColumnCount();
 private:
@@ -34,33 +38,37 @@ private:
     friend class Query;
 };
 
-/*
-template<> double ResultSet::Get<double>(int column);
-template<> int32_t ResultSet::Get<int32_t>(int column);
-template<> int64_t ResultSet::Get<int64_t>(int column);
-template<> sosc::time ResultSet::Get<sosc::time>(int column);
-template<> std::string ResultSet::Get<std::string>(int column, int type);
- */
-
 class Query {
 public:
     Query();
     Query(const std::string& query, int db = DB_USE_HARD);
     void SetQuery(const std::string& query, int db = DB_USE_HARD);
 
-    template<typename T>
-    void Bind(T value, int i);
-    template<typename T>
-    void Bind(const T& value, int i, int type);
+    void BindDouble(double value, int i);
+    void BindInt32(int32_t value, int i);
+    void BindInt64(int64_t value, int i);
+    void BindTime(sosc::time value, int i);
+    void BindText(const std::string& value, int i);
+    void BindBlob(const std::string& value, int i);
 
     void NonQuery();
+    static void NonQuery(const std::string& query);
 
-    template<typename T>
-    T Scalar();
-    template<typename T>
-    T Scalar(int type);
+    double ScalarDouble();
+    int32_t ScalarInt32();
+    int64_t ScalarInt64();
+    sosc::time ScalarTime();
+    std::string ScalarText();
+    std::string ScalarBlob();
 
-    ResultSet* GetResults() const;
+    static double ScalarDouble(const std::string& query);
+    static int32_t ScalarInt32(const std::string& query);
+    static int64_t ScalarInt64(const std::string& query);
+    static sosc::time ScalarTime(const std::string& query);
+    static std::string ScalarText(const std::string& query);
+    static std::string ScalarBlob(const std::string& query);
+
+    ResultSet* GetResults();
     inline bool IsOpen() const {
         return this->open;
     }
@@ -76,24 +84,9 @@ private:
     friend class ResultSet;
 };
 
-/*
-template<> void Query::Bind<double>(double value, int i);
-template<> void Query::Bind<int32_t>(int32_t value, int i);
-template<> void Query::Bind<int64_t>(int64_t value, int i);
-template<> void Query::Bind<sosc::time>(sosc::time value, int i);
-template<> std::string Query::Bind<std::string>
-    (const std::string& value, int i, int type);
-
-template<> double Query::Scalar<double>();
-template<> int32_t Query::Scalar<int32_t>();
-template<> int64_t Query::Scalar<int64_t>();
-template<> sosc::time Query::Scalar<sosc::time>();
-template<> std::string Query::Scalar<std::string>(int type);
-*/
-
 // THE FOLLOWING ARE NOT THREAD SAFE !!
 // CALL THEM ONLY WHEN MASTER POOL IS INACTIVE
-void init_databases();
+bool init_databases(std::string* error);
 void close_databases();
 }}
 
