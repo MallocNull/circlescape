@@ -48,7 +48,7 @@ int sosc::ScapeConnection::Handshake() {
         }
     }
     
-    if(websocket_key == "") {
+    if(websocket_key.empty()) {
         this->Close();
         return SOSC_SHAKE_ERR;
     }

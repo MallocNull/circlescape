@@ -7,7 +7,7 @@
 namespace sosc {
 class SlaveClient {
 public:
-    SlaveClient(ScapeConnection client);
+    SlaveClient(const ScapeConnection& client);
 private:
     ScapeConnection sock;
 };

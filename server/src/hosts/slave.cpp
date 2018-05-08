@@ -1,6 +1,6 @@
 #include "slave.hpp"
 
-sosc::SlaveClient::SlaveClient(ScapeConnection client) {
+sosc::SlaveClient::SlaveClient(const ScapeConnection& client) {
     this->sock = client;
 }
 

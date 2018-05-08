@@ -17,26 +17,51 @@ bool sosc::db::init_databases(std::string* error) {
 
     sqlite3_open("scape.db", &_ctx.hard_db);
 
-    int32_t result = db::Query::ScalarInt32(
+    int32_t migrationsExist = db::Query::ScalarInt32(
         "SELECT COUNT(*) FROM SQLITE_MASTER WHERE TBL_NAME = 'MIGRATIONS'"
     );
-    if(result == 0)
+    if(migrationsExist == 0)
+        db::Query::NonQuery(_hard_db_init_migration_sql);
 
-
-    result = db::Query::ScalarInt32("SELECT MAX(ID) FROM MIGRATIONS");
-    if(result > _hard_db_sql.size()) {
+    int32_t lastMig = db::Query::ScalarInt32("SELECT MAX(ID) FROM MIGRATIONS");
+    if(lastMig > _hard_db_sql.size()) {
         *error = "HARD DB: RECORDED MIGRATION COUNT TOO HIGH";
         return false;
     }
 
-    Query hasMigration("SELECT COUNT(*) FROM MIGRATIONS WHERE ID = ?"),
-          getMigration("SELECT SQL_HASH FROM MIGRATIONS WHERE ID = ?");
+    int id;
+    Query insertMigration(
+        "INSERT INTO MIGRATIONS (ID, SQL_HASH, DATE_RAN) "
+        "VALUES (?, ?, NOW())"
+    );
+    Query getMigration("SELECT SQL_HASH FROM MIGRATIONS WHERE ID = ?");
+    for(id = 0; id < _hard_db_sql.size(); ++id) {
+        getMigration.BindInt32(id, 0);
 
-    for(int i = 0; i < _hard_db_sql.size(); ++i) {
+        std::string hash = getMigration.ScalarText();
+        if(hash.empty()) {
+            if(id < lastMig) {
+                *error = "HARD DB: MIGRATION RECORDS NOT CONTINUOUS";
+                return false;
+            }
 
+            Query::NonQuery(_hard_db_sql[id]);
+
+            insertMigration.BindInt32(id, 0);
+            insertMigration.BindText(cgc::sha1(_hard_db_sql[id]), 1);
+            insertMigration.NonQuery();
+        } else {
+            if(hash != cgc::sha1(_hard_db_sql[id])) {
+                *error = "HARD DB: MIGRATION SQL HASH MISMATCH";
+                return false;
+            }
+        }
+
+        insertMigration.Reset();
+        getMigration.Reset();
     }
 
-    hasMigration.Close();
+    insertMigration.Close();
     getMigration.Close();
 
     _ctx.ready = true;

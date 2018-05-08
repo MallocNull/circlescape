@@ -33,7 +33,7 @@ protected:
 
 class MasterIntra {
 public:
-    MasterIntra(IntraClient client);
+    MasterIntra(const IntraClient& client);
     bool Process();
 
     bool Close();

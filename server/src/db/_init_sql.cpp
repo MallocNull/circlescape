@@ -9,15 +9,16 @@ const char* _mem_db_sql =
         "`PORT` INTEGER NOT NULL"
     ");\n";
 
-const std::vector<const char*> _hard_db_sql = {
-    /** START MIGRATION 0 **/
+const char* _hard_db_init_migration_sql =
     "CREATE TABLE `MIGRATIONS` ("
         "`ID` INTEGER NOT NULL,"
         "`SQL_HASH` TEXT NOT NULL,"
         "`DATE_RAN` INTEGER NOT NULL,"
         "PRIMARY KEY(`ID`)"
-    ") WITHOUT ROWID;\n"
+    ") WITHOUT ROWID;\n";
 
+const std::vector<const char*> _hard_db_sql = {
+    /** START MIGRATION 0 **/
     "CREATE TABLE `SERVER_LICENSES` ("
         "`KEY_ID` TEXT NOT NULL UNIQUE,"
         "`SECRET` TEXT NOT NULL UNIQUE,"

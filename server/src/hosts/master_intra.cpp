@@ -1,6 +1,6 @@
 #include "master.hpp"
 
-sosc::MasterIntra::MasterIntra(IntraClient client) {
+sosc::MasterIntra::MasterIntra(const IntraClient& client) {
     this->sock = client;
 }
 

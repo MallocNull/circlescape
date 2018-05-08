@@ -53,7 +53,7 @@ bool sosc::net::IpAddress::ParseIPv4Parts
         std::string part = str::trim(parts[i]);
         int part_int;
         
-        if(part == "")
+        if(part.empty())
             return false;
         else if(part == "*") {
             part_int = 0;
@@ -77,7 +77,7 @@ bool sosc::net::IpAddress::ParseIPv4Parts
 int sosc::net::IpAddress::ParseIPv6Part
     (const std::string& addr_part, bool from_start) 
 {
-    if(str::trim(addr_part) == "")
+    if(str::trim(addr_part).empty())
         return 0;
     
     auto parts = str::split(addr_part, ':');
