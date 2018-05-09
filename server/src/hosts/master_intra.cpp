@@ -14,15 +14,7 @@ bool sosc::MasterIntra::Process() {
 
     switch(pck.GetId()) {
         case InitAttempt:
-            if(!pck.Check(1, key.key_size_bytes))
-                return this->Close(Packet(EncryptionError, { "\x01" }));
-
-            Packet response;
-            if(!this->key.ParseRequest(pck, &response, KeyExchange))
-                return this->Close(Packet(EncryptionError, { "\x02" }));
-
-            this->sock.Send(response);
-            break;
+            return this->InitAttempt(pck);
         case Authentication:
 
             break;
@@ -30,11 +22,21 @@ bool sosc::MasterIntra::Process() {
 
             break;
         default:
-            this->Close();
-            return false;
+            return this->Close();
     }
 
     return true;
+}
+
+bool sosc::MasterIntra::InitAttempt(sosc::Packet &pck) {
+    if(!pck.Check(1, key.key_size_bytes))
+        return this->Close(Packet(EncryptionError, { "\x01" }));
+
+    Packet response;
+    if(!this->key.ParseRequest(pck, &response, KeyExchange))
+        return this->Close(Packet(EncryptionError, { "\x02" }));
+
+    this->sock.Send(response);
 }
 
 bool sosc::MasterIntra::Close() {

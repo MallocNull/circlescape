@@ -34,7 +34,7 @@ public:
     }
     
     int Parse(const std::string& data, std::string* extra = nullptr);
-    bool Check(int region_count, ...);
+    bool Check(int region_count, ...) const;
     
     inline void SetId(uint8_t id) {
         this->id = id;

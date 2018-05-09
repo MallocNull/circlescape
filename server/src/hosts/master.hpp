@@ -39,6 +39,8 @@ public:
     bool Close();
     bool Close(const Packet& message);
 private:
+    bool InitAttempt(Packet& pck);
+
     enum kSlaveToMasterId {
         InitAttempt = 1,
         Authentication,

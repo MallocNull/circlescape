@@ -127,7 +127,7 @@ int sosc::Packet::Parse(const std::string& data, std::string* extra) {
     return PCK_OK;
 }
 
-bool sosc::Packet::Check(int region_count, ...) {
+bool sosc::Packet::Check(int region_count, ...) const {
     if(region_count > 0xFF)
         return false;
     
