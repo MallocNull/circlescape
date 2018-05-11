@@ -8,6 +8,8 @@
 #include "../crypto/keyex.hpp"
 #include "../crypto/cipher.hpp"
 
+#include "../db/database.hpp"
+
 namespace sosc {
 /** MASTER -> CLIENT **/
     
@@ -59,6 +61,11 @@ private:
     IntraClient sock;
     cgc::KeyExchange key;
     cgc::Cipher cipher;
+
+    bool authed;
+    int auth_attempts;
+    const int MAX_AUTH_ATTEMPTS = 3;
+    std::string license;
 };
 
 class MasterIntraPool : public Pool<MasterIntra> {

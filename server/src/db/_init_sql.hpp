@@ -24,8 +24,8 @@ const std::vector<const char*> _hard_db_sql = {
     /** START MIGRATION 0 **/
     "CREATE TABLE `SERVER_LICENSES` ("
         "`KEY_ID` TEXT NOT NULL UNIQUE,"
-        "`SECRET` TEXT NOT NULL UNIQUE,"
-        "`ALLOWANCE` INTEGER NOT NULL"
+        "`SECRET` BLOB NOT NULL UNIQUE,"
+        "`ALLOWANCE` INTEGER NOT NULL DEFAULT 0"
     ");\n"
 
     "CREATE TABLE `USERS` ("

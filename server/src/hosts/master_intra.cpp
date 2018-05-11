@@ -1,7 +1,10 @@
 #include "master.hpp"
+#include "../db/database.hpp"
 
 sosc::MasterIntra::MasterIntra(const IntraClient& client) {
     this->sock = client;
+    this->authed = false;
+    this->auth_attempts = 0;
 }
 
 bool sosc::MasterIntra::Process() {
@@ -36,7 +39,20 @@ bool sosc::MasterIntra::InitAttempt(sosc::Packet &pck) {
 }
 
 bool sosc::MasterIntra::Authentication(sosc::Packet &pck) {
+    if(this->authed)
+        return true;
 
+    if(!pck.Check(2, PCK_ANY, 512))
+        return this->Close(Packet(kNegativeAck, { "\x01" }));
+
+    db::Query  = db::Query::ScalarInt32(
+        "SELECT COUNT(*) FROM SERVER_LICENSES "
+        "WHERE KEY_ID = ? AND SECRET = ?"
+    );
+
+    if(isValid > 0) {
+
+    }
 }
 
 bool sosc::MasterIntra::StatusUpdate(sosc::Packet &pck) {

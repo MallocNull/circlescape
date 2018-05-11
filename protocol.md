@@ -102,8 +102,8 @@ Communication between the master server and clients will be done over a WebSocke
  </thead>
  <tr>
   <td>1</td>
-  <td>Error Message</td>
-  <td>String</td>
+  <td>Error Code</td>
+  <td>Packed Unsigned Short</td>
  </tr>
 </table>
 
@@ -145,8 +145,8 @@ Communication between the master server and clients will be done over a WebSocke
  </tr>
  <tr>
   <td>2</td>
-  <td>Error Message</td>
-  <td>String</td>
+  <td>Error Code</td>
+  <td>Packed Unsigned Short</td>
  </tr>
 </table>
 
@@ -466,10 +466,15 @@ TODO: MAKE THIS SECTION NOT LOOK LIKE SHIT
 
 ### Master / Slave
 
-#### S -> M (ID 1)
+#### M -> S (ID 2)
 0x01: KEY SIZE WAS INCORRECT
 
 0x02: COULD NOT PARSE KEY
+
+#### M -> S (ID 4)
+0x01: LICENSE DATA INCORRECT
+
+0x02: LICENSE LIMIT REACHED
 
 ### Master / Client
 
