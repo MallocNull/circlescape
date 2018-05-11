@@ -1,5 +1,5 @@
 #include "database.hpp"
-#include "_init_sql.cpp"
+#include "_init_sql.hpp"
 
 static struct {
     bool ready = false;

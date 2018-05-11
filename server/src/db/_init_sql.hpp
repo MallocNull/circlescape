@@ -1,3 +1,6 @@
+#ifndef SOSC_INIT_SQL_DEF
+#define SOSC_INIT_SQL_DEF
+
 #include <vector>
 
 const char* _mem_db_sql =
@@ -42,3 +45,5 @@ const std::vector<const char*> _hard_db_sql = {
     ") WITHOUT ROWID;\n",
     /** END MIGRATION 0 **/
 };
+
+#endif

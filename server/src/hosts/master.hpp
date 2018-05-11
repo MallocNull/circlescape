@@ -33,25 +33,27 @@ protected:
 
 class MasterIntra {
 public:
-    MasterIntra(const IntraClient& client);
+    explicit MasterIntra(const IntraClient& client);
     bool Process();
 
     bool Close();
     bool Close(const Packet& message);
 private:
     bool InitAttempt(Packet& pck);
+    bool Authentication(Packet& pck);
+    bool StatusUpdate(Packet& pck);
 
-    enum kSlaveToMasterId {
-        InitAttempt = 1,
-        Authentication,
-        StatusUpdate
+    enum SlaveToMasterId {
+        kInitAttempt = 1,
+        kAuthentication,
+        kStatusUpdate
     };
 
-    enum kMasterToSlaveId {
-        KeyExchange = 1,
-        EncryptionError,
-        PositiveAck,
-        NegativeAck
+    enum MasterToSlaveId {
+        kKeyExchange = 1,
+        kEncryptionError,
+        kPositiveAck,
+        kNegativeAck
     };
 
     IntraClient sock;

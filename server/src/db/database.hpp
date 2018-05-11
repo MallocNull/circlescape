@@ -7,9 +7,6 @@
 #include <vector>
 #include <string>
 
-#define DB_COL_TEXT 1
-#define DB_COL_BLOB 2
-
 #define DB_USE_HARD   1
 #define DB_USE_MEMORY 2
 
