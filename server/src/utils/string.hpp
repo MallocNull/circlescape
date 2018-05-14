@@ -10,6 +10,10 @@
 #undef TOSTR
 #define TOSTR(X) std::to_string(X)
 
+#undef bytestr
+#undef BYTESTR
+#define BYTESTR(X) std::string(1, X)
+
 namespace sosc {
 namespace str {    
 std::string  trim (std::string  str);

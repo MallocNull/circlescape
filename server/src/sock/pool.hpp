@@ -40,7 +40,7 @@ public:
         return this->is_open;
     }
     
-    void Stop();
+    virtual void Stop();
 protected:
     virtual bool ProcessClient(T& client) = 0;
 private:

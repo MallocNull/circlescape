@@ -1,5 +1,43 @@
 #include "master.hpp"
 #include "../db/database.hpp"
+#include <mutex>
+
+static struct {
+    std::mutex license_check_mtx;
+} _ctx;
+
+/** MASTERINTRAPOOL CODE **/
+
+sosc::MasterIntraPool::MasterIntraPool() {
+#define QRY_LICENSE_CHECK 0
+    this->queries.push_back(new db::Query(
+        "SELECT COUNT(*) FROM SERVER_LICENSES "
+        "WHERE KEY_ID = ? AND SECRET = ?"
+    ));
+
+#define QRY_LICENSE_LIMIT 1
+    this->queries.push_back(new db::Query(
+        "SELECT ALLOWANCE FROM SERVER_LICENSES WHERE KEY_ID = ?"
+    ));
+
+#define QRY_LICENSE_ACTIVE_COUNT 2
+    this->queries.push_back(new db::Query(
+        "SELECT COUNT(*) FROM SERVER_LIST WHERE LICENSE = ?"
+    , DB_USE_MEMORY));
+
+#define QRY_LICENSE_
+}
+
+void sosc::MasterIntraPool::Stop() {
+    Pool<MasterIntra>::Stop();
+
+    for(auto& query : this->queries) {
+        query->Close();
+        delete query;
+    }
+}
+
+/** MASTERINTRA CODE **/
 
 sosc::MasterIntra::MasterIntra(const IntraClient& client) {
     this->sock = client;
@@ -7,7 +45,7 @@ sosc::MasterIntra::MasterIntra(const IntraClient& client) {
     this->auth_attempts = 0;
 }
 
-bool sosc::MasterIntra::Process() {
+bool sosc::MasterIntra::Process(const db::QueryList* queries) {
     Packet pck;
     int status = this->sock.Receive(&pck);
     if(status == PCK_ERR)
@@ -15,6 +53,7 @@ bool sosc::MasterIntra::Process() {
     else if(status == PCK_MORE)
         return true;
 
+    this->queries = queries;
     switch(pck.GetId()) {
         case kInitAttempt:
             return this->InitAttempt(pck);
@@ -27,7 +66,8 @@ bool sosc::MasterIntra::Process() {
     }
 }
 
-bool sosc::MasterIntra::InitAttempt(sosc::Packet &pck) {
+bool sosc::MasterIntra::InitAttempt(sosc::Packet &pck)
+{
     if(!pck.Check(1, key.key_size_bytes))
         return this->Close(Packet(kEncryptionError, { "\x01" }));
 
@@ -38,24 +78,62 @@ bool sosc::MasterIntra::InitAttempt(sosc::Packet &pck) {
     this->sock.Send(response);
 }
 
-bool sosc::MasterIntra::Authentication(sosc::Packet &pck) {
+bool sosc::MasterIntra::Authentication(sosc::Packet &pck)
+{
     if(this->authed)
         return true;
 
-    if(!pck.Check(2, PCK_ANY, 512))
-        return this->Close(Packet(kNegativeAck, { "\x01" }));
+    std::string packetId = BYTESTR(kAuthentication);
+    if(!pck.Check(3, PCK_ANY, PCK_ANY, 512))
+        return this->Close();
 
-    db::Query  = db::Query::ScalarInt32(
-        "SELECT COUNT(*) FROM SERVER_LICENSES "
-        "WHERE KEY_ID = ? AND SECRET = ?"
-    );
+    db::Query* query = this->queries->at(QRY_LICENSE_CHECK);
+    query->Reset();
+    query->BindText(pck[1], 0);
+    query->BindBlob(pck[2], 1);
+    if(query->ScalarInt32() == 0)
+        return AuthenticationFailure(packetId, 2);
 
-    if(isValid > 0) {
+    _ctx.license_check_mtx.lock();
 
+    int limit;
+    query = this->queries->at(QRY_LICENSE_LIMIT);
+    query->Reset();
+    query->BindText(pck[1], 0);
+    if((limit = query->ScalarInt32()) != 0) {
+        query = this->queries->at(QRY_LICENSE_ACTIVE_COUNT);
+        query->Reset();
+        query->BindText(pck[1], 0);
+        if(query->ScalarInt32() < limit) {
+            _ctx.license_check_mtx.unlock();
+            return AuthenticationFailure(packetId, 3);
+        }
+    }
+
+
+    _ctx.license_check_mtx.unlock();
+
+    this->authed = true;
+    return true;
+}
+
+bool sosc::MasterIntra::AuthenticationFailure
+    (const std::string& packetId, uint16_t errorCode)
+{
+    if(++this->auth_attempts < MAX_AUTH_ATTEMPTS) {
+        this->sock.Send(
+            Packet(kNegativeAck, { packetId , net::htonv(errorCode) })
+        );
+        return true;
+    } else {
+        return this->Close(
+            Packet(kNegativeAck, { packetId, net::htonv<uint16_t>(1) })
+        );
     }
 }
 
-bool sosc::MasterIntra::StatusUpdate(sosc::Packet &pck) {
+bool sosc::MasterIntra::StatusUpdate(sosc::Packet &pck)
+{
 
 }
 

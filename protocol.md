@@ -185,8 +185,18 @@ Communication between the master server and clients will be done over a WebSocke
  </thead>
  <tr>
   <td class="center">1</td>
-  <td>Client Key</td>
-  <td>Big Int</td>
+  <td>Server Name</td>
+  <td>Text</td>
+ </tr>
+ <tr>
+  <td class="center">2</td>
+  <td>License</td>
+  <td>Text</td>
+ </tr>
+ <tr>
+  <td class="center">3</td>
+  <td>Secret</td>
+  <td>Blob (512b)</td>
  </tr>
 </table>
 
@@ -472,9 +482,11 @@ TODO: MAKE THIS SECTION NOT LOOK LIKE SHIT
 0x02: COULD NOT PARSE KEY
 
 #### M -> S (ID 4)
-0x01: LICENSE DATA INCORRECT
+0x01: MAX AUTH ATTEMPTS REACHED
 
-0x02: LICENSE LIMIT REACHED
+0x02: LICENSE DATA INCORRECT
+
+0x03: LICENSE LIMIT REACHED
 
 ### Master / Client
 
