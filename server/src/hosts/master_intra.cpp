@@ -11,21 +11,51 @@ static struct {
 sosc::MasterIntraPool::MasterIntraPool() {
 #define QRY_LICENSE_CHECK 0
     this->queries.push_back(new db::Query(
-        "SELECT COUNT(*) FROM SERVER_LICENSES "
-        "WHERE KEY_ID = ? AND SECRET = ?"
+        "SELECT COUNT(*) FROM `SERVER_LICENSES` "
+        "WHERE `KEY_ID` = ? AND `SECRET` = ?"
     ));
 
 #define QRY_LICENSE_LIMIT 1
     this->queries.push_back(new db::Query(
-        "SELECT ALLOWANCE FROM SERVER_LICENSES WHERE KEY_ID = ?"
+        "SELECT `ALLOWANCE` FROM `SERVER_LICENSES` WHERE `KEY_ID` = ?"
     ));
 
 #define QRY_LICENSE_ACTIVE_COUNT 2
     this->queries.push_back(new db::Query(
-        "SELECT COUNT(*) FROM SERVER_LIST WHERE LICENSE = ?"
+        "SELECT COUNT(*) FROM `SERVER_LIST` WHERE `LICENSE` = ?"
     , DB_USE_MEMORY));
 
-#define QRY_LICENSE_
+#define QRY_LICENSE_ADD 3
+    this->queries.push_back(new db::Query(
+        "INSERT OR IGNORE INTO `SERVER_LICENSES` "
+        "(`KEY_ID`, `SECRET`, `ALLOWANCE`) "
+        "VALUES (?, RANDOMBLOB(512), ?)"
+    ));
+
+#define QRY_LICENSE_REMOVE 4
+    this->queries.push_back(new db::Query(
+        "DELETE FROM `SERVER_LICENSES` "
+        "WHERE `KEY_ID` = ?"
+    ));
+
+#define QRY_LICENSE_MODIFY 5
+    this->queries.push_back(new db::Query(
+        "UPDATE `SERVER_LICENSES` "
+        "SET `ALLOWANCE` = ? WHERE `KEY_ID` = ?"
+    ));
+
+#define QRY_SERVER_LIST_ADD 6
+    this->queries.push_back(new db::Query(
+        "INSERT INTO `SERVER_LIST` "
+        "(`NAME`, `LICENSE`, `IP_ADDR`, `PORT`) "
+        "VALUES (?, ?, ?, ?)"
+    , DB_USE_MEMORY));
+
+#define QRY_SERVER_LIST_DELETE 7
+    this->queries.push_back(new db::Query(
+        "DELETE FROM `SERVER_LIST` WHERE `ID` = ?"
+    , DB_USE_MEMORY));
+
 }
 
 void sosc::MasterIntraPool::Stop() {
@@ -66,8 +96,7 @@ bool sosc::MasterIntra::Process(const db::QueryList* queries) {
     }
 }
 
-bool sosc::MasterIntra::InitAttempt(sosc::Packet &pck)
-{
+bool sosc::MasterIntra::InitAttempt(sosc::Packet &pck) {
     if(!pck.Check(1, key.key_size_bytes))
         return this->Close(Packet(kEncryptionError, { "\x01" }));
 
@@ -78,8 +107,7 @@ bool sosc::MasterIntra::InitAttempt(sosc::Packet &pck)
     this->sock.Send(response);
 }
 
-bool sosc::MasterIntra::Authentication(sosc::Packet &pck)
-{
+bool sosc::MasterIntra::Authentication(sosc::Packet &pck) {
     if(this->authed)
         return true;
 
@@ -110,7 +138,6 @@ bool sosc::MasterIntra::Authentication(sosc::Packet &pck)
         }
     }
 
-
     _ctx.license_check_mtx.unlock();
 
     this->authed = true;
@@ -132,8 +159,7 @@ bool sosc::MasterIntra::AuthenticationFailure
     }
 }
 
-bool sosc::MasterIntra::StatusUpdate(sosc::Packet &pck)
-{
+bool sosc::MasterIntra::StatusUpdate(sosc::Packet &pck) {
 
 }
 
