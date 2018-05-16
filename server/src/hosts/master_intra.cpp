@@ -138,6 +138,11 @@ bool sosc::MasterIntra::Authentication(sosc::Packet &pck) {
         }
     }
 
+    query = this->queries->at(QRY_SERVER_LIST_ADD);
+    query->Reset();
+    query->BindText(pck[0], pck[1], );
+    query->NonQuery();
+
     _ctx.license_check_mtx.unlock();
 
     this->authed = true;
