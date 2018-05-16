@@ -190,11 +190,16 @@ Communication between the master server and clients will be done over a WebSocke
  </tr>
  <tr>
   <td class="center">2</td>
+  <td>Port</td>
+  <td>Packed Unsigned Short</td>
+ </tr>
+ <tr>
+  <td class="center">3</td>
   <td>License</td>
   <td>Text</td>
  </tr>
  <tr>
-  <td class="center">3</td>
+  <td class="center">4</td>
   <td>Secret</td>
   <td>Blob (512b)</td>
  </tr>
@@ -219,7 +224,7 @@ Communication between the master server and clients will be done over a WebSocke
  </tr>
  <tr>
   <td class="center">2</td>
-  <td>Port</td>
+  <td>Max Users</td>
   <td>Packed Unsigned Short</td>
  </tr>
 </table>
@@ -477,16 +482,18 @@ TODO: MAKE THIS SECTION NOT LOOK LIKE SHIT
 ### Master / Slave
 
 #### M -> S (ID 2)
-100: KEY SIZE WAS INCORRECT
+0x100: KEY SIZE WAS INCORRECT
 
-101: COULD NOT PARSE KEY
+0x101: COULD NOT PARSE KEY
 
 #### M -> S (ID 4)
-100: MAX AUTH ATTEMPTS REACHED
+0x100: MAX AUTH ATTEMPTS REACHED
 
-101: LICENSE DATA INCORRECT
+0x101: LICENSE DATA INCORRECT
 
-102: LICENSE LIMIT REACHED
+0x102: LICENSE LIMIT REACHED
+
+0x200: NOT AUTHORIZED TO PERFORM ACTION
 
 ### Master / Client
 

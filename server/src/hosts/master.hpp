@@ -50,6 +50,8 @@ private:
     bool AuthenticationFailure
         (const std::string& packetId, uint16_t errorCode);
 
+    bool NotAuthorized(const std::string& packetId);
+
     enum SlaveToMasterId {
         kInitAttempt = 1,
         kAuthentication,

@@ -98,11 +98,13 @@ bool sosc::MasterIntra::Process(const db::QueryList* queries) {
 
 bool sosc::MasterIntra::InitAttempt(sosc::Packet &pck) {
     if(!pck.Check(1, key.key_size_bytes))
-        return this->Close(Packet(kEncryptionError, { "\x01" }));
+        return this->Close(
+            Packet(kEncryptionError, { net::htonv<uint16_t>(0x100) }));
 
     Packet response;
     if(!this->key.ParseRequest(pck, &response, kKeyExchange))
-        return this->Close(Packet(kEncryptionError, { "\x02" }));
+        return this->Close(
+            Packet(kEncryptionError, { net::htonv<uint16_t>(0x101) }));
 
     this->sock.Send(response);
 }
@@ -112,39 +114,43 @@ bool sosc::MasterIntra::Authentication(sosc::Packet &pck) {
         return true;
 
     std::string packetId = BYTESTR(kAuthentication);
-    if(!pck.Check(3, PCK_ANY, PCK_ANY, 512))
+    if(!pck.Check(4, PCK_ANY, 2, PCK_ANY, 512))
         return this->Close();
 
     db::Query* query = this->queries->at(QRY_LICENSE_CHECK);
     query->Reset();
-    query->BindText(pck[1], 0);
-    query->BindBlob(pck[2], 1);
+    query->BindText(pck[2], 0);
+    query->BindBlob(pck[3], 1);
     if(query->ScalarInt32() == 0)
-        return AuthenticationFailure(packetId, 2);
+        return AuthenticationFailure(packetId, 0x101);
 
     _ctx.license_check_mtx.lock();
 
     int limit;
     query = this->queries->at(QRY_LICENSE_LIMIT);
     query->Reset();
-    query->BindText(pck[1], 0);
+    query->BindText(pck[2], 0);
     if((limit = query->ScalarInt32()) != 0) {
         query = this->queries->at(QRY_LICENSE_ACTIVE_COUNT);
         query->Reset();
-        query->BindText(pck[1], 0);
+        query->BindText(pck[2], 0);
         if(query->ScalarInt32() < limit) {
             _ctx.license_check_mtx.unlock();
-            return AuthenticationFailure(packetId, 3);
+            return AuthenticationFailure(packetId, 0x102);
         }
     }
 
     query = this->queries->at(QRY_SERVER_LIST_ADD);
     query->Reset();
-    query->BindText(pck[0], pck[1], );
+    query->BindText(pck[0], 0);
+    query->BindText(pck[2], 1);
+    query->BindText(this->sock.GetIpAddress(), 2);
+    query->BindInt32(net::ntohv<uint16_t>(pck[1]), 3);
     query->NonQuery();
 
     _ctx.license_check_mtx.unlock();
 
+    this->license = pck[2];
     this->authed = true;
     return true;
 }
@@ -159,13 +165,26 @@ bool sosc::MasterIntra::AuthenticationFailure
         return true;
     } else {
         return this->Close(
-            Packet(kNegativeAck, { packetId, net::htonv<uint16_t>(1) })
+            Packet(kNegativeAck, { packetId, net::htonv<uint16_t>(0x100) })
         );
     }
 }
 
-bool sosc::MasterIntra::StatusUpdate(sosc::Packet &pck) {
+bool sosc::MasterIntra::NotAuthorized(const std::string &packetId) {
+    return this->Close(
+        Packet(kNegativeAck, { packetId, net::htonv<uint16_t>(0x200) })
+    );
+}
 
+bool sosc::MasterIntra::StatusUpdate(sosc::Packet &pck) {
+    std::string packetId = BYTESTR(kStatusUpdate);
+    if(!this->authed)
+        return this->NotAuthorized(packetId);
+
+    if(!pck.Check(2, 2, 2))
+        return this->Close();
+
+    
 }
 
 bool sosc::MasterIntra::Close() {

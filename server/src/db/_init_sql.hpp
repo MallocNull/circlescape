@@ -9,7 +9,13 @@ const char* _mem_db_sql =
         "`NAME` TEXT NOT NULL,"
         "`LICENSE` TEXT NOT NULL,"
         "`IP_ADDR` TEXT NOT NULL,"
-        "`PORT` INTEGER NOT NULL"
+        "`PORT` INTEGER NOT NULL,"
+        "`USERS` INTEGER NOT NULL DEFAULT 0,"
+        "`MAX_USERS` INTEGER NOT NULL DEFAULT 0"
+    ");\n"
+
+    "CREATE UNIQUE INDEX `UIX_SERVER_LICENSES` ON `SERVER_LICENSES` ("
+        "`KEY_ID`, `SECRET`"
     ");\n";
 
 const char* _hard_db_init_migration_sql =
