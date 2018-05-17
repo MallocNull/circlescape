@@ -184,7 +184,7 @@ bool sosc::MasterIntra::StatusUpdate(sosc::Packet &pck) {
     if(!pck.Check(2, 2, 2))
         return this->Close();
 
-    
+
 }
 
 bool sosc::MasterIntra::Close() {
