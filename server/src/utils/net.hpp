@@ -56,7 +56,6 @@ public:
     bool Parse(const std::string& addr);
     
     operator std::string () const;
-    operator const char* () const;
     std::string ToString(bool force_ipv6 = false) const;
     
     bool operator == (const IpAddress& rhs) const;
@@ -112,7 +111,7 @@ T ntohv(std::string net_var, size_t offset = 0) {
         int i = is_big_endian()
             ? b : byte_count - b - 1;
             
-        ((uint8_t*)&host_var)[i] = net_var[offset + b];
+        ((uint8_t*)&host_var)[i] = (uint8_t)net_var[offset + b];
     }
     
     return host_var;

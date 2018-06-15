@@ -9,11 +9,10 @@ static void _swap(T& a, T& b) {
 
 sosc::cgc::Cipher::Cipher(const KeyExchange& key) {
     std::string key_raw 
-        = key.GetPrivateKey().ToRawString(key.key_size_bytes);
-        
-    this->state = std::string(256, 0);
+        = key.GetPrivateKey().ToRawString((uint64_t)key.key_size_bytes);
+
     for(int i = 0; i < this->state_size; ++i)
-        this->state[i] = i;
+        this->state[i] = (uint8_t)i;
     
     int i = 0, j = 0;
     for(i = 0; i < this->state_size; ++i)
@@ -22,9 +21,11 @@ sosc::cgc::Cipher::Cipher(const KeyExchange& key) {
     GenerateStream(1024);
 }
 
-void sosc::cgc::Cipher::Parse(std::string* data) {
-    std::string stream = this->GenerateStream(data->length());
-    for(std::string::size_type i = 0; i < data->length(); ++i)
+void sosc::cgc::Cipher::Parse
+    (std::string* data, std::string::size_type offset)
+{
+    std::string stream = this->GenerateStream(data->length() - offset);
+    for(std::string::size_type i = offset; i < data->length(); ++i)
         (*data)[i] ^= stream[i];
 }
 

@@ -8,15 +8,15 @@ namespace sosc {
 namespace cgc {
 class Cipher {
 public:
-    Cipher() {};
-    Cipher(const KeyExchange& key);
+    Cipher() = default;
+    explicit Cipher(const KeyExchange& key);
     
-    void Parse(std::string* data);
+    void Parse(std::string* data, std::string::size_type offset = 0);
 private:
     std::string GenerateStream(uint64_t length);
     
     const int state_size = 256;
-    std::string state;
+    uint8_t state[state_size];
 };
 }}
 

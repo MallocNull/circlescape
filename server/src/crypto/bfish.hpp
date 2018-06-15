@@ -9,7 +9,7 @@ namespace sosc {
 namespace cgc {
 class Blowfish {
 public:
-    Blowfish(const std::string& key);
+    explicit Blowfish(const std::string& key);
     
     std::string Encrypt(std::string data) const;
     std::string Decrypt(std::string data) const;
