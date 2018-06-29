@@ -96,7 +96,7 @@ bool sosc::MasterIntra::Process(const db::QueryList* queries) {
     }
 }
 
-bool sosc::MasterIntra::InitAttempt(sosc::Packet &pck) {
+bool sosc::MasterIntra::InitAttempt(sosc::Packet& pck) {
     if(!pck.Check(1, key.key_size_bytes))
         return this->Close(
             Packet(kEncryptionError, { net::htonv<uint16_t>(0x100) }));
@@ -109,7 +109,7 @@ bool sosc::MasterIntra::InitAttempt(sosc::Packet &pck) {
     this->sock.Send(response);
 }
 
-bool sosc::MasterIntra::Authentication(sosc::Packet &pck) {
+bool sosc::MasterIntra::Authentication(sosc::Packet& pck) {
     if(this->authed)
         return true;
 
@@ -170,7 +170,7 @@ bool sosc::MasterIntra::AuthenticationFailure
     }
 }
 
-bool sosc::MasterIntra::NotAuthorized(const std::string &packetId) {
+bool sosc::MasterIntra::NotAuthorized(const std::string& packetId) {
     return this->Close(
         Packet(kNegativeAck, { packetId, net::htonv<uint16_t>(0x200) })
     );
@@ -185,6 +185,7 @@ bool sosc::MasterIntra::StatusUpdate(sosc::Packet &pck) {
         return this->Close();
 
 
+    return true;
 }
 
 bool sosc::MasterIntra::Close() {
@@ -192,7 +193,7 @@ bool sosc::MasterIntra::Close() {
     return false;
 }
 
-bool sosc::MasterIntra::Close(const Packet &message) {
+bool sosc::MasterIntra::Close(const Packet& message) {
     this->sock.Send(message);
     this->Close();
 }

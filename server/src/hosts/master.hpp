@@ -74,6 +74,7 @@ private:
     const int MAX_AUTH_ATTEMPTS = 3;
     std::string license;
 
+
     const db::QueryList* queries;
 };
 
