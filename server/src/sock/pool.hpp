@@ -49,7 +49,7 @@ private:
     
     class Stack {
     public:
-        Stack(Pool<T>* pool);
+        explicit Stack(Pool<T>* pool);
         Stack(const Stack&) = delete;
         
         void Start();

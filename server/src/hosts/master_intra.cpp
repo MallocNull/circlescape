@@ -106,6 +106,7 @@ bool sosc::MasterIntra::InitAttempt(sosc::Packet& pck) {
         return this->Close(
             Packet(kEncryptionError, { net::htonv<uint16_t>(0x101) }));
 
+
     this->sock.Send(response);
 }
 
@@ -150,6 +151,7 @@ bool sosc::MasterIntra::Authentication(sosc::Packet& pck) {
 
     _ctx.license_check_mtx.unlock();
 
+    this->sock.Send(Packet(kPositiveAck, { packetId }));
     this->license = pck[2];
     this->authed = true;
     return true;

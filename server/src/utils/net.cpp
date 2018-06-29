@@ -88,7 +88,7 @@ int sosc::net::IpAddress::ParseIPv6Part
         addrpart_t* ptr = 
             &(this->parts[from_start ? i : 8 - parts.size() + i]);
         std::string part = str::trim(parts[i]);
-        int part_len = part.length();
+        auto part_len = (int)part.length();
         if(part_len > 4 || part_len == 0)
             return -1;
         
@@ -98,30 +98,26 @@ int sosc::net::IpAddress::ParseIPv6Part
             continue;
         }
         
-        for(int i = 0; i < part_len; ++i) {
-            if(part[i] == '*') {
-                part[i] = '0';
-                ptr->second |= 1 << (part_len - i - 1);
-            } else if(!(part[i] >= 'a' && part[i] <= 'f')
-                   && !(part[i] >= 'A' && part[i] <= 'F')
-                   && !(part[i] >= '0' && part[i] <= '9'))
+        for(int j = 0; j < part_len; ++j) {
+            if(part[j] == '*') {
+                part[j] = '0';
+                ptr->second |= 1 << (part_len - j - 1);
+            } else if(!(part[j] >= 'a' && part[j] <= 'f')
+                   && !(part[j] >= 'A' && part[j] <= 'F')
+                   && !(part[j] >= '0' && part[j] <= '9'))
             {
                 return -1;
             }
         }
         
-        ptr->first = std::stoi(part, NULL, 16);
+        ptr->first = (uint16_t)std::stoi(part, nullptr, 16);
     }
     
-    return parts.size();
+    return (int)parts.size();
 }
 
 sosc::net::IpAddress::operator std::string () const {
     return this->ToString();
-}
-
-sosc::net::IpAddress::operator const char* () const {
-    return this->ToString().c_str();
 }
 
 std::string sosc::net::IpAddress::ToString(bool force_ipv6) const {
