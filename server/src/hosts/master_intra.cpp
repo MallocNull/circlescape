@@ -15,43 +15,54 @@ sosc::MasterIntraPool::MasterIntraPool() {
         "WHERE `KEY_ID` = ? AND `SECRET` = ?"
     ));
 
-#define QRY_LICENSE_LIMIT 1
+#define QRY_LICENSE_VERIFY 1
+    this->queries.push_back(new db::Query(
+            "SELECT COUNT(*) FROM `SERVER_LICENSES` "
+            "WHERE `KEY_ID` = ?"
+        ));
+
+#define QRY_LICENSE_LIMIT 2
     this->queries.push_back(new db::Query(
         "SELECT `ALLOWANCE` FROM `SERVER_LICENSES` WHERE `KEY_ID` = ?"
     ));
 
-#define QRY_LICENSE_ACTIVE_COUNT 2
+#define QRY_LICENSE_ACTIVE_COUNT 3
     this->queries.push_back(new db::Query(
         "SELECT COUNT(*) FROM `SERVER_LIST` WHERE `LICENSE` = ?"
     , DB_USE_MEMORY));
 
-#define QRY_LICENSE_ADD 3
+#define QRY_LICENSE_ADD 4
     this->queries.push_back(new db::Query(
         "INSERT OR IGNORE INTO `SERVER_LICENSES` "
         "(`KEY_ID`, `SECRET`, `ALLOWANCE`) "
         "VALUES (?, RANDOMBLOB(512), ?)"
     ));
 
-#define QRY_LICENSE_REMOVE 4
+#define QRY_LICENSE_REMOVE 5
     this->queries.push_back(new db::Query(
         "DELETE FROM `SERVER_LICENSES` "
         "WHERE `KEY_ID` = ?"
     ));
 
-#define QRY_LICENSE_MODIFY 5
+#define QRY_LICENSE_MODIFY 6
     this->queries.push_back(new db::Query(
         "UPDATE `SERVER_LICENSES` "
         "SET `ALLOWANCE` = ? WHERE `KEY_ID` = ?"
     ));
 
-#define QRY_SERVER_LIST_ADD 6
+#define QRY_SERVER_LIST_ADD 7
     this->queries.push_back(new db::Query(
         "INSERT INTO `SERVER_LIST` "
         "(`NAME`, `LICENSE`, `IP_ADDR`, `PORT`) "
         "VALUES (?, ?, ?, ?)"
     , DB_USE_MEMORY));
 
-#define QRY_SERVER_LIST_DELETE 7
+#define QRY_SERVER_LIST_GET_ID 8
+    this->queries.push_back(new db::Query(
+        "SELECT MAX(`ID`) FROM `SERVER_LIST`"
+    , DB_USE_MEMORY));
+
+#define QRY_SERVER_LIST_DELETE 9
     this->queries.push_back(new db::Query(
         "DELETE FROM `SERVER_LIST` WHERE `ID` = ?"
     , DB_USE_MEMORY));
@@ -106,8 +117,9 @@ bool sosc::MasterIntra::InitAttempt(sosc::Packet& pck) {
         return this->Close(
             Packet(kEncryptionError, { net::htonv<uint16_t>(0x101) }));
 
-
+    this->cipher = cgc::Cipher(this->key);
     this->sock.Send(response);
+    this->sock.SetCipher(&this->cipher);
 }
 
 bool sosc::MasterIntra::Authentication(sosc::Packet& pck) {
@@ -149,6 +161,10 @@ bool sosc::MasterIntra::Authentication(sosc::Packet& pck) {
     query->BindInt32(net::ntohv<uint16_t>(pck[1]), 3);
     query->NonQuery();
 
+    query = this->queries->at(QRY_SERVER_LIST_GET_ID);
+    query->Reset();
+    this->server_id = query->ScalarInt32();
+
     _ctx.license_check_mtx.unlock();
 
     this->sock.Send(Packet(kPositiveAck, { packetId }));
@@ -185,6 +201,7 @@ bool sosc::MasterIntra::StatusUpdate(sosc::Packet &pck) {
 
     if(!pck.Check(2, 2, 2))
         return this->Close();
+
 
 
     return true;

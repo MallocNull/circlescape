@@ -72,8 +72,9 @@ private:
     bool authed;
     int auth_attempts;
     const int MAX_AUTH_ATTEMPTS = 3;
-    std::string license;
 
+    int32_t server_id;
+    std::string license;
 
     const db::QueryList* queries;
 };
