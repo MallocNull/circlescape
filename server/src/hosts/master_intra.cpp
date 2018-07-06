@@ -62,11 +62,17 @@ sosc::MasterIntraPool::MasterIntraPool() {
         "SELECT MAX(`ID`) FROM `SERVER_LIST`"
     , DB_USE_MEMORY));
 
-#define QRY_SERVER_LIST_DELETE 9
+#define QRY_SERVER_LIST_MODIFY 9
+    this->queries.push_back(new db::Query(
+        "UPDATE `SERVER_LIST` SET "
+        "`USERS` = ?, `MAX_USERS` = ? "
+        "WHERE ID = ?"
+    , DB_USE_MEMORY));
+
+#define QRY_SERVER_LIST_DELETE 10
     this->queries.push_back(new db::Query(
         "DELETE FROM `SERVER_LIST` WHERE `ID` = ?"
     , DB_USE_MEMORY));
-
 }
 
 void sosc::MasterIntraPool::Stop() {
@@ -199,11 +205,21 @@ bool sosc::MasterIntra::StatusUpdate(sosc::Packet &pck) {
     if(!this->authed)
         return this->NotAuthorized(packetId);
 
+    db::Query* query = this->queries->at(QRY_LICENSE_VERIFY);
+    query->Reset();
+    query->BindText(this->license, 0);
+    if(query->ScalarInt32() == 0)
+        return this->NotAuthorized(packetId);
+
     if(!pck.Check(2, 2, 2))
         return this->Close();
 
-
-
+    query = this->queries->at(QRY_SERVER_LIST_MODIFY);
+    query->Reset();
+    query->BindInt32(net::ntohv<uint16_t>(pck[0]), 0);
+    query->BindInt32(net::ntohv<uint16_t>(pck[1]), 1);
+    query->BindInt32(this->server_id, 2);
+    query->NonQuery();
     return true;
 }
 

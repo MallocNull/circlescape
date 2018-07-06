@@ -5,6 +5,8 @@
 #include "../sock/pool.hpp"
 
 namespace sosc {
+/** SLAVE -> CLIENT **/
+
 class SlaveClient {
 public:
     SlaveClient(const ScapeConnection& client);

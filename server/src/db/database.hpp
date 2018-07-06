@@ -39,7 +39,10 @@ private:
 class Query {
 public:
     Query();
-    Query(const std::string& query, int db = DB_USE_HARD);
+    Query(const Query& query);
+
+    Query& operator= (const Query&) = delete;
+    explicit Query(const std::string& query, int db = DB_USE_HARD);
     void SetQuery(const std::string& query, int db = DB_USE_HARD);
 
     void BindDouble(double value, int i);

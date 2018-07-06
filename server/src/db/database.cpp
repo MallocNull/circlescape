@@ -85,6 +85,16 @@ sosc::db::Query::Query() : results(this) {
     this->open = false;
 }
 
+sosc::db::Query::Query(const Query &query) : results(this) {
+    this->open = false;
+    if(query.open) {
+        this->SetQuery(
+            sqlite3_sql(query.statement),
+            query.database == _ctx.mem_db ? DB_USE_MEMORY : DB_USE_HARD
+        );
+    }
+}
+
 sosc::db::Query::Query(const std::string& query, int db) : results(this) {
     this->open = false;
     this->SetQuery(query, db);

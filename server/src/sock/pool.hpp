@@ -5,6 +5,7 @@
 #include <list>
 #include <thread>
 #include <mutex>
+#include "../db/database.hpp"
 
 namespace sosc {
 typedef struct {
@@ -42,7 +43,8 @@ public:
     
     virtual void Stop();
 protected:
-    virtual bool ProcessClient(T& client) = 0;
+    virtual void SetupQueries(std::vector<db::Query>* queries) {};
+    virtual bool ProcessClient(T& client, std::vector<db::Query>* queries) = 0;
 private:
     bool IsStackFull(int stackCount) const;
     bool CanAddStack() const;
@@ -63,7 +65,8 @@ private:
         void Stop();
     private:
         void StackThread();
-        
+
+        std::vector<db::Query> queries;
         std::thread* thread;
         Pool<T>* pool;
         bool is_open;
@@ -75,7 +78,8 @@ private:
     
     poolinfo_t info;
     bool is_open;
-    
+
+    std::vector<db::Query> queries;
     std::vector<Stack*> stacks;
     
     friend class Stack;
@@ -96,7 +100,8 @@ template<class T>
 void Pool<T>::Start() {
     if(this->is_open)
         return;
-    
+
+    this->SetupQueries(&this->queries);
     for(int i = 0; i < this->info.initial_count; ++i) {
         this->stacks.push_back(new Stack(this));
         this->stacks.back()->Start();
@@ -172,7 +177,10 @@ void Pool<T>::Stop() {
         stack->Stop();
         delete stack;
     }
-    
+
+    for(auto& query : this->queries)
+        query.Close();
+
     this->stacks.clear();
     this->is_open = false;
 }
@@ -188,7 +196,10 @@ template<class T>
 void Pool<T>::Stack::Start() {
     if(this->is_open || this->is_running)
         return;
-    
+
+    for(auto& query : this->pool->queries)
+        this->queries.push_back(db::Query(query));
+
     this->is_open = true;
     this->is_running = true;
     this->thread = new std::thread([&]() {
@@ -220,6 +231,7 @@ int Pool<T>::Stack::ClientCount() {
 
 template<class T>
 void Pool<T>::Stack::StackThread() {
+
     while(this->is_running) {
         for(auto client  = this->clients.begin();
                  client != this->clients.end();
@@ -229,7 +241,7 @@ void Pool<T>::Stack::StackThread() {
                 break;
             
             this->clients_mtx.lock();
-            if(!this->pool->ProcessClient(*client))
+            if(!this->pool->ProcessClient(*client, &this->queries))
                 this->clients.erase(client);
             this->clients_mtx.unlock();
         }
@@ -240,7 +252,10 @@ template<class T>
 void Pool<T>::Stack::Stop() {
     if(!this->is_open || !this->is_running)
         return;
-    
+
+    for(auto& query : this->queries)
+        query.Close();
+
     this->is_running = false;
     this->thread->join();
     

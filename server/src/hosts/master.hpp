@@ -20,7 +20,6 @@ public:
     
 private:
     ScapeConnection sock;
-    
     cgc::KeyExchange key;
     cgc::Cipher cipher;
 };

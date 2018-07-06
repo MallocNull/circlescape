@@ -15,7 +15,7 @@ public:
 private:
     std::string GenerateStream(uint64_t length);
     
-    const int state_size = 256;
+    static const int state_size = 256;
     uint8_t state[state_size];
 };
 }}
