@@ -136,7 +136,7 @@ bool sosc::MasterIntra::Authentication(sosc::Packet& pck) {
     if(!pck.Check(4, PCK_ANY, 2, PCK_ANY, 512))
         return this->Close();
 
-    db::Query* query = this->queries->at(QRY_LICENSE_CHECK);
+    db::Query* query = &this->queries[QRY_LICENSE_CHECK];
     query->Reset();
     query->BindText(pck[2], 0);
     query->BindBlob(pck[3], 1);

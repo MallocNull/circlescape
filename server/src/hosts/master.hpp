@@ -37,7 +37,7 @@ protected:
 class MasterIntra {
 public:
     explicit MasterIntra(const IntraClient& client);
-    bool Process(const db::QueryList* queries);
+    bool Process(const Pool::Queries* queries);
 
     bool Close();
     bool Close(const Packet& message);
@@ -75,20 +75,18 @@ private:
     int32_t server_id;
     std::string license;
 
-    const db::QueryList* queries;
+    const Pool::Queries* queries;
 };
 
 class MasterIntraPool : public Pool<MasterIntra> {
 public:
     MasterIntraPool();
 protected:
-    bool ProcessClient(MasterIntra& client) override {
-        return client.Process(&this->queries);
+    bool ProcessClient(MasterIntra& client, const Queries* queries) override {
+        return client.Process(queries);
     }
 
     void Stop() override;
-private:
-    db::QueryList queries;
 };
 }
 

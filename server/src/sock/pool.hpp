@@ -42,9 +42,11 @@ public:
     }
     
     virtual void Stop();
+
+    typedef std::vector<db::Query> Queries;
 protected:
-    virtual void SetupQueries(std::vector<db::Query>* queries) {};
-    virtual bool ProcessClient(T& client, std::vector<db::Query>* queries) = 0;
+    virtual void SetupQueries(Queries* queries) {};
+    virtual bool ProcessClient(T& client, Queries* queries) = 0;
 private:
     bool IsStackFull(int stackCount) const;
     bool CanAddStack() const;
@@ -66,7 +68,7 @@ private:
     private:
         void StackThread();
 
-        std::vector<db::Query> queries;
+        Queries queries;
         std::thread* thread;
         Pool<T>* pool;
         bool is_open;
@@ -79,7 +81,7 @@ private:
     poolinfo_t info;
     bool is_open;
 
-    std::vector<db::Query> queries;
+    Queries queries;
     std::vector<Stack*> stacks;
     
     friend class Stack;
@@ -101,6 +103,7 @@ void Pool<T>::Start() {
     if(this->is_open)
         return;
 
+    this->queries = std::vector<db::Query>();
     this->SetupQueries(&this->queries);
     for(int i = 0; i < this->info.initial_count; ++i) {
         this->stacks.push_back(new Stack(this));
