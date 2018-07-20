@@ -7,11 +7,20 @@
 sosc::ScapeConnection::ScapeConnection() {
     this->client_open = false;
     this->handshaked = false;
+    this->cipher = nullptr;
 }
 
-void sosc::ScapeConnection::Open(TcpClient client) {
+void sosc::ScapeConnection::Open(const TcpClient& client) {
     this->client = client;
     this->client_open = true;
+}
+
+bool sosc::ScapeConnection::IsCiphered() const {
+    return this->cipher != nullptr;
+}
+
+void sosc::ScapeConnection::SetCipher(cgc::Cipher* cipher) {
+    this->cipher = cipher;
 }
 
 int sosc::ScapeConnection::Handshake() {    
@@ -81,12 +90,16 @@ int sosc::ScapeConnection::Receive(Packet* packet, bool block) {
             return PCK_ERR;
         if(!block && !first_recv)
             return PCK_MORE;
-        
+
+        auto bufferSize = this->buffer.length();
         status = this->client.Receive
             (&this->buffer, SOSC_TCP_APPEND | (block ? SOSC_TCP_BLOCK : 0));
-            
         if(status == -1)
             return PCK_ERR;
+
+        if(this->IsCiphered())
+            this->cipher->Parse(&this->buffer, bufferSize);
+
         first_recv = false;
     }
     
@@ -110,6 +123,9 @@ bool sosc::ScapeConnection::Send(const Packet& packet) {
     
     std::string packet_raw;
     packet.ToString(&packet_raw);
+    if(this->IsCiphered())
+        this->cipher->Parse(&packet_raw);
+
     return this->client.Send(packet_raw);
 }
 

@@ -43,10 +43,10 @@ public:
     
     virtual void Stop();
 
-    typedef std::vector<db::Query> Queries;
+    typedef std::vector<db::Query*> Queries;
 protected:
     virtual void SetupQueries(Queries* queries) {};
-    virtual bool ProcessClient(T& client, Queries* queries) = 0;
+    virtual bool ProcessClient(T& client, const Queries* queries) = 0;
 private:
     bool IsStackFull(int stackCount) const;
     bool CanAddStack() const;
@@ -103,7 +103,7 @@ void Pool<T>::Start() {
     if(this->is_open)
         return;
 
-    this->queries = std::vector<db::Query>();
+    this->queries = std::vector<db::Query*>();
     this->SetupQueries(&this->queries);
     for(int i = 0; i < this->info.initial_count; ++i) {
         this->stacks.push_back(new Stack(this));
@@ -181,8 +181,10 @@ void Pool<T>::Stop() {
         delete stack;
     }
 
-    for(auto& query : this->queries)
-        query.Close();
+    for(auto& query : this->queries) {
+        query->Close();
+        delete query;
+    }
 
     this->stacks.clear();
     this->is_open = false;
@@ -201,7 +203,7 @@ void Pool<T>::Stack::Start() {
         return;
 
     for(auto& query : this->pool->queries)
-        this->queries.push_back(db::Query(query));
+        this->queries.push_back(new db::Query(*query));
 
     this->is_open = true;
     this->is_running = true;
@@ -256,8 +258,10 @@ void Pool<T>::Stack::Stop() {
     if(!this->is_open || !this->is_running)
         return;
 
-    for(auto& query : this->queries)
-        query.Close();
+    for(auto& query : this->queries) {
+        query->Close();
+        delete query;
+    }
 
     this->is_running = false;
     this->thread->join();

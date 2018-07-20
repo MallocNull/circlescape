@@ -4,11 +4,12 @@
 #include <queue>
 #include "../crypto/sha1.hpp"
 #include "../crypto/base64.hpp"
+#include "../crypto/cipher.hpp"
 #include "frame.hpp"
 #include "packet.hpp"
 #include "tcpsock.hpp"
 
-#define SOSC_SHAKE_ERR -1
+#define SOSC_SHAKE_ERR (-1)
 #define SOSC_SHAKE_CONT 0
 #define SOSC_SHAKE_DONE 1
 
@@ -16,7 +17,10 @@ namespace sosc {
 class ScapeConnection {
 public:
     ScapeConnection();
-    
+
+    bool IsCiphered() const;
+    void SetCipher(cgc::Cipher* cipher);
+
     int Handshake();
     int Receive(Packet* packet, bool block = false);
     bool Send(const Packet& packet);
@@ -38,11 +42,12 @@ public:
         this->client.Close();
     }
 private:
-    void Open(TcpClient client);
+    void Open(const TcpClient& client);
     
     bool client_open;
     bool handshaked;
     TcpClient client;
+    cgc::Cipher* cipher;
     
     std::string buffer;
     std::string pck_frames;

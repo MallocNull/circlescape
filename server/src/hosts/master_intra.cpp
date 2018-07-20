@@ -8,80 +8,71 @@ static struct {
 
 /** MASTERINTRAPOOL CODE **/
 
-sosc::MasterIntraPool::MasterIntraPool() {
+void sosc::MasterIntraPool::SetupQueries(Queries* queries) {
 #define QRY_LICENSE_CHECK 0
-    this->queries.push_back(new db::Query(
+    queries->push_back(new db::Query(
         "SELECT COUNT(*) FROM `SERVER_LICENSES` "
         "WHERE `KEY_ID` = ? AND `SECRET` = ?"
     ));
 
 #define QRY_LICENSE_VERIFY 1
-    this->queries.push_back(new db::Query(
+    queries->push_back(new db::Query(
             "SELECT COUNT(*) FROM `SERVER_LICENSES` "
             "WHERE `KEY_ID` = ?"
         ));
 
 #define QRY_LICENSE_LIMIT 2
-    this->queries.push_back(new db::Query(
+    queries->push_back(new db::Query(
         "SELECT `ALLOWANCE` FROM `SERVER_LICENSES` WHERE `KEY_ID` = ?"
     ));
 
 #define QRY_LICENSE_ACTIVE_COUNT 3
-    this->queries.push_back(new db::Query(
+    queries->push_back(new db::Query(
         "SELECT COUNT(*) FROM `SERVER_LIST` WHERE `LICENSE` = ?"
     , DB_USE_MEMORY));
 
 #define QRY_LICENSE_ADD 4
-    this->queries.push_back(new db::Query(
+    queries->push_back(new db::Query(
         "INSERT OR IGNORE INTO `SERVER_LICENSES` "
         "(`KEY_ID`, `SECRET`, `ALLOWANCE`) "
         "VALUES (?, RANDOMBLOB(512), ?)"
     ));
 
 #define QRY_LICENSE_REMOVE 5
-    this->queries.push_back(new db::Query(
+    queries->push_back(new db::Query(
         "DELETE FROM `SERVER_LICENSES` "
         "WHERE `KEY_ID` = ?"
     ));
 
 #define QRY_LICENSE_MODIFY 6
-    this->queries.push_back(new db::Query(
+    queries->push_back(new db::Query(
         "UPDATE `SERVER_LICENSES` "
         "SET `ALLOWANCE` = ? WHERE `KEY_ID` = ?"
     ));
 
 #define QRY_SERVER_LIST_ADD 7
-    this->queries.push_back(new db::Query(
+    queries->push_back(new db::Query(
         "INSERT INTO `SERVER_LIST` "
         "(`NAME`, `LICENSE`, `IP_ADDR`, `PORT`) "
         "VALUES (?, ?, ?, ?)"
     , DB_USE_MEMORY));
 
 #define QRY_SERVER_LIST_GET_ID 8
-    this->queries.push_back(new db::Query(
+    queries->push_back(new db::Query(
         "SELECT MAX(`ID`) FROM `SERVER_LIST`"
     , DB_USE_MEMORY));
 
 #define QRY_SERVER_LIST_MODIFY 9
-    this->queries.push_back(new db::Query(
+    queries->push_back(new db::Query(
         "UPDATE `SERVER_LIST` SET "
         "`USERS` = ?, `MAX_USERS` = ? "
         "WHERE ID = ?"
     , DB_USE_MEMORY));
 
 #define QRY_SERVER_LIST_DELETE 10
-    this->queries.push_back(new db::Query(
+    queries->push_back(new db::Query(
         "DELETE FROM `SERVER_LIST` WHERE `ID` = ?"
     , DB_USE_MEMORY));
-}
-
-void sosc::MasterIntraPool::Stop() {
-    Pool<MasterIntra>::Stop();
-
-    for(auto& query : this->queries) {
-        query->Close();
-        delete query;
-    }
 }
 
 /** MASTERINTRA CODE **/
@@ -92,7 +83,7 @@ sosc::MasterIntra::MasterIntra(const IntraClient& client) {
     this->auth_attempts = 0;
 }
 
-bool sosc::MasterIntra::Process(const db::QueryList* queries) {
+bool sosc::MasterIntra::Process(const Pool::Queries* queries) {
     Packet pck;
     int status = this->sock.Receive(&pck);
     if(status == PCK_ERR)
@@ -136,7 +127,7 @@ bool sosc::MasterIntra::Authentication(sosc::Packet& pck) {
     if(!pck.Check(4, PCK_ANY, 2, PCK_ANY, 512))
         return this->Close();
 
-    db::Query* query = &this->queries[QRY_LICENSE_CHECK];
+    db::Query* query = this->queries->at(QRY_LICENSE_CHECK);
     query->Reset();
     query->BindText(pck[2], 0);
     query->BindBlob(pck[3], 1);

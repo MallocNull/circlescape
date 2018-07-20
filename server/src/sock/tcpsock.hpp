@@ -46,7 +46,7 @@ public:
     bool Open(std::string host, uint16_t port);
     
     int Receive(std::string* str, int flags = 0);
-    int Send(const std::string& str);
+    bool Send(const std::string& str);
     
     bool IsDataReady();
     inline bool IsOpen() const {

@@ -110,9 +110,9 @@ int sosc::TcpClient::Receive(std::string* str, int flags) {
     return total_length;
 }
 
-int sosc::TcpClient::Send(const std::string& str) {
+bool sosc::TcpClient::Send(const std::string& str) {
     if(!this->sock_open)
-        return -1;
+        return false;
     
     std::string::size_type total_sent = 0;
     while(total_sent < str.length()) {
@@ -123,12 +123,12 @@ int sosc::TcpClient::Send(const std::string& str) {
         
         if(sent == SOCKET_ERROR) {
             this->Close();
-            return -1;
+            return false;
         } else
             total_sent += sent;
     }
     
-    return 0;
+    return true;
 }
 
 bool sosc::TcpClient::IsDataReady() {
@@ -155,7 +155,7 @@ void sosc::TcpClient::SetBlocking(bool will_block) {
     if(!this->sock_open)
         return;
     
-    u_long nblock = !will_block;
+    auto nblock = (u_long)!will_block;
     ioctlsocket(this->sock, FIONBIO, &nblock);
 }
 
@@ -190,7 +190,7 @@ bool sosc::TcpServer::Listen(uint16_t port) {
     hints.ai_protocol = IPPROTO_TCP;
     hints.ai_flags = AI_PASSIVE;
     
-    if(getaddrinfo(NULL, TOSTR(port).c_str(), &hints, &result) != 0)
+    if(getaddrinfo(nullptr, TOSTR(port).c_str(), &hints, &result) != 0)
         return false;
     
     this->sock = socket(result->ai_family, 

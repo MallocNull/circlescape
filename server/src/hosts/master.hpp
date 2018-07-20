@@ -26,7 +26,7 @@ private:
 
 class MasterClientPool : public Pool<MasterClient> {
 protected:
-    bool ProcessClient(MasterClient& client) override {
+    bool ProcessClient(MasterClient& client, const Queries* queries) override {
         // TODO implement
         return true;
     }
@@ -79,14 +79,11 @@ private:
 };
 
 class MasterIntraPool : public Pool<MasterIntra> {
-public:
-    MasterIntraPool();
 protected:
+    void SetupQueries(Queries* queries) override;
     bool ProcessClient(MasterIntra& client, const Queries* queries) override {
         return client.Process(queries);
     }
-
-    void Stop() override;
 };
 }
 

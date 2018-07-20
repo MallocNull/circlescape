@@ -9,7 +9,7 @@ namespace sosc {
 class IntraClient {
 public:
     IntraClient();
-    bool Open(std::string host, uint16_t port);
+    bool Open(const std::string& host, uint16_t port);
 
     bool IsCiphered() const;
     void SetCipher(cgc::Cipher* cipher);
@@ -30,7 +30,7 @@ public:
         this->client.Close();
     }
 private:
-    void Open(TcpClient client);
+    void Open(const TcpClient& client);
     
     bool client_open;
     TcpClient client;

@@ -9,7 +9,7 @@ sosc::IntraClient::IntraClient() {
     this->cipher = nullptr;
 }
 
-bool sosc::IntraClient::Open(std::string host, uint16_t port) {
+bool sosc::IntraClient::Open(const std::string& host, uint16_t port) {
     if(!this->client.Open(host, port))
         return false;
     
@@ -17,7 +17,7 @@ bool sosc::IntraClient::Open(std::string host, uint16_t port) {
     return true;
 }
 
-void sosc::IntraClient::Open(TcpClient client) {
+void sosc::IntraClient::Open(const TcpClient& client) {
     this->client = client;
     this->client_open = true;
 }
@@ -66,7 +66,7 @@ bool sosc::IntraClient::Send(const Packet& packet) {
     if(this->IsCiphered())
         this->cipher->Parse(&packet_raw);
 
-    return this->client.Send(packet_raw) == 0;
+    return this->client.Send(packet_raw);
 }
 
 /****************************/

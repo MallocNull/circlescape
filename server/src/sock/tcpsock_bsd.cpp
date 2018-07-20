@@ -94,9 +94,9 @@ int sosc::TcpClient::Receive(std::string* str, int flags) {
     return total_length;
 }
 
-int sosc::TcpClient::Send(const std::string& str) {
+bool sosc::TcpClient::Send(const std::string& str) {
     if(!this->sock_open)
-        return -1;
+        return false;
     
     std::string::size_type total_sent = 0;
     while(total_sent < str.length()) {
@@ -107,12 +107,12 @@ int sosc::TcpClient::Send(const std::string& str) {
         
         if(sent == -1) {
             this->Close();
-            return -1;
+            return false;
         } else
             total_sent += sent;
     }
     
-    return 0;
+    return true;
 }
 
 bool sosc::TcpClient::IsDataReady() {
