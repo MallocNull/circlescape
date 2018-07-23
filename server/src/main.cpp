@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-bool master_intra(uint16_t port, sosc::poolinfo_t info) {
+bool master_intra(uint16_t port, const sosc::poolinfo_t& info) {
     using namespace sosc;
     
     IntraServer server;
@@ -66,7 +66,8 @@ bool master_intra(uint16_t port, sosc::poolinfo_t info) {
     
     while(server.Accept(&client))
         pool.AddClient(MasterIntra(client));
-    
+
+    pool.Stop();
     return true;
 }
 
