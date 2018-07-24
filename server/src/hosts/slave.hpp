@@ -9,14 +9,14 @@ namespace sosc {
 
 class SlaveClient {
 public:
-    SlaveClient(const ScapeConnection& client);
+    explicit SlaveClient(const ScapeConnection& client);
 private:
     ScapeConnection sock;
 };
 
-class SlaveClientPool : Pool<SlaveClient*> {
+class SlaveClientPool : public Pool<SlaveClient> {
 protected:
-    bool ProcessClient(SlaveClient*& client) override {
+    bool ProcessClient(SlaveClient& client, const Queries* queries) override {
         // TODO implement
         return true;
     }

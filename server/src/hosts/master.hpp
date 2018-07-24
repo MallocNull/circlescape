@@ -26,6 +26,7 @@ private:
 
 class MasterClientPool : public Pool<MasterClient> {
 protected:
+    void SetupQueries(Queries* queries) override;
     bool ProcessClient(MasterClient& client, const Queries* queries) override {
         // TODO implement
         return true;

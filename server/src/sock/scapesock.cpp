@@ -21,6 +21,7 @@ bool sosc::ScapeConnection::IsCiphered() const {
 
 void sosc::ScapeConnection::SetCipher(cgc::Cipher* cipher) {
     this->cipher = cipher;
+    cipher->Parse(&this->buffer);
 }
 
 int sosc::ScapeConnection::Handshake() {    

@@ -19,36 +19,20 @@
 #include "hosts/master.hpp"
 #include "hosts/slave.hpp"
 
-bool master_intra(uint16_t port);
-bool master_client(uint16_t port);
-bool slave(uint16_t port);
+bool master_intra(uint16_t port, const sosc::poolinfo_t& info);
+bool master_client(uint16_t port, const sosc::poolinfo_t& info);
+bool slave(uint16_t port, const sosc::poolinfo_t& info);
 
 int main(int argc, char **argv) {
-    sosc::ScapeServer server;
-    sosc::ScapeConnection client;
-    std::string buffer;
-    
-    if(!server.Listen(8080)) {
-        std::cout << "Listening failed." << std::endl;
+    if(argc < 2)
         return -1;
+
+    if(argv[1][0] == 'm') {
+        master_intra(1234, sosc::poolinfo_t());
+    } else {
+        slave(1234, sosc::poolinfo_t());
     }
-    std::cout << "Listening ..." << std::endl;
-    
-    bool check = server.Accept(&client);
-    std::cout << "Shaking ..." << std::endl;
-    
-    bool loop = true;
-    while(loop) {
-        if(!client.Handshaked()) 
-            client.Handshake();
-        else {
-            sosc::Packet pck;
-            client.Receive(&pck, true);
-            std::cout << pck.RegionCount() << std::endl;
-        }
-    }
-    
-    server.Close();
+
     return 0;
 }
 
@@ -71,17 +55,29 @@ bool master_intra(uint16_t port, const sosc::poolinfo_t& info) {
     return true;
 }
 
-bool master_client(uint16_t port, sosc::poolinfo_t info) {
-    /*
-    auto pooler = std::thread([&]() {
-        
-    });
-    */
-    
+bool master_client(uint16_t port, const sosc::poolinfo_t& info) {
+    using namespace sosc;
+
     return true;
 }
 
-bool slave(uint16_t port, sosc::poolinfo_t info) {
-    
+bool slave(uint16_t port, const sosc::poolinfo_t& info) {
+    using namespace sosc;
+
+
+
+    ScapeServer server;
+    ScapeConnection client;
+    if(!server.Listen(port))
+        return false;
+
+    SlaveClientPool pool;
+    pool.Configure(info);
+    pool.Start();
+
+    while(server.Accept(&client))
+        pool.AddClient(SlaveClient(client));
+
+    pool.Stop();
     return true;
 }
