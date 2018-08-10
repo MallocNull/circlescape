@@ -27,7 +27,7 @@ typedef struct {
     int tolerance = -1;
 } poolinfo_t;
     
-template<class T>
+template<class T, class U>
 class Pool {
 public:
     Pool();
@@ -46,14 +46,15 @@ public:
     typedef std::vector<db::Query*> Queries;
 protected:
     virtual void SetupQueries(Queries* queries) {};
-    virtual bool ProcessClient(T& client, const Queries* queries) = 0;
+    virtual bool ProcessClient
+        (T& client, U* context, const Queries* queries) = 0;
 private:
     bool IsStackFull(int stackCount) const;
     bool CanAddStack() const;
     
     class Stack {
     public:
-        explicit Stack(Pool<T>* pool);
+        explicit Stack(Pool<T,U>* pool);
         Stack(const Stack&) = delete;
         
         void Start();
@@ -70,7 +71,7 @@ private:
 
         Queries queries;
         std::thread* thread;
-        Pool<T>* pool;
+        Pool<T,U>* pool;
         bool is_open;
         bool is_running;
         
@@ -81,25 +82,26 @@ private:
     poolinfo_t info;
     bool is_open;
 
+    U context;
     Queries queries;
     std::vector<Stack*> stacks;
     
     friend class Stack;
 };
 
-template<class T>
-Pool<T>::Pool() {
+template<class T, class U>
+Pool<T,U>::Pool() {
     this->info = poolinfo_t();
 }
 
-template<class T>
-void Pool<T>::Configure(const poolinfo_t& info) {
+template<class T, class U>
+void Pool<T,U>::Configure(const poolinfo_t& info) {
     this->info = info;
     this->is_open = false;
 }
 
-template<class T>
-void Pool<T>::Start() {
+template<class T, class U>
+void Pool<T,U>::Start() {
     if(this->is_open)
         return;
 
@@ -113,8 +115,8 @@ void Pool<T>::Start() {
     this->is_open = true;
 }
 
-template<class T>
-bool Pool<T>::IsStackFull(int stackCount) const {
+template<class T, class U>
+bool Pool<T,U>::IsStackFull(int stackCount) const {
     const poolinfo_t *info = &this->info;
     return info->max_size != -1 
         && stackCount < 
@@ -124,14 +126,14 @@ bool Pool<T>::IsStackFull(int stackCount) const {
         && stackCount < info->max_size;
 }
 
-template<class T>
-bool Pool<T>::CanAddStack() const {
+template<class T, class U>
+bool Pool<T,U>::CanAddStack() const {
     return this->info.max_count == -1 
         || this->stacks.size() < this->info.max_count;
 }
 
-template<class T>
-bool Pool<T>::AddClient(T client) {
+template<class T, class U>
+bool Pool<T,U>::AddClient(T client) {
     if(!this->is_open)
         return false;
     
@@ -160,8 +162,8 @@ bool Pool<T>::AddClient(T client) {
     return true;
 }
 
-template<class T>
-int Pool<T>::ClientCount() {
+template<class T, class U>
+int Pool<T,U>::ClientCount() {
     if(!this->is_open)
         return 0;
     
@@ -171,8 +173,8 @@ int Pool<T>::ClientCount() {
     return count;
 }
 
-template<class T>
-void Pool<T>::Stop() {
+template<class T, class U>
+void Pool<T,U>::Stop() {
     if(!this->is_open)
         return;
 
@@ -190,15 +192,15 @@ void Pool<T>::Stop() {
     this->is_open = false;
 }
 
-template<class T>
-Pool<T>::Stack::Stack(Pool<T>* pool) {
+template<class T, class U>
+Pool<T,U>::Stack::Stack(Pool<T,U>* pool) {
     this->pool = pool;
     this->is_open = false;
     this->is_running = false;
 }
 
-template<class T>
-void Pool<T>::Stack::Start() {
+template<class T, class U>
+void Pool<T,U>::Stack::Start() {
     if(this->is_open || this->is_running)
         return;
 
@@ -212,8 +214,8 @@ void Pool<T>::Stack::Start() {
     });
 }
 
-template<class T>
-void Pool<T>::Stack::AddClient(T client) {
+template<class T, class U>
+void Pool<T,U>::Stack::AddClient(T client) {
     if(!this->is_open || !this->is_running)
         return;
     
@@ -222,8 +224,8 @@ void Pool<T>::Stack::AddClient(T client) {
     this->clients_mtx.unlock();
 }
 
-template<class T>
-int Pool<T>::Stack::ClientCount() {
+template<class T, class U>
+int Pool<T,U>::Stack::ClientCount() {
     if(!this->is_open || !this->is_running)
         return 0;
     
@@ -234,8 +236,8 @@ int Pool<T>::Stack::ClientCount() {
     return count;
 }
 
-template<class T>
-void Pool<T>::Stack::StackThread() {
+template<class T, class U>
+void Pool<T,U>::Stack::StackThread() {
 
     while(this->is_running) {
         for(auto client  = this->clients.begin();
@@ -246,15 +248,18 @@ void Pool<T>::Stack::StackThread() {
                 break;
             
             this->clients_mtx.lock();
-            if(!this->pool->ProcessClient(*client, &this->queries))
+            if(!this->pool->ProcessClient
+                (*client, &this->pool->context, &this->queries))
+            {
                 this->clients.erase(client);
+            }
             this->clients_mtx.unlock();
         }
     }
 }
 
-template<class T>
-void Pool<T>::Stack::Stop() {
+template<class T, class U>
+void Pool<T,U>::Stack::Stop() {
     if(!this->is_open || !this->is_running)
         return;
 

@@ -10,8 +10,8 @@
 #include "tcpsock.hpp"
 
 #define SOSC_SHAKE_ERR (-1)
-#define SOSC_SHAKE_CONT 0
-#define SOSC_SHAKE_DONE 1
+#define SOSC_SHAKE_CONT  0
+#define SOSC_SHAKE_DONE  1
 
 namespace sosc {
 class ScapeConnection {

@@ -3,7 +3,19 @@
 
 namespace sosc {
 namespace ctx {
+class MasterClientContext {
+public:
 
+private:
+
+};
+
+class MasterIntraContext {
+public:
+
+private:
+
+};
 }}
 
 #endif

@@ -10,6 +10,8 @@
 
 #include "../db/database.hpp"
 
+#include "../ctx/master.hpp"
+
 #include <vector>
 
 namespace sosc {
@@ -24,10 +26,14 @@ private:
     cgc::Cipher cipher;
 };
 
-class MasterClientPool : public Pool<MasterClient> {
+class MasterClientPool : public Pool<MasterClient, ctx::MasterClientContext> {
 protected:
     void SetupQueries(Queries* queries) override;
-    bool ProcessClient(MasterClient& client, const Queries* queries) override {
+    bool ProcessClient(
+        MasterClient& client,
+        ctx::MasterClientContext* context,
+        const Queries* queries) override
+    {
         // TODO implement
         return true;
     }
@@ -79,10 +85,14 @@ private:
     const Pool::Queries* queries;
 };
 
-class MasterIntraPool : public Pool<MasterIntra> {
+class MasterIntraPool : public Pool<MasterIntra, ctx::MasterIntraContext> {
 protected:
     void SetupQueries(Queries* queries) override;
-    bool ProcessClient(MasterIntra& client, const Queries* queries) override {
+    bool ProcessClient
+        (MasterIntra& client,
+         ctx::MasterIntraContext* context,
+         const Queries* queries) override
+    {
         return client.Process(queries);
     }
 };
