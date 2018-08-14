@@ -1,0 +1,3 @@
+[submodule "src/server/db/sqlite"]
+	path = src/server/db/sqlite
+	url = https://github.com/MallocNull/sqlite-amalgam.git
