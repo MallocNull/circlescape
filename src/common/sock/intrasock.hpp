@@ -1,36 +1,24 @@
-#ifndef SOSC_SCAPESOCK_H
-#define SOSC_SCAPESOCK_H
+#ifndef SOSC_INTSOCK_H
+#define SOSC_INTSOCK_H
 
-#include <queue>
-#include "../crypto/sha1.hpp"
-#include "../crypto/base64.hpp"
-#include "../crypto/cipher.hpp"
-#include "frame.hpp"
-#include "packet.hpp"
 #include "tcpsock.hpp"
-
-#define SOSC_SHAKE_ERR (-1)
-#define SOSC_SHAKE_CONT  0
-#define SOSC_SHAKE_DONE  1
+#include "packet.hpp"
+#include "crypto/cipher.hpp"
 
 namespace sosc {
-class ScapeConnection {
+class IntraClient {
 public:
-    ScapeConnection();
+    IntraClient();
+    bool Open(const std::string& host, uint16_t port);
 
     bool IsCiphered() const;
     void SetCipher(cgc::Cipher* cipher);
 
-    int Handshake();
     int Receive(Packet* packet, bool block = false);
     bool Send(const Packet& packet);
     
     inline bool IsOpen() const {
         return this->client_open;
-    }
-    
-    inline bool Handshaked() const {
-        return this->handshaked;
     }
     
     inline net::IpAddress GetIpAddress() const {
@@ -45,22 +33,19 @@ private:
     void Open(const TcpClient& client);
     
     bool client_open;
-    bool handshaked;
     TcpClient client;
+    std::string buffer;
     cgc::Cipher* cipher;
     
-    std::string buffer;
-    std::string pck_frames;
-    
-    friend class ScapeServer;
+    friend class IntraServer;
 };
 
-class ScapeServer {
+class IntraServer {
 public:
-    ScapeServer();
+    IntraServer();
     
     bool Listen(uint16_t port);
-    bool Accept(ScapeConnection* client);
+    bool Accept(IntraClient* client);
     
     inline bool IsOpen() const {
         return this->server_open;

@@ -1,16 +1,16 @@
 #ifndef SOSC_HOST_MASTER_H
 #define SOSC_HOST_MASTER_H
 
-#include "../sock/intrasock.hpp"
-#include "../sock/scapesock.hpp"
-#include "../sock/pool.hpp"
+#include "sock/intrasock.hpp"
+#include "sock/scapesock.hpp"
+#include "sock/pool.hpp"
 
-#include "../crypto/keyex.hpp"
-#include "../crypto/cipher.hpp"
+#include "crypto/keyex.hpp"
+#include "crypto/cipher.hpp"
 
-#include "../db/database.hpp"
+#include "db/database.hpp"
 
-#include "../ctx/master.hpp"
+#include "ctx/master.hpp"
 
 #include <vector>
 

@@ -5,7 +5,7 @@
 #include <list>
 #include <thread>
 #include <mutex>
-#include "../db/database.hpp"
+#include "db/database.hpp"
 
 namespace sosc {
 typedef struct {

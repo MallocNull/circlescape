@@ -1,4 +1,5 @@
 #include "bcrypt.hpp"
+#include "bfish.hpp"
 
 static const uint32_t bcrypt_ciphertext[6] = {
     0x4f727068, 0x65616e42, 0x65686f6c,

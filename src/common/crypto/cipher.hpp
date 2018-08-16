@@ -1,7 +1,7 @@
 #ifndef SOSC_CRYPTO_CIPHER_H
 #define SOSC_CRYPTO_CIPHER_H
 
-#include "../utils/bigint.hpp"
+#include "utils/bigint.hpp"
 #include "keyex.hpp"
 
 namespace sosc {

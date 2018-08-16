@@ -5,9 +5,8 @@
 #include <cstring>
 #include <string>
 #include "base64.hpp"
-#include "bfish.hpp"
-#include "../utils/csprng.hpp"
-#include "../utils/string.hpp"
+#include "utils/csprng.hpp"
+#include "utils/string.hpp"
 
 #define BCRYPT_COST 10
 

@@ -31,8 +31,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
-#include "../utils/net.hpp"
-#include "../utils/string.hpp"
+#include "utils/net.hpp"
+#include "utils/string.hpp"
 
 #define SOSC_TCP_BUFLEN 2048
 

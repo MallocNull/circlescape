@@ -1,5 +1,6 @@
 #include <SDL.h>
 #include <glm/vec2.hpp>
+#include <glm/mat2x2.hpp>
 
 #define GL3_PROTOTYPES 1
 #include <GL/glew.h>
@@ -39,28 +40,28 @@ int main(int argc, char* argv[]) {
     glewInit();
 #endif
 
-    setColor(1, 0, 0, window);
-
     bool running = true;
     while(running) {
+        glClearColor(0.0, 0.0, 0.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        SDL_GL_SwapWindow(window);
+
         SDL_Event event;
         while(SDL_PollEvent(&event)) {
             if(event.type == SDL_QUIT)
                 running = false;
 
+            if(event.type == SDL_WINDOWEVENT &&
+               event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+            {
+
+            }
+
             if(event.type == SDL_KEYDOWN) {
                 switch(event.key.keysym.sym) {
                     case SDLK_ESCAPE:
                         running = false;
-                        break;
-                    case SDLK_r:
-                        setColor(1.0, 0.0, 0.0, window);
-                        break;
-                    case SDLK_g:
-                        setColor(0.0, 1.0, 0.0, window);
-                        break;
-                    case SDLK_b:
-                        setColor(0.0, 0.0, 1.0, window);
                         break;
                     default:
                         break;

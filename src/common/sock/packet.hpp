@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 #include <cstdarg>
-#include "../utils/net.hpp"
+#include "utils/net.hpp"
 
 #define PCK_ANY 0
 

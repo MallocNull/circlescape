@@ -23,6 +23,8 @@ bool sosc::Packet::AddRegions(std::vector<std::string> data) {
 
     for(const auto& i : data)
         this->regions.push_back(i);
+
+    return true;
 }
 
 void sosc::Packet::SetRegion(uint8_t index, std::string data) {

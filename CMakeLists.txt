@@ -3,6 +3,9 @@ project(sockscape)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
+if(CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -static")
+endif()
 
 ## CLIENT BUILD ##
 
@@ -13,12 +16,16 @@ find_package(SDL2_image REQUIRED)
 find_package(SDL2_ttf REQUIRED)
 
 file(GLOB_RECURSE client_src
+    "src/common/*.hpp"
+    "src/common/*.cpp"
     "src/client/*.hpp"
     "src/client/*.cpp"
 )
 
 add_executable(client ${client_src})
 target_include_directories(client
+    PRIVATE ${PROJECT_SOURCE_DIR}/src/common
+    PRIVATE ${PROJECT_SOURCE_DIR}/src/client
     PRIVATE ${PROJECT_SOURCE_DIR}/include/client
     PRIVATE ${OPENGL_INCLUDE_DIR}
     PRIVATE ${GLEW_INCLUDE_DIR}
@@ -36,6 +43,8 @@ install(TARGETS client RUNTIME DESTINATION bin/client)
 ## SERVER BUILD ##
 
 file(GLOB_RECURSE server_src
+    "src/common/*.hpp"
+    "src/common/*.cpp"
     "src/server/*.hpp"
     "src/server/*.cpp"
     "src/server/*.c"
@@ -43,6 +52,9 @@ file(GLOB_RECURSE server_src
 )
 
 add_executable(server ${server_src})
+target_include_directories(server
+    PRIVATE ${PROJECT_SOURCE_DIR}/src/common
+    PRIVATE ${PROJECT_SOURCE_DIR}/src/server)
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     target_link_libraries(server wsock32 ws2_32)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")

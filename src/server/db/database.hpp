@@ -2,8 +2,8 @@
 #define SOSC_DATABASE_H
 
 #include "sqlite/sqlite3.h"
-#include "../utils/time.hpp"
-#include "../crypto/sha1.hpp"
+#include "utils/time.hpp"
+#include "crypto/sha1.hpp"
 #include <vector>
 #include <string>
 

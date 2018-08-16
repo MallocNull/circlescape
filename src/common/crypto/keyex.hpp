@@ -1,8 +1,8 @@
 #ifndef SOSC_CRYPTO_KEYEX_H
 #define SOSC_CRYPTO_KEYEX_H
 
-#include "../utils/bigint.hpp"
-#include "../sock/packet.hpp"
+#include "utils/bigint.hpp"
+#include "sock/packet.hpp"
 
 namespace sosc {
 namespace cgc {
