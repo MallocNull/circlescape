@@ -42,7 +42,6 @@ int main(int argc, char* argv[]) {
 
     bool running = true;
     while(running) {
-        glClearColor(0.0, 0.0, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
         SDL_GL_SwapWindow(window);

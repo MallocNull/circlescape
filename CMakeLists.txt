@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.12)
 project(sockscape)
 
+string(COMPARE EQUAL ${CMAKE_BUILD_TYPE} Debug _CMP)
+if(_CMP)
+    add_definitions("-DSOSC_DEBUG")
+endif()
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 if(CMAKE_COMPILER_IS_GNUCXX)
