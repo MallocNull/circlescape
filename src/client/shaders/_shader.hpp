@@ -9,6 +9,7 @@
 #include <fstream>
 
 namespace sosc {
+namespace shdr {
 struct ShaderCompilationException : public std::exception {
 public:
     ShaderCompilationException
@@ -49,17 +50,23 @@ public:
     void Start() const;
 
     inline GLint operator[] (std::vector<GLint>::size_type index) {
+        if(index >= locations.size())
+            return -1;
+
         return locations[index];
     }
 
     inline GLint Uniform(std::vector<GLint>::size_type index) {
+        if(index >= locations.size())
+            return -1;
+
         return locations[index];
     }
 
     void Stop() const;
     void Unload();
 protected:
-    virtual bool PrepareLoad() = 0;
+    virtual void PrepareLoad() = 0;
     virtual void PrepareUnload() {};
 
     void AttachSource(const std::string& fileName, GLuint shaderType);
@@ -71,6 +78,6 @@ private:
     GLuint program;
     bool loaded;
 };
-}
+}}
 
 #endif

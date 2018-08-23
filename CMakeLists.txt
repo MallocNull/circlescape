@@ -60,11 +60,17 @@ add_executable(server ${server_src})
 target_include_directories(server
     PRIVATE ${PROJECT_SOURCE_DIR}/src/common
     PRIVATE ${PROJECT_SOURCE_DIR}/src/server)
+install(TARGETS server RUNTIME DESTINATION bin/server)
+
+## COMMON LIBRARIES ##
+
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     target_link_libraries(server wsock32 ws2_32)
+    target_link_libraries(client wsock32 ws2_32)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     target_link_libraries(server dl pthread nsl resolv)
+    target_link_libraries(client dl pthread nsl resolv)
 else()
     target_link_libraries(server dl pthread socket nsl resolv)
+    target_link_libraries(client dl pthread socket nsl resolv)
 endif()
-install(TARGETS server RUNTIME DESTINATION bin/server)
