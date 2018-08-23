@@ -1,5 +1,6 @@
 #ifndef SOSC_CRYPTO_BASE64
 #define SOSC_CRYPTO_BASE64
+#undef unix
 
 #include <vector>
 #include <string>

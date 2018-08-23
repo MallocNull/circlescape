@@ -1,5 +1,6 @@
 #ifndef SOSC_UTIL_TIME_H
 #define SOSC_UTIL_TIME_H
+#undef unix
 
 #include <sstream>
 #include <algorithm>

@@ -48,11 +48,11 @@ public:
     bool Load();
     void Start() const;
 
-    inline GLint operator[] (std::vector::size_type index) {
+    inline GLint operator[] (std::vector<GLint>::size_type index) {
         return locations[index];
     }
 
-    inline GLint Uniform(std::vector::size_type index) {
+    inline GLint Uniform(std::vector<GLint>::size_type index) {
         return locations[index];
     }
 

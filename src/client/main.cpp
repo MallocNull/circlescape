@@ -12,8 +12,10 @@ void setColor(float r, float g, float b, SDL_Window* window) {
 }
 
 int main(int argc, char* argv[]) {
-    if(SDL_Init(SDL_INIT_VIDEO) < 0)
+    if(SDL_Init(SDL_INIT_VIDEO) < 0) {
+        printf(SDL_GetError());
         return -1;
+    }
     atexit(SDL_Quit);
 
     auto window = SDL_CreateWindow(
