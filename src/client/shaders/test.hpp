@@ -11,6 +11,8 @@ public:
         SCREEN_SIZE = 0,
         GRAPHIC_SAMPLER
     };
+protected:
+    void PrepareLoad() override;
 };
 }}
 

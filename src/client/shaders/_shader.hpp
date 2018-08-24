@@ -10,6 +10,19 @@
 
 namespace sosc {
 namespace shdr {
+struct ShaderLoadingException : public std::exception {
+public:
+    ShaderLoadingException(const std::string& errorInfo) {
+        this->errorInfo = errorInfo;
+    }
+
+    const char* what() noexcept {
+        return this->errorInfo.c_str();
+    }
+private:
+    std::string errorInfo;
+};
+
 struct ShaderCompilationException : public std::exception {
 public:
     ShaderCompilationException
