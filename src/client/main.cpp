@@ -1,9 +1,10 @@
 #include <SDL.h>
-#include <glm/vec2.hpp>
-#include <glm/mat2x2.hpp>
-
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #define GL3_PROTOTYPES 1
 #include <GL/glew.h>
+
+#include "shaders/test.hpp"
 
 void setColor(float r, float g, float b, SDL_Window* window) {
     glClearColor(r, g, b, 1.0);
@@ -12,6 +13,8 @@ void setColor(float r, float g, float b, SDL_Window* window) {
 }
 
 int main(int argc, char* argv[]) {
+    using namespace sosc;
+
     if(SDL_Init(SDL_INIT_VIDEO) < 0) {
         printf(SDL_GetError());
         return -1;
@@ -37,6 +40,10 @@ int main(int argc, char* argv[]) {
 
     SDL_GL_SetSwapInterval(1);
 
+    shdr::TestShader test;
+    test.Load();
+    test.UpdateWindow(window);
+
 #ifndef __APPLE__
     glewExperimental = GL_TRUE;
     glewInit();
@@ -45,6 +52,8 @@ int main(int argc, char* argv[]) {
     bool running = true;
     while(running) {
         glClear(GL_COLOR_BUFFER_BIT);
+
+
 
         SDL_GL_SwapWindow(window);
 
@@ -56,7 +65,8 @@ int main(int argc, char* argv[]) {
             if(event.type == SDL_WINDOWEVENT &&
                event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
             {
-
+                glViewport(0, 0, event.window.data1, event.window.data2);
+                test.UpdateWindow(window);
             }
 
             if(event.type == SDL_KEYDOWN) {
@@ -70,6 +80,8 @@ int main(int argc, char* argv[]) {
             }
         }
     }
+
+    test.Unload();
 
     SDL_GL_DeleteContext(ctx);
     SDL_DestroyWindow(window);
