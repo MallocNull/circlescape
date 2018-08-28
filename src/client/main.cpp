@@ -12,6 +12,10 @@ void setColor(float r, float g, float b, SDL_Window* window) {
     SDL_GL_SwapWindow(window);
 }
 
+void setupOrthoMode() {
+
+}
+
 int main(int argc, char* argv[]) {
     using namespace sosc;
 

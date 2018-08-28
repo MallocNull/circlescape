@@ -1,6 +1,7 @@
 #ifndef SOSC_SHADER_TEST_H
 #define SOSC_SHADER_TEST_H
 
+#include <SDL.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "common.hpp"
@@ -20,7 +21,7 @@ public:
 
         int width, height;
         SDL_GetWindowSize(window, &width, &height);
-        auto orthoMatrix = glm::ortho(0, width, height, 0);
+        glm::mat4 orthoMatrix = glm::ortho(0, width, height, 0);
         glUniformMatrix4fv(
             (*this)[ORTHO_MATRIX], 1, GL_FALSE, glm::value_ptr(orthoMatrix)
         );
