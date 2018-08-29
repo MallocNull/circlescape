@@ -4,6 +4,7 @@
 #define GL3_PROTOTYPES 1
 #include <GL/glew.h>
 
+#include "ui/font.hpp"
 #include "shaders/test.hpp"
 
 void setColor(float r, float g, float b, SDL_Window* window) {
@@ -44,14 +45,17 @@ int main(int argc, char* argv[]) {
 
     SDL_GL_SetSwapInterval(1);
 
-    shdr::TestShader test;
-    test.Load();
-    test.UpdateWindow(window);
-
 #ifndef __APPLE__
     glewExperimental = GL_TRUE;
     glewInit();
 #endif
+
+    ui::font_init_subsystem(window);
+    ui::Font scapeFont(
+        SOSC_RESC("fonts/scape.bmp"),
+        SOSC_RESC("fonts/scape.dat")
+    );
+    ui::font_set_default(&scapeFont);
 
     bool running = true;
     while(running) {
@@ -70,7 +74,7 @@ int main(int argc, char* argv[]) {
                event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
             {
                 glViewport(0, 0, event.window.data1, event.window.data2);
-                test.UpdateWindow(window);
+                ui::font_window_changed(window);
             }
 
             if(event.type == SDL_KEYDOWN) {
@@ -85,8 +89,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    test.Unload();
-
+    ui::font_deinit_subsystem();
     SDL_GL_DeleteContext(ctx);
     SDL_DestroyWindow(window);
 

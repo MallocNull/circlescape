@@ -1,9 +1,9 @@
 #version 330 core
 in vec2 texCoords;
-uniform sampler2D graphicSampler;
-
 out vec4 fragColor;
 
+uniform sampler2D fontBitmap;
+
 void main() {
-    fragColor = texture(graphicSampler, texCoords);
+    fragColor = texture(fontBitmap, texCoords);
 }
