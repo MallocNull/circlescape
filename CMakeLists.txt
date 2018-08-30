@@ -3,6 +3,7 @@ project(sockscape)
 
 string(COMPARE EQUAL ${CMAKE_BUILD_TYPE} Debug _CMP)
 if(_CMP)
+    set(CMAKE_VERBOSE_MAKEFILE ON)
     add_definitions("-DSOSC_DEBUG")
 endif()
 
@@ -18,7 +19,6 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
-find_package(SDL2_ttf REQUIRED)
 
 file(GLOB_RECURSE client_src
     "src/common/*.hpp"
@@ -35,14 +35,12 @@ target_include_directories(client
     PRIVATE ${OPENGL_INCLUDE_DIR}
     PRIVATE ${GLEW_INCLUDE_DIR}
     PRIVATE ${SDL2_INCLUDE_DIR}
-    PRIVATE ${SDL2_IMAGE_INCLUDE_DIR}
-    PRIVATE ${SDL2_TTF_INCLUDE_DIR})
+    PRIVATE ${SDL2_IMAGE_INCLUDE_DIR})
 target_link_libraries(client
     ${OPENGL_LIBRARIES}
     ${GLEW_LIBRARY}
     ${SDL2_LIBRARY}
-    ${SDL2_IMAGE_LIBRARIES}
-    ${SDL2_TTF_LIBRARIES})
+    ${SDL2_IMAGE_LIBRARIES})
 install(TARGETS client RUNTIME DESTINATION bin/client)
 
 ## SERVER BUILD ##

@@ -1,7 +1,7 @@
 #include <SDL.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#define GL3_PROTOTYPES 1
+#define GLEW_STATIC
 #include <GL/glew.h>
 
 #include "ui/font.hpp"
@@ -33,22 +33,31 @@ int main(int argc, char* argv[]) {
         SDL_WINDOW_OPENGL
     );
 
-    auto ctx = SDL_GL_CreateContext(window);
+    SDL_GL_LoadLibrary(nullptr);
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                         SDL_GL_CONTEXT_PROFILE_CORE);
 
     SDL_GL_SetSwapInterval(1);
 
+    auto ctx = SDL_GL_CreateContext(window);
+    if(ctx == nullptr)
+        return -1;
+
 #ifndef __APPLE__
-    glewExperimental = GL_TRUE;
-    glewInit();
+    if(glewInit() != GLEW_OK)
+        return -1;
 #endif
+
+    auto a = glGetString(GL_VENDOR);
+    auto b = glGetString(GL_RENDERER);
+    auto c = glGetString(GL_VERSION);
+    auto d = glGetString(GL_SHADING_LANGUAGE_VERSION);
 
     ui::font_init_subsystem(window);
     ui::Font scapeFont(
@@ -57,11 +66,13 @@ int main(int argc, char* argv[]) {
     );
     ui::font_set_default(&scapeFont);
 
+    ui::Text text(32, glm::vec4(1, 0, 0, 1), "test text", 100, 100);
+
     bool running = true;
     while(running) {
         glClear(GL_COLOR_BUFFER_BIT);
 
-
+        text.Render();
 
         SDL_GL_SwapWindow(window);
 

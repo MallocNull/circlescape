@@ -16,7 +16,7 @@
 namespace sosc {
 namespace ui {
 class Font;
-bool font_init_subsystem(SDL_Window* window);
+void font_init_subsystem(SDL_Window* window);
 void font_set_default(sosc::ui::Font* font);
 void font_window_changed(SDL_Window* window);
 void font_deinit_subsystem();
@@ -78,16 +78,17 @@ private:
 class Text {
 public:
     Text();
-    Text(Font* font, uint32_t size);
-    Text(uint32_t size, const std::string& text,
+    Text(Font* font, uint32_t size, const glm::vec4& color);
+    Text(uint32_t size, const glm::vec4& color, const std::string& text,
          uint32_t x, uint32_t y, uint32_t w = 0);
-    Text(Font* font, uint32_t size, const std::string& text,
-         uint32_t x, uint32_t y, uint32_t w = 0);
+    Text(Font* font, uint32_t size, const glm::vec4& color,
+         const std::string& text, uint32_t x, uint32_t y, uint32_t w = 0);
 
-    void Set(uint32_t size, const std::string& text,
+    void Set(uint32_t size, const glm::vec4& color, const std::string& text,
              uint32_t x, uint32_t y, uint32_t w = 0);
     void SetFont(Font* font, uint32_t size = 0);
     void SetFontSize(uint32_t size);
+    void SetFontColor(const glm::vec4& color);
     void SetText(const std::string& text);
     void SetPosition(uint32_t x, uint32_t y);
     void SetWrapWidth(uint32_t w);
@@ -99,6 +100,7 @@ private:
     void Redraw();
 
     Font* font;
+    glm::vec4 font_color;
     uint32_t font_size,
              wrap_width;
     std::string text;

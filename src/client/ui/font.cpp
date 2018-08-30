@@ -10,7 +10,7 @@
 
 namespace sosc {
 namespace ui {
-static class FontShader : public sosc::shdr::Shader {
+class FontShader : public sosc::shdr::Shader {
 public:
     enum Uniforms {
         ORTHO_MATRIX = 0,
@@ -61,7 +61,7 @@ static struct {
 
 // SUBSYSTEM FUNCS //
 
-bool sosc::ui::font_init_subsystem(SDL_Window* window) {
+void sosc::ui::font_init_subsystem(SDL_Window* window) {
     _font_ctx.shader.Load();
     _font_ctx.shader.UpdateWindow(window);
     _font_ctx.default_font = nullptr;
@@ -153,6 +153,7 @@ bool sosc::ui::Font::Load
     glBindTexture(GL_TEXTURE_2D, 0);
 
     this->loaded = true;
+    return true;
 }
 
 void sosc::ui::Font::BindBitmap() {
@@ -183,33 +184,36 @@ sosc::ui::Text::Text() {
     this->font_size = 0;
 
     glGenVertexArrays(1, &this->vao);
-    glBindVertexArray(this->vao);
     glGenBuffers(2, this->vbos);
-    glBindVertexArray(0);
 }
 
-sosc::ui::Text::Text(sosc::ui::Font *font, uint32_t size) : Text() {
+sosc::ui::Text::Text
+    (sosc::ui::Font *font, uint32_t size, const glm::vec4& color) : Text()
+{
     this->font = font;
     this->font_size = size;
+    this->font_color = color;
 }
 
-sosc::ui::Text::Text(uint32_t size, const std::string &text,
-    uint32_t x, uint32_t y, uint32_t w) : Text()
+sosc::ui::Text::Text(uint32_t size, const glm::vec4& color,
+    const std::string &text, uint32_t x, uint32_t y, uint32_t w) : Text()
 {
-    this->Set(size, text, x, y, w);
+    this->Set(size, color, text, x, y, w);
 }
 
-sosc::ui::Text::Text(sosc::ui::Font *font, uint32_t size,
+sosc::ui::Text::Text
+    (sosc::ui::Font *font, uint32_t size, const glm::vec4& color,
     const std::string &text, uint32_t x, uint32_t y, uint32_t w) : Text()
 {
     this->font = font;
-    this->Set(size, text, x, y, w);
+    this->Set(size, color, text, x, y, w);
 }
 
-void sosc::ui::Text::Set
-    (uint32_t size, const std::string &text, uint32_t x, uint32_t y, uint32_t w)
+void sosc::ui::Text::Set(uint32_t size, const glm::vec4& color,
+    const std::string &text, uint32_t x, uint32_t y, uint32_t w)
 {
     this->font_size = size;
+    this->font_color = color;
     this->text = text;
     if(w != 0)
         this->wrap_width = w;
@@ -229,6 +233,10 @@ void sosc::ui::Text::SetFontSize(uint32_t size) {
     this->Redraw();
 }
 
+void sosc::ui::Text::SetFontColor(const glm::vec4 &color) {
+    this->font_color = color;
+}
+
 void sosc::ui::Text::SetText(const std::string &text) {
     this->text = text;
     this->Redraw();
@@ -244,9 +252,29 @@ void sosc::ui::Text::SetWrapWidth(uint32_t w) {
 }
 
 void sosc::ui::Text::Render() {
+    auto shdr = &_font_ctx.shader;
+
+    _font_ctx.shader.Start();
+    glUniformMatrix4fv(
+        (*shdr)[shdr->TRANSLATION_MATRIX],
+        1, GL_FALSE,
+        glm::value_ptr(this->trans_matrix)
+    );
+    glUniform4f(
+        (*shdr)[shdr->FONT_COLOR],
+        this->font_color.r, this->font_color.g,
+        this->font_color.b, this->font_color.a
+    );
+
+    glActiveTexture(GL_TEXTURE0);
+    this->font->BindBitmap();
+
     glBindVertexArray(this->vao);
     glDrawArrays(GL_TRIANGLES, 0, this->vertex_count);
     glBindVertexArray(0);
+
+    this->font->UnbindBitmap();
+    _font_ctx.shader.Stop();
 }
 
 void sosc::ui::Text::Destroy() {
@@ -255,13 +283,79 @@ void sosc::ui::Text::Destroy() {
 }
 
 void sosc::ui::Text::Redraw() {
-    this->vertex_count = ;
+    this->vertex_count = (GLuint)(6 * this->text.length());
+    auto vertices = new float[this->vertex_count * 2];
+    auto tex_coords = new float[this->vertex_count * 2];
+
     uint32_t line_width = 0, top_x = 0, top_y = 0;
-    for(const auto c : this->text) {
-        auto glyph = (*this->font)[c];
+    for(int i = 0; i < this->text.length(); ++i) {
+        auto glyph = (*this->font)[this->text[i]];
         uint32_t width = (uint32_t)(this->font_size * glyph.width),
                 height = this->font_size;
 
+        if(top_x + width > this->wrap_width && this->wrap_width != 0) {
+            top_x = 0;
+            top_y += height;
+        }
 
+        /// TRIANGLE 1 ///
+        // TOP LEFT
+        vertices[i*12] = top_x;
+        vertices[i*12 + 1] = top_y;
+        tex_coords[i*12] = glyph.top_left.x;
+        tex_coords[i*12 + 1] = glyph.top_left.y;
+        // TOP RIGHT
+        vertices[i*12 + 2] = top_x + width;
+        vertices[i*12 + 3] = top_y;
+        tex_coords[i*12 + 2] = glyph.top_right.x;
+        tex_coords[i*12 + 3] = glyph.top_right.y;
+        // BOTTOM LEFT
+        vertices[i*12 + 4] = top_x;
+        vertices[i*12 + 5] = top_y + height;
+        tex_coords[i*12 + 4] = glyph.bottom_left.x;
+        tex_coords[i*12 + 5] = glyph.bottom_left.y;
+
+        /// TRIANGLE 2 ///
+        // BOTTOM LEFT
+        vertices[i*12 + 6] = top_x;
+        vertices[i*12 + 7] = top_y + height;
+        tex_coords[i*12 + 6] = glyph.bottom_left.x;
+        tex_coords[i*12 + 7] = glyph.bottom_left.y;
+        // TOP RIGHT
+        vertices[i*12 + 8] = top_x + width;
+        vertices[i*12 + 9] = top_y;
+        tex_coords[i*12 + 8] = glyph.top_right.x;
+        tex_coords[i*12 + 9] = glyph.top_right.y;
+        // BOTTOM RIGHT
+        vertices[i*12 + 10] = top_x + width;
+        vertices[i*12 + 11] = top_y + height;
+        tex_coords[i*12 + 10] = glyph.bottom_right.x;
+        tex_coords[i*12 + 11] = glyph.bottom_right.y;
+
+        top_x += width;
     }
+
+    glBindVertexArray(this->vao);
+    {
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, this->vbos[0]);
+        glBufferData(
+            GL_ARRAY_BUFFER,
+            this->vertex_count * 2 * sizeof(float),
+            vertices,
+            GL_STATIC_DRAW
+        );
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, this->vbos[1]);
+        glBufferData(
+            GL_ARRAY_BUFFER,
+            this->vertex_count * 2 * sizeof(float),
+            vertices,
+            GL_STATIC_DRAW
+        );
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+    }
+    glBindVertexArray(0);
 }
