@@ -6,11 +6,13 @@
 #include <GLM/glm.hpp>
 #include <GLM/gtc/matrix_transform.hpp>
 #include <GLM/gtc/type_ptr.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <GLM/gtx/string_cast.hpp>
 #include <SDL_image.h>
 
 #include <string>
 #include <fstream>
-#include "utils/net.hpp"
+#include <iostream>
 #include "shaders/_shader.hpp"
 
 namespace sosc {

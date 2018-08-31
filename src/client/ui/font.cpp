@@ -6,10 +6,19 @@
     ((((uint32_t)(X)[(N)+2])) << 16u) | \
     ((((uint32_t)(X)[(N)+3])) << 24u))
 
-// FONT SHADER CLASS //
-
 namespace sosc {
 namespace ui {
+// STATE STRUCT //
+
+class FontShader;
+static struct {
+    sosc::ui::FontShader* shader;
+    sosc::ui::Font* default_font;
+    glm::mat4 orthoMatrix;
+} _font_ctx;
+
+// FONT SHADER CLASS //
+
 class FontShader : public sosc::shdr::Shader {
 public:
     enum Uniforms {
@@ -24,9 +33,10 @@ public:
 
         int width, height;
         SDL_GetWindowSize(window, &width, &height);
-        glm::mat4 orthoMatrix = glm::ortho(0, width, height, 0);
+        _font_ctx.orthoMatrix = glm::ortho(0, width, height, 0);
         glUniformMatrix4fv(
-            (*this)[ORTHO_MATRIX], 1, GL_FALSE, glm::value_ptr(orthoMatrix)
+            (*this)[ORTHO_MATRIX], 1, GL_FALSE,
+            glm::value_ptr(_font_ctx.orthoMatrix)
         );
 
         this->Stop();
@@ -52,18 +62,12 @@ protected:
 };
 }}
 
-// STATE STRUCT //
-
-static struct {
-    sosc::ui::FontShader shader;
-    sosc::ui::Font* default_font;
-} _font_ctx;
-
 // SUBSYSTEM FUNCS //
 
 void sosc::ui::font_init_subsystem(SDL_Window* window) {
-    _font_ctx.shader.Load();
-    _font_ctx.shader.UpdateWindow(window);
+    _font_ctx.shader = new FontShader();
+    _font_ctx.shader->Load();
+    _font_ctx.shader->UpdateWindow(window);
     _font_ctx.default_font = nullptr;
 }
 
@@ -72,11 +76,12 @@ void sosc::ui::font_set_default(Font *font) {
 }
 
 void sosc::ui::font_window_changed(SDL_Window* window) {
-    _font_ctx.shader.UpdateWindow(window);
+    _font_ctx.shader->UpdateWindow(window);
 }
 
 void sosc::ui::font_deinit_subsystem() {
-    _font_ctx.shader.Unload();
+    _font_ctx.shader->Unload();
+    delete _font_ctx.shader;
 }
 
 // FONT CLASS //
@@ -255,9 +260,9 @@ void sosc::ui::Text::SetWrapWidth(uint32_t w) {
 }
 
 void sosc::ui::Text::Render() {
-    auto shdr = &_font_ctx.shader;
+    auto shdr = _font_ctx.shader;
 
-    _font_ctx.shader.Start();
+    shdr->Start();
     glUniformMatrix4fv(
         (*shdr)[shdr->TRANSLATION_MATRIX],
         1, GL_FALSE,
@@ -277,7 +282,7 @@ void sosc::ui::Text::Render() {
     glBindVertexArray(0);
 
     this->font->UnbindBitmap();
-    _font_ctx.shader.Stop();
+    shdr->Stop();
 }
 
 void sosc::ui::Text::Destroy() {
@@ -307,6 +312,14 @@ void sosc::ui::Text::Redraw() {
             top_x = 0;
             top_y += height;
         }
+
+        glm::vec4 result =
+            _font_ctx.orthoMatrix * glm::vec4(320.f, 240.f, 0.f, 1.f);
+        std::cout << "(" << result.x << "," << result.y
+            << "," << result.z << "," << result.w << ")" << std::endl;
+
+        auto test = glm::to_string(_font_ctx.orthoMatrix);
+        std::cout << test << std::endl;
 
         /// TRIANGLE 1 ///
         // TOP LEFT

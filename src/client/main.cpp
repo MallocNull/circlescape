@@ -54,11 +54,6 @@ int main(int argc, char* argv[]) {
         return -1;
 #endif
 
-    auto a = glGetString(GL_VENDOR);
-    auto b = glGetString(GL_RENDERER);
-    auto c = glGetString(GL_VERSION);
-    auto d = glGetString(GL_SHADING_LANGUAGE_VERSION);
-
     ui::font_init_subsystem(window);
     ui::Font scapeFont(
         SOSC_RESC("fonts/scape.bmp"),
@@ -71,15 +66,14 @@ int main(int argc, char* argv[]) {
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
 
-
     bool running = true;
     while(running) {
+        SDL_GL_SwapWindow(window);
+
         glClear(GL_COLOR_BUFFER_BIT);
         glClearColor(1, 1, 1, 1);
 
         text.Render();
-
-        SDL_GL_SwapWindow(window);
 
         SDL_Event event;
         while(SDL_PollEvent(&event)) {
