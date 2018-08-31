@@ -105,7 +105,10 @@ private:
              wrap_width;
     std::string text;
     glm::mat4 trans_matrix;
+
     GLsizei vertex_count;
+    float* vertices;
+    float* tex_coords;
     GLuint vao, vbos[2];
 };
 }}

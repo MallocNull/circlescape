@@ -10,10 +10,6 @@ void main() {
     if(outColor.xyz == vec3(0.0, 0.0, 0.0))
         discard;
 
-    fragColor = vec4(
-        fontColor.x * outColor.x,
-        fontColor.y * outColor.y,
-        fontColor.z * outColor.z,
-        1.0
-    );
+    //fragColor = fontColor * vec4(0, 1, 0, 1);
+    fragColor = vec4(0, 1, 0, 1);
 }

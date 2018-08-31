@@ -66,11 +66,16 @@ int main(int argc, char* argv[]) {
     );
     ui::font_set_default(&scapeFont);
 
-    ui::Text text(32, glm::vec4(1, 0, 0, 1), "test text", 100, 100);
+    ui::Text text(80, glm::vec4(1, 0, 0, 1), "test text", 0, 0);
+
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+
 
     bool running = true;
     while(running) {
         glClear(GL_COLOR_BUFFER_BIT);
+        glClearColor(1, 1, 1, 1);
 
         text.Render();
 

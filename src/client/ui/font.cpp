@@ -44,7 +44,7 @@ protected:
         this->LinkProgram();
         this->LoadUniforms({
             "orthoMatrix",
-            "transMatrix"
+            "transMatrix",
             "fontBitmap",
             "fontColor"
         });
@@ -84,8 +84,9 @@ void sosc::ui::font_deinit_subsystem() {
 sosc::ui::Font::Font
     (const std::string& bitmapPath, const std::string& dataPath)
 {
+    this->loaded = false;
     if(!this->Load(bitmapPath, dataPath))
-        throw new FontException(bitmapPath, dataPath);
+        throw FontException(bitmapPath, dataPath);
 }
 
 bool sosc::ui::Font::Load
@@ -182,6 +183,8 @@ void sosc::ui::Font::Unload() {
 sosc::ui::Text::Text() {
     this->font = _font_ctx.default_font;
     this->font_size = 0;
+    this->vertices = nullptr;
+    this->tex_coords = nullptr;
 
     glGenVertexArrays(1, &this->vao);
     glGenBuffers(2, this->vbos);
@@ -280,12 +283,19 @@ void sosc::ui::Text::Render() {
 void sosc::ui::Text::Destroy() {
     glDeleteBuffers(2, this->vbos);
     glDeleteVertexArrays(1, &this->vao);
+
+    delete[] this->vertices;
+    delete[] this->tex_coords;
 }
 
 void sosc::ui::Text::Redraw() {
     this->vertex_count = (GLuint)(6 * this->text.length());
-    auto vertices = new float[this->vertex_count * 2];
-    auto tex_coords = new float[this->vertex_count * 2];
+
+    delete[] this->vertices;
+    this->vertices = new float[this->vertex_count * 2];
+
+    delete[]this->tex_coords;
+    this->tex_coords = new float[this->vertex_count * 2];
 
     uint32_t line_width = 0, top_x = 0, top_y = 0;
     for(int i = 0; i < this->text.length(); ++i) {
@@ -300,62 +310,62 @@ void sosc::ui::Text::Redraw() {
 
         /// TRIANGLE 1 ///
         // TOP LEFT
-        vertices[i*12] = top_x;
-        vertices[i*12 + 1] = top_y;
-        tex_coords[i*12] = glyph.top_left.x;
-        tex_coords[i*12 + 1] = glyph.top_left.y;
+        this->vertices[i*12] = top_x;
+        this->vertices[i*12 + 1] = top_y;
+        this->tex_coords[i*12] = glyph.top_left.x;
+        this->tex_coords[i*12 + 1] = glyph.top_left.y;
         // TOP RIGHT
-        vertices[i*12 + 2] = top_x + width;
-        vertices[i*12 + 3] = top_y;
-        tex_coords[i*12 + 2] = glyph.top_right.x;
-        tex_coords[i*12 + 3] = glyph.top_right.y;
+        this->vertices[i*12 + 2] = top_x + width;
+        this->vertices[i*12 + 3] = top_y;
+        this->tex_coords[i*12 + 2] = glyph.top_right.x;
+        this->tex_coords[i*12 + 3] = glyph.top_right.y;
         // BOTTOM LEFT
-        vertices[i*12 + 4] = top_x;
-        vertices[i*12 + 5] = top_y + height;
-        tex_coords[i*12 + 4] = glyph.bottom_left.x;
-        tex_coords[i*12 + 5] = glyph.bottom_left.y;
+        this->vertices[i*12 + 4] = top_x;
+        this->vertices[i*12 + 5] = top_y + height;
+        this->tex_coords[i*12 + 4] = glyph.bottom_left.x;
+        this->tex_coords[i*12 + 5] = glyph.bottom_left.y;
 
         /// TRIANGLE 2 ///
         // BOTTOM LEFT
-        vertices[i*12 + 6] = top_x;
-        vertices[i*12 + 7] = top_y + height;
-        tex_coords[i*12 + 6] = glyph.bottom_left.x;
-        tex_coords[i*12 + 7] = glyph.bottom_left.y;
+        this->vertices[i*12 + 6] = top_x;
+        this->vertices[i*12 + 7] = top_y + height;
+        this->tex_coords[i*12 + 6] = glyph.bottom_left.x;
+        this->tex_coords[i*12 + 7] = glyph.bottom_left.y;
         // TOP RIGHT
-        vertices[i*12 + 8] = top_x + width;
-        vertices[i*12 + 9] = top_y;
-        tex_coords[i*12 + 8] = glyph.top_right.x;
-        tex_coords[i*12 + 9] = glyph.top_right.y;
+        this->vertices[i*12 + 8] = top_x + width;
+        this->vertices[i*12 + 9] = top_y;
+        this->tex_coords[i*12 + 8] = glyph.top_right.x;
+        this->tex_coords[i*12 + 9] = glyph.top_right.y;
         // BOTTOM RIGHT
-        vertices[i*12 + 10] = top_x + width;
-        vertices[i*12 + 11] = top_y + height;
-        tex_coords[i*12 + 10] = glyph.bottom_right.x;
-        tex_coords[i*12 + 11] = glyph.bottom_right.y;
+        this->vertices[i*12 + 10] = top_x + width;
+        this->vertices[i*12 + 11] = top_y + height;
+        this->tex_coords[i*12 + 10] = glyph.bottom_right.x;
+        this->tex_coords[i*12 + 11] = glyph.bottom_right.y;
 
         top_x += width;
     }
 
     glBindVertexArray(this->vao);
-    {
+
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, this->vbos[0]);
         glBufferData(
             GL_ARRAY_BUFFER,
             this->vertex_count * 2 * sizeof(float),
-            vertices,
+            this->vertices,
             GL_STATIC_DRAW
         );
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
         glEnableVertexAttribArray(1);
         glBindBuffer(GL_ARRAY_BUFFER, this->vbos[1]);
         glBufferData(
             GL_ARRAY_BUFFER,
             this->vertex_count * 2 * sizeof(float),
-            vertices,
+            this->tex_coords,
             GL_STATIC_DRAW
         );
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-    }
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
     glBindVertexArray(0);
 }

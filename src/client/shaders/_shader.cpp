@@ -47,8 +47,9 @@ void sosc::shdr::Shader::AttachSource
     std::ifstream file(fileName);
     std::stringstream ss;
     ss << file.rdbuf();
+    std::string source = ss.str();
 
-    const char* src = ss.str().c_str();
+    const char* src = source.c_str();
     glShaderSource(shader, 1, (const GLchar**)&src, nullptr);
     glCompileShader(shader);
 
@@ -80,7 +81,7 @@ void sosc::shdr::Shader::LoadUniforms(std::vector<std::string> names) {
     this->locations.clear();
     for(const auto& name : names) {
         if((id = glGetUniformLocation(this->program, name.c_str())) == -1)
-            throw ShaderUniformException(name);
+            0;//throw ShaderUniformException(name);
 
         this->locations.push_back(id);
     }

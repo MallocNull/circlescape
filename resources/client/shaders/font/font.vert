@@ -8,6 +8,6 @@ uniform mat4 transMatrix;
 uniform mat4 orthoMatrix;
 
 void main() {
-    gl_Position = orthoMatrix * transMatrix * vec4(aScreenCoords, 0.0, 1.0);
+    gl_Position = orthoMatrix * vec4(aScreenCoords, 0.0, 1.0);
     texCoords = aTexCoords;
 }
