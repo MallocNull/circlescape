@@ -6,13 +6,11 @@
 #include <GLM/glm.hpp>
 #include <GLM/gtc/matrix_transform.hpp>
 #include <GLM/gtc/type_ptr.hpp>
-#define GLM_ENABLE_EXPERIMENTAL
-#include <GLM/gtx/string_cast.hpp>
 #include <SDL_image.h>
 
 #include <string>
 #include <fstream>
-#include <iostream>
+#include "ui/texture.hpp"
 #include "shaders/_shader.hpp"
 
 namespace sosc {
@@ -95,6 +93,9 @@ public:
     void SetText(const std::string& text);
     void SetPosition(uint32_t x, uint32_t y);
     void SetWrapWidth(uint32_t w);
+
+    uint32_t GetHeight() const;
+    uint32_t GetLineCount() const;
 
     void Render();
 

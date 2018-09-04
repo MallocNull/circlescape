@@ -194,7 +194,6 @@ void sosc::ui::Font::UnbindBitmap() const {
 
 void sosc::ui::Font::Unload() {
     glDeleteTextures(1, &this->texture);
-
     this->loaded = false;
 }
 
@@ -274,6 +273,29 @@ void sosc::ui::Text::SetWrapWidth(uint32_t w) {
     this->Redraw();
 }
 
+uint32_t sosc::ui::Text::GetHeight() const {
+    return this->GetLineCount() * this->font_size;
+}
+
+uint32_t sosc::ui::Text::GetLineCount() const {
+    if(this->wrap_width == 0)
+        return 1;
+    else {
+        uint32_t count = 1, topleft_x = 0;
+        for(const auto c : this->text) {
+            auto width = (uint32_t)((*this->font)[c].width * this->font_size);
+
+            if(topleft_x + width > this->wrap_width) {
+                ++count;
+                topleft_x = 0;
+            }
+
+            topleft_x += width;
+        }
+        return count;
+    }
+}
+
 void sosc::ui::Text::Render() {
     auto shdr = _font_ctx.shader;
 
@@ -317,7 +339,7 @@ void sosc::ui::Text::Redraw() {
     delete[]this->tex_coords;
     this->tex_coords = new float[this->vertex_count * 2];
 
-    uint32_t line_width = 0, top_x = 0, top_y = 0;
+    uint32_t top_x = 0, top_y = 0;
     for(int i = 0; i < this->text.length(); ++i) {
         auto glyph = (*this->font)[this->text[i]];
         uint32_t width = (uint32_t)(this->font_size * glyph.width),

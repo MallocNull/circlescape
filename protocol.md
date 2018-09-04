@@ -51,7 +51,7 @@ TODO: populate
 
 To keep track of the status of multiple servers from a centralized point that the client may query, each server must be able to communicate with a "master" server that will record and dispense information regarding all servers to clients. All servers that report to the master server will hereby be refered to as "slave" servers. 
 
-Communication between master and slave servers will be done over a UDP connection on a port that is defined by the master server's configuration. The protocol used for this communication is identical to the protocol defined for standard client/server communication; however, the [_Packet IDs_](#TODO) are defined differently.
+Communication between master and slave servers will be done over a TCP connection on a port that is defined by the master server's configuration. The protocol used for this communication is identical to the protocol defined for standard client/server communication; however, the [_Packet IDs_](#TODO) are defined differently.
 
 Communication between the master server and clients will be done over a WebSocket connection on a port that is defined by the master server's configuration. The protocol used for this communication is identical to the protocol defined for standard client/server communication; however, the [_Packet IDs_](#TODO) are defined differently.
 
