@@ -54,8 +54,10 @@ public:
     };
 
     Font() : loaded(false) {}
-    Font(const std::string& bitmapPath, const std::string& dataPath);
-    bool Load(const std::string& bitmapPath, const std::string& dataPath);
+    Font(const std::string& bitmapPath,
+        const std::string& dataPath, bool useNearest = true);
+    bool Load(const std::string& bitmapPath,
+        const std::string& dataPath, bool useNearest = true);
 
     inline const glyph_t& operator[] (char c) const {
         return this->glyphs[(uint8_t)c];
@@ -63,12 +65,11 @@ public:
 
     void Unload();
 private:
-    void BindBitmap();
-    void UnbindBitmap();
+    void BindBitmap() const;
+    void UnbindBitmap() const;
 
     bool loaded;
     GLuint texture;
-    SDL_Surface* image;
     uint32_t
         width, height,
         cell_width, cell_height;

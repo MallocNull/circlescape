@@ -8,17 +8,20 @@
 
 namespace sosc {
 namespace ui {
+class FontShader;
+}}
+
 // STATE STRUCT //
 
-class FontShader;
 static struct {
     sosc::ui::FontShader* shader;
     sosc::ui::Font* default_font;
-    glm::mat4 orthoMatrix;
 } _font_ctx;
 
 // FONT SHADER CLASS //
 
+namespace sosc {
+namespace ui {
 class FontShader : public sosc::shdr::Shader {
 public:
     enum Uniforms {
@@ -33,10 +36,11 @@ public:
 
         int width, height;
         SDL_GetWindowSize(window, &width, &height);
-        _font_ctx.orthoMatrix = glm::ortho(0, width, height, 0);
+        glm::mat4 orthoMatrix =
+            glm::ortho(0.f, (float)width, (float)height, 0.f);
         glUniformMatrix4fv(
             (*this)[ORTHO_MATRIX], 1, GL_FALSE,
-            glm::value_ptr(_font_ctx.orthoMatrix)
+            glm::value_ptr(orthoMatrix)
         );
 
         this->Stop();
@@ -87,7 +91,8 @@ void sosc::ui::font_deinit_subsystem() {
 // FONT CLASS //
 
 sosc::ui::Font::Font
-    (const std::string& bitmapPath, const std::string& dataPath)
+    (const std::string& bitmapPath, const std::string& dataPath,
+     bool useNearest)
 {
     this->loaded = false;
     if(!this->Load(bitmapPath, dataPath))
@@ -95,14 +100,15 @@ sosc::ui::Font::Font
 }
 
 bool sosc::ui::Font::Load
-    (const std::string& filePath, const std::string& dataPath)
+    (const std::string& bitmapPath, const std::string& dataPath,
+     bool useNearest)
 {
     if(this->loaded)
         this->Unload();
 
-    SDL_RWops* rwop = SDL_RWFromFile(filePath.c_str(), "rb");
-    this->image = SDL_LoadBMP_RW(rwop, 1);
-    if(!this->image)
+    SDL_RWops* rwop = SDL_RWFromFile(bitmapPath.c_str(), "rb");
+    SDL_Surface* image = SDL_LoadBMP_RW(rwop, 1);
+    if(!image)
         return false;
 
     char buffer[0x111];
@@ -115,11 +121,11 @@ bool sosc::ui::Font::Load
     if(buffer[0x10] != 0)
         return false;
 
-    this->width = (uint32_t)this->image->w;
-    this->height = (uint32_t)this->image->h;
+    this->width = (uint32_t)image->w;
+    this->height = (uint32_t)image->h;
 
     this->cell_width = LILEND_UNPACK(buffer, 0x08);
-    this->cell_width = LILEND_UNPACK(buffer, 0x0C);
+    this->cell_height = LILEND_UNPACK(buffer, 0x0C);
 
     for(int i = 0; i < 256; ++i) {
         auto glyph = &this->glyphs[i];
@@ -151,25 +157,35 @@ bool sosc::ui::Font::Load
     glGenTextures(1, &this->texture);
     glBindTexture(GL_TEXTURE_2D, this->texture);
     glTexImage2D(
-        GL_TEXTURE_2D, 0, GL_RGBA,
+        GL_TEXTURE_2D, 0, 3,
         this->width, this->height, 0,
-        (this->image->format->BytesPerPixel == 4 ? GL_RGBA : GL_RGB),
-        GL_UNSIGNED_BYTE, this->image->pixels
+        GL_BGR,
+        GL_UNSIGNED_BYTE, image->pixels
+    );
+
+    glTexParameteri(
+        GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+        useNearest ? GL_NEAREST : GL_LINEAR
+    );
+    glTexParameteri(
+        GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+        useNearest ? GL_NEAREST : GL_LINEAR
     );
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    SDL_FreeSurface(image);
     this->loaded = true;
     return true;
 }
 
-void sosc::ui::Font::BindBitmap() {
+void sosc::ui::Font::BindBitmap() const {
     if(!this->loaded)
         return;
 
     glBindTexture(GL_TEXTURE_2D, this->texture);
 }
 
-void sosc::ui::Font::UnbindBitmap() {
+void sosc::ui::Font::UnbindBitmap() const {
     if(!this->loaded)
         return;
 
@@ -178,7 +194,6 @@ void sosc::ui::Font::UnbindBitmap() {
 
 void sosc::ui::Font::Unload() {
     glDeleteTextures(1, &this->texture);
-    SDL_FreeSurface(this->image);
 
     this->loaded = false;
 }
@@ -312,14 +327,6 @@ void sosc::ui::Text::Redraw() {
             top_x = 0;
             top_y += height;
         }
-
-        glm::vec4 result =
-            _font_ctx.orthoMatrix * glm::vec4(320.f, 240.f, 0.f, 1.f);
-        std::cout << "(" << result.x << "," << result.y
-            << "," << result.z << "," << result.w << ")" << std::endl;
-
-        auto test = glm::to_string(_font_ctx.orthoMatrix);
-        std::cout << test << std::endl;
 
         /// TRIANGLE 1 ///
         // TOP LEFT

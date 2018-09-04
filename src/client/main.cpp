@@ -61,19 +61,20 @@ int main(int argc, char* argv[]) {
     );
     ui::font_set_default(&scapeFont);
 
-    ui::Text text(80, glm::vec4(1, 0, 0, 1), "test text", 0, 0);
+    ui::Text text(75, glm::vec4(1, 0, 0, 1),
+        "test", 100, 100, 400);
 
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
 
     bool running = true;
     while(running) {
-        SDL_GL_SwapWindow(window);
-
         glClear(GL_COLOR_BUFFER_BIT);
-        glClearColor(1, 1, 1, 1);
+        glClearColor(.25, .25, .25, 1);
 
         text.Render();
+
+        SDL_GL_SwapWindow(window);
 
         SDL_Event event;
         while(SDL_PollEvent(&event)) {
