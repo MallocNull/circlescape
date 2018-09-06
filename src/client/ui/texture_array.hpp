@@ -13,7 +13,7 @@ namespace sosc {
 namespace ui {
 class TextureArray {
 public:
-    // if you read this your mother will die in her sleep tonight
+
 private:
 
 };
