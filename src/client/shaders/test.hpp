@@ -2,8 +2,8 @@
 #define SOSC_SHADER_TEST_H
 
 #include <SDL.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include <GLM/glm.hpp>
+#include <GLM/gtc/type_ptr.hpp>
 #include "common.hpp"
 #include "_shader.hpp"
 

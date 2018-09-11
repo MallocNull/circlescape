@@ -1,8 +1,8 @@
 #include <SDL.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#define GLEW_STATIC
+#include <GLM/glm.hpp>
+#include <GLM/gtc/matrix_transform.hpp>
 #include <GL/glew.h>
+#include <emscripten.h>
 
 #include "ui/font.hpp"
 #include "shaders/test.hpp"
@@ -17,6 +17,11 @@ void setupOrthoMode() {
 
 }
 
+void draw();
+
+sosc::ui::Text text;
+SDL_Window* window;
+
 int main(int argc, char* argv[]) {
     using namespace sosc;
 
@@ -26,7 +31,7 @@ int main(int argc, char* argv[]) {
     }
     atexit(SDL_Quit);
 
-    auto window = SDL_CreateWindow(
+    window = SDL_CreateWindow(
         "SockScape Client",
         SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
         640, 480,
@@ -61,48 +66,50 @@ int main(int argc, char* argv[]) {
     );
     ui::font_set_default(&scapeFont);
 
-    ui::Text text(75, glm::vec4(1, 0, 0, 1),
-        "test", 100, 100, 400);
+    text = ui::Text(75, glm::vec4(1, 0, 0, 1), "test", 100, 100, 400);
 
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
 
-    bool running = true;
-    while(running) {
-        glClear(GL_COLOR_BUFFER_BIT);
-        glClearColor(.25, .25, .25, 1);
+    emscripten_set_main_loop(draw, 30, 1);
 
-        text.Render();
+    /*ui::font_deinit_subsystem();
+    SDL_GL_DeleteContext(ctx);
+    SDL_DestroyWindow(window);*/
 
-        SDL_GL_SwapWindow(window);
+    return 0;
+}
 
-        SDL_Event event;
-        while(SDL_PollEvent(&event)) {
-            if(event.type == SDL_QUIT)
-                running = false;
+void draw() {
+    using namespace sosc;
 
-            if(event.type == SDL_WINDOWEVENT &&
-               event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
-            {
-                glViewport(0, 0, event.window.data1, event.window.data2);
-                ui::font_window_changed(window);
-            }
+    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(.25, .25, .25, 1);
 
-            if(event.type == SDL_KEYDOWN) {
-                switch(event.key.keysym.sym) {
-                    case SDLK_ESCAPE:
-                        running = false;
-                        break;
-                    default:
-                        break;
-                }
+    text.Render();
+
+    SDL_GL_SwapWindow(window);
+
+    SDL_Event event;
+    while(SDL_PollEvent(&event)) {
+        /*if(event.type == SDL_QUIT)
+            running = false;*/
+
+        if(event.type == SDL_WINDOWEVENT &&
+           event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+        {
+            glViewport(0, 0, event.window.data1, event.window.data2);
+            ui::font_window_changed(window);
+        }
+
+        if(event.type == SDL_KEYDOWN) {
+            switch(event.key.keysym.sym) {
+                /*case SDLK_ESCAPE:
+                    running = false;
+                    break;*/
+                default:
+                    break;
             }
         }
     }
-
-    ui::font_deinit_subsystem();
-    SDL_GL_DeleteContext(ctx);
-    SDL_DestroyWindow(window);
-
-    return 0;
 }
