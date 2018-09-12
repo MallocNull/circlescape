@@ -22,8 +22,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS
 #find_package(SDL2_image REQUIRED)
 
 file(GLOB_RECURSE client_src
-    "src/common/*.hpp"
-    "src/common/*.cpp"
+    #"src/common/*.hpp"
+    #"src/common/*.cpp"
     "src/client/*.hpp"
     "src/client/*.cpp"
 )
