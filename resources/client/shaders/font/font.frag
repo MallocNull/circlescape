@@ -1,14 +1,14 @@
-#version 330 core
-in vec2 texCoords;
-out vec4 fragColor;
+precision mediump float;
+
+varying vec2 texCoords;
 
 uniform vec4 fontColor;
 uniform sampler2D fontBitmap;
 
 void main() {
-    vec4 outColor = texture(fontBitmap, texCoords);
+    vec4 outColor = texture2D(fontBitmap, texCoords);
     if(outColor.xyz == vec3(0.0, 0.0, 0.0))
         discard;
 
-    fragColor = fontColor * outColor;
+    gl_FragColor = fontColor * outColor;
 }

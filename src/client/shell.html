@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SockScape Client</title>
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+
+        #wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+
+            padding: 0;
+            margin: 0;
+        }
+
+        #wrapper #canvas {
+            width: 100%;
+            height: 100%;
+
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    </div>
+    <script type="text/javascript">
+        var Module = {
+            preRun: [],
+            postRun: [],
+            print: function(text) {
+                console.log(text);
+            },
+            printErr: function(text) {
+                console.error(text)
+            },
+            arguments: [
+                window.innerWidth.toString(),
+                window.innerHeight.toString()
+            ],
+            canvas: document.getElementById("canvas")
+        };
+    </script>
+    {{{ SCRIPT }}}
+</body>
+</html>

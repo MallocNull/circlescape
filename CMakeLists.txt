@@ -10,9 +10,17 @@ endif()
 set(CMAKE_CXX_STANDARD 11)
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 #if(CMAKE_COMPILER_IS_GNUCXX)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -s USE_SDL=2 --preload-file ../resources/client")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS='[\"bmp\"]'")
+set(CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} -std=c++11 -s USE_SDL=2")
+set(CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} --preload-file ../resources/client")
+set(CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} --shell-file ../src/client/shell.html")
+set(CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS='[\"bmp\"]'")
 #endif()
+
+set(CMAKE_EXECUTABLE_SUFFIX ".html")
 
 ## CLIENT BUILD ##
 

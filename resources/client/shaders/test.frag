@@ -1,9 +1,5 @@
-#version 330 core
-in vec2 texCoords;
-out vec4 fragColor;
-
-uniform sampler2D fontBitmap;
+precision mediump float;
 
 void main() {
-    fragColor = texture(fontBitmap, texCoords);
+    gl_FragColor = vec4(0.5, 0, 0, 1);
 }
