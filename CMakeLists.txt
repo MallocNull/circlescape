@@ -10,7 +10,7 @@ endif()
 set(CMAKE_CXX_STANDARD 11)
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 #if(CMAKE_COMPILER_IS_GNUCXX)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -s USE_SDL=2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -s USE_SDL=2 --preload-file ../resources/client")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS='[\"bmp\"]'")
 #endif()
 
@@ -31,7 +31,7 @@ file(GLOB_RECURSE client_src
 add_executable(client ${client_src})
 
 target_include_directories(client
-    PRIVATE ${PROJECT_SOURCE_DIR}/src/common
+    #PRIVATE ${PROJECT_SOURCE_DIR}/src/common
     PRIVATE ${PROJECT_SOURCE_DIR}/src/client
     PRIVATE ${PROJECT_SOURCE_DIR}/include/client)
     #PRIVATE ${OPENGL_INCLUDE_DIR}
