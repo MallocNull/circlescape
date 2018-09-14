@@ -48,6 +48,16 @@
             ],
             canvas: document.getElementById("canvas")
         };
+
+        function setup_resize_event() {
+            window.onresize = function() {
+                Module.ccall(
+                    "resize_context",
+                    "void", ["number", "number"],
+                    [window.innerWidth, window.innerHeight]
+                );
+            };
+        }
     </script>
     {{{ SCRIPT }}}
 </body>

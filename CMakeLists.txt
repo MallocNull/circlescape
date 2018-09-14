@@ -18,6 +18,10 @@ set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} --shell-file ../src/client/shell.html")
 set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS='[\"bmp\"]'")
+set(CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} -s EXPORTED_FUNCTIONS='[\"_main\", \"_resize_context\"]'")
+set(CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} -s EXTRA_EXPORTED_RUNTIME_METHODS='[\"ccall\"]'")
 #endif()
 
 set(CMAKE_EXECUTABLE_SUFFIX ".html")
