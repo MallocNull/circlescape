@@ -65,10 +65,14 @@ else()
         "src/server/*.h"
     )
 
+    find_package(OpenSSL)
+
     add_executable(server ${server_src})
     target_include_directories(server
         PRIVATE ${PROJECT_SOURCE_DIR}/src/common
-        PRIVATE ${PROJECT_SOURCE_DIR}/src/server)
+        PRIVATE ${PROJECT_SOURCE_DIR}/src/server
+        PRIVATE ${OPENSSL_INCLUDE_DIR})
+    target_link_libraries(server ${OPENSSL_LIBRARIES})
     install(TARGETS server RUNTIME DESTINATION bin/server)
 
     if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")

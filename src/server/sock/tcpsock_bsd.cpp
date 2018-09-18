@@ -1,5 +1,31 @@
 #include "tcpsock.hpp"
+
 #ifndef _WIN32
+
+static struct {
+    SSL_CTX* ssl_server;
+    SSL_CTX* ssl_client;
+    std::mutex ssl_mtx;
+} _ssl_ctx;
+
+static bool ssl_init() {
+    static bool is_inited = false;
+    if(is_inited) return true;
+
+    SSL_load_error_strings();
+    OpenSSL_add_ssl_algorithms();
+
+    _ssl_ctx.ssl_server = SSL_CTX_new(SSLv23_server_method());
+    if(!_ssl_ctx.ssl_server)
+        return false;
+
+    _ssl_ctx.ssl_client = SSL_CTX_new(SSLv23_client_method());
+    if(!_ssl_ctx.ssl_client)
+        return false;
+
+    is_inited = true;
+    return true;
+}
 
 /****************************/
 /*   BEGIN TCPCLIENT CODE   */
@@ -10,7 +36,7 @@ sosc::TcpClient::TcpClient() {
     this->addr_len = -1;
 }
 
-bool sosc::TcpClient::Open(std::string host, std::uint16_t port) {
+bool sosc::TcpClient::Open(std::string host, std::uint16_t port, bool secure) {
     if(this->sock_open)
         return false;
     
@@ -164,7 +190,9 @@ sosc::TcpServer::TcpServer() {
     this->sock_open = false;
 }
 
-bool sosc::TcpServer::Listen(uint16_t port) {
+bool sosc::TcpServer::Listen(uint16_t port, bool secure) {
+    if(secure && !ssl_init())
+        return false;
     if(this->sock_open)
         return false;
     
@@ -197,8 +225,9 @@ bool sosc::TcpServer::Listen(uint16_t port) {
         close(this->sock);
         return false;
     }
-    
+
     this->sock_open = true;
+    this->secure = secure;
     return true;
 }
 
@@ -217,7 +246,7 @@ bool sosc::TcpServer::Accept(TcpClient* client) {
     }
     
     client->Close();
-    client->Open(sock, addr, addr_len);
+    client->Open(sock, addr, addr_len, this->secure);
     return true;
 }
 

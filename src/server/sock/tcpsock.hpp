@@ -31,8 +31,12 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
+#include <mutex>
 #include "utils/net.hpp"
 #include "utils/string.hpp"
+
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
 #define SOSC_TCP_BUFLEN 2048
 
@@ -43,7 +47,7 @@ namespace sosc {
 class TcpClient {
 public:
     TcpClient();
-    bool Open(std::string host, uint16_t port);
+    bool Open(std::string host, uint16_t port, bool secure = false);
     
     int Receive(std::string* str, int flags = 0);
     bool Send(const std::string& str);
@@ -60,11 +64,13 @@ public:
     
     void Close();
 private:
-    void Open(SOSC_SOCK_T sock, SOSC_ADDR_T addr, int addr_len);
+    void Open(SOSC_SOCK_T sock, SOSC_ADDR_T addr,
+        int addr_len, bool secure = false);
     void SetBlocking(bool will_block);
     
     SOSC_SOCK_T sock;
     bool sock_open;
+    SSL* ssl;
     
     net::IpAddress ip;
     SOSC_ADDR_T addr;
@@ -78,7 +84,7 @@ private:
 class TcpServer {
 public:
     TcpServer();
-    bool Listen(uint16_t port);
+    bool Listen(uint16_t port, bool secure = false);
     
     bool Accept(TcpClient* client);
     
@@ -86,6 +92,7 @@ public:
 private:
     SOSC_SOCK_T sock;
     bool sock_open;
+    bool secure;
 };
 }
 

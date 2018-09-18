@@ -1,6 +1,7 @@
 # additions by alec (tm)
 build/
 connectionStrings.config
+*.pem
 *.kdev4
 .kdev4/
 .idea/
