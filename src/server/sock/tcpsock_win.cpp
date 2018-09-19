@@ -1,4 +1,6 @@
 #include "tcpsock.hpp"
+#include "tcpsock_ssl.cpp"
+
 #ifdef _WIN32
 
 static void init_wsa() {
@@ -22,7 +24,9 @@ sosc::TcpClient::TcpClient() {
     this->addr_len = -1;
 }
 
-bool sosc::TcpClient::Open(std::string host, std::uint16_t port) {
+bool sosc::TcpClient::Open(std::string host, std::uint16_t port, bool secure) {
+    if(secure && !ssl_init())
+        return false;
     if(this->sock_open)
         return false;
     

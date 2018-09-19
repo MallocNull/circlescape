@@ -32,6 +32,8 @@
 #include <cstring>
 #include <string>
 #include <mutex>
+
+#include "common.hpp"
 #include "utils/net.hpp"
 #include "utils/string.hpp"
 

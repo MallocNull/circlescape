@@ -1,31 +1,7 @@
 #include "tcpsock.hpp"
+#include "tcpsock_ssl.cpp"
 
 #ifndef _WIN32
-
-static struct {
-    SSL_CTX* ssl_server;
-    SSL_CTX* ssl_client;
-    std::mutex ssl_mtx;
-} _ssl_ctx;
-
-static bool ssl_init() {
-    static bool is_inited = false;
-    if(is_inited) return true;
-
-    SSL_load_error_strings();
-    OpenSSL_add_ssl_algorithms();
-
-    _ssl_ctx.ssl_server = SSL_CTX_new(SSLv23_server_method());
-    if(!_ssl_ctx.ssl_server)
-        return false;
-
-    _ssl_ctx.ssl_client = SSL_CTX_new(SSLv23_client_method());
-    if(!_ssl_ctx.ssl_client)
-        return false;
-
-    is_inited = true;
-    return true;
-}
 
 /****************************/
 /*   BEGIN TCPCLIENT CODE   */
@@ -34,9 +10,12 @@ static bool ssl_init() {
 sosc::TcpClient::TcpClient() {
     this->sock_open = false;
     this->addr_len = -1;
+    this->ssl = nullptr;
 }
 
 bool sosc::TcpClient::Open(std::string host, std::uint16_t port, bool secure) {
+    if(secure && !ssl_init())
+        return false;
     if(this->sock_open)
         return false;
     
@@ -68,19 +47,37 @@ bool sosc::TcpClient::Open(std::string host, std::uint16_t port, bool secure) {
     freeaddrinfo(results);
     if(this->sock < 0)
         return false;
-    
+
     this->sock_open = true;
+
+    if(!secure)
+        this->ssl = nullptr;
+    else {
+        _ssl_ctx.client_mtx.lock();
+        this->ssl = SSL_new(_ssl_ctx.client);
+        _ssl_ctx.client_mtx.lock();
+
+        SSL_set_fd(this->ssl, this->sock);
+        if(SSL_connect(this->ssl) != 1) {
+            SSL_free(this->ssl);
+            this->Close();
+            return false;
+        }
+    }
+
     return true;
 }
 
 void sosc::TcpClient::Open
-    (SOSC_SOCK_T sock, SOSC_ADDR_T addr, int addr_len)
+    (SOSC_SOCK_T sock, SOSC_ADDR_T addr, int addr_len, bool secure)
 {
     if(this->sock_open)
         return;
     
     this->sock = sock;
     this->sock_open = true;
+    if(!secure)
+        this->ssl = nullptr;
     
     this->addr = addr;
     this->addr_len = addr_len;
