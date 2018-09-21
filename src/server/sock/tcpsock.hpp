@@ -59,6 +59,10 @@ public:
         // TODO consider changing this
         return this->sock_open;
     }
+
+    inline bool IsSecure() const {
+        return this->ssl != nullptr;
+    }
     
     inline net::IpAddress GetIpAddress() const {
         return this->ip;

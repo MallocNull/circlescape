@@ -64,17 +64,49 @@ bool sosc::TcpClient::Open(std::string host, std::uint16_t port, bool secure) {
     
     this->ip = net::IpAddress();
     this->sock_open = true;
+
+    if(!secure)
+        this->ssl = nullptr;
+    else {
+        _ssl_ctx.client_mtx.lock();
+        this->ssl = SSL_new(_ssl_ctx.client);
+        _ssl_ctx.client_mtx.unlock();
+
+        SSL_set_fd(this->ssl, this->sock);
+        if(SSL_connect(this->ssl) != 1) {
+            SSL_free(this->ssl);
+            this->Close();
+            return false;
+        }
+    }
+
     return true;
 }
 
 void sosc::TcpClient::Open
-    (SOSC_SOCK_T sock, SOSC_ADDR_T addr, int addr_len)
+    (SOSC_SOCK_T sock, SOSC_ADDR_T addr, int addr_len, bool secure)
 {
+    if(secure && !ssl_init())
+        return false;
     if(this->sock_open)
         return;
     
     this->sock = sock;
     this->sock_open = true;
+
+    if(!secure)
+        this->ssl = nullptr;
+    else {
+        _ssl_ctx.client_mtx.lock();
+        this->ssl = SSL_new(_ssl_ctx.server);
+        _ssl_ctx.client_mtx.unlock();
+
+        SSL_set_fd(this->ssl, this->sock);
+        if(SSL_accept(this->ssl) <= 0) {
+            this->Close();
+            return;
+        }
+    }
     
     this->addr = addr;
     this->addr_len = addr_len;
@@ -96,7 +128,10 @@ int sosc::TcpClient::Receive(std::string* str, int flags) {
     while(block ? (first_recv ? true : this->IsDataReady()) 
                 : this->IsDataReady()) 
     {
-        int length = recv(this->sock, this->buffer, SOSC_TCP_BUFLEN, 0);
+        int length = (this->ssl == nullptr)
+            ? (int)recv(this->sock, this->buffer, SOSC_TCP_BUFLEN, 0)
+            : (int)SSL_read(this->ssl, this->buffer, SOSC_TCP_BUFLEN);
+
         if(length <= 0) {
             this->Close();
             return -1;
@@ -120,10 +155,15 @@ bool sosc::TcpClient::Send(const std::string& str) {
     
     std::string::size_type total_sent = 0;
     while(total_sent < str.length()) {
-        int sent = total_sent == 0 
-            ? send(this->sock, str.c_str(), str.length(), 0)
-            : send(this->sock, str.substr(total_sent).c_str(), 
-                   str.length() - total_sent, 0);
+        int sent = (total_sent == 0)
+            ? (this->ssl == nullptr)
+                ? (int)send(this->sock, str.c_str(), str.length(), 0)
+                : (int)SSL_write(this->ssl, str.c_str(), str.length())
+            : (this->ssl == nullptr)
+                ? (int)send(this->sock, str.c_str() + total_sent,
+                    str.length() - total_sent, 0)
+                : (int)SSL_write(this->ssl, str.c_str() + total_sent,
+                    str.length() - total_sent);
         
         if(sent == SOCKET_ERROR) {
             this->Close();
