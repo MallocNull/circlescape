@@ -6,11 +6,12 @@
 
 sosc::IntraClient::IntraClient() {
     this->client_open = false;
-    this->cipher = nullptr;
 }
 
-bool sosc::IntraClient::Open(const std::string& host, uint16_t port) {
-    if(!this->client.Open(host, port))
+bool sosc::IntraClient::Open
+    (const std::string& host, uint16_t port, bool secure)
+{
+    if(!this->client.Open(host, port, secure))
         return false;
     
     this->client_open = true;
@@ -20,15 +21,6 @@ bool sosc::IntraClient::Open(const std::string& host, uint16_t port) {
 void sosc::IntraClient::Open(const TcpClient& client) {
     this->client = client;
     this->client_open = true;
-}
-
-bool sosc::IntraClient::IsCiphered() const {
-    return this->cipher != nullptr;
-}
-
-void sosc::IntraClient::SetCipher(cgc::Cipher *cipher) {
-    this->cipher = cipher;
-    cipher->Parse(&this->buffer);
 }
 
 int sosc::IntraClient::Receive(Packet* packet, bool block) {
@@ -46,8 +38,6 @@ int sosc::IntraClient::Receive(Packet* packet, bool block) {
         std::string::size_type offset = this->buffer.size();
         status = this->client.Receive
             (&this->buffer, SOSC_TCP_APPEND | (block ? SOSC_TCP_BLOCK : 0));
-        if(this->IsCiphered())
-            this->cipher->Parse(&this->buffer, offset);
             
         if(status == -1)
             return PCK_ERR;
@@ -60,13 +50,8 @@ int sosc::IntraClient::Receive(Packet* packet, bool block) {
 bool sosc::IntraClient::Send(const Packet& packet) {
     if(!this->client_open)
         return false;
-    
-    std::string packet_raw;
-    packet.ToString(&packet_raw);
-    if(this->IsCiphered())
-        this->cipher->Parse(&packet_raw);
 
-    return this->client.Send(packet_raw);
+    return this->client.Send(packet.ToString());
 }
 
 /****************************/

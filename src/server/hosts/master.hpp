@@ -5,9 +5,6 @@
 #include "sock/scapesock.hpp"
 #include "sock/pool.hpp"
 
-#include "crypto/keyex.hpp"
-#include "crypto/cipher.hpp"
-
 #include "db/database.hpp"
 
 #include "ctx/master.hpp"
@@ -22,8 +19,6 @@ public:
     
 private:
     ScapeConnection sock;
-    cgc::KeyExchange key;
-    cgc::Cipher cipher;
 };
 
 class MasterClientPool : public Pool<MasterClient, ctx::MasterClientContext> {
@@ -44,7 +39,7 @@ protected:
 class MasterIntra {
 public:
     explicit MasterIntra(const IntraClient& client);
-    bool Process(const Pool::Queries* queries);
+    bool Process(const Queries* queries);
 
     bool Close();
     bool Close(const Packet& message);
@@ -72,8 +67,6 @@ private:
     };
 
     IntraClient sock;
-    cgc::KeyExchange key;
-    cgc::Cipher cipher;
 
     bool authed;
     int auth_attempts;
@@ -82,7 +75,7 @@ private:
     int32_t server_id;
     std::string license;
 
-    const Pool::Queries* queries;
+    const Queries* queries;
 };
 
 class MasterIntraPool : public Pool<MasterIntra, ctx::MasterIntraContext> {

@@ -4,7 +4,6 @@
 #include <queue>
 #include "crypto/sha1.hpp"
 #include "crypto/base64.hpp"
-#include "crypto/cipher.hpp"
 #include "frame.hpp"
 #include "packet.hpp"
 #include "tcpsock.hpp"
@@ -17,9 +16,6 @@ namespace sosc {
 class ScapeConnection {
 public:
     ScapeConnection();
-
-    bool IsCiphered() const;
-    void SetCipher(cgc::Cipher* cipher);
 
     int Handshake();
     int Receive(Packet* packet, bool block = false);
@@ -47,7 +43,6 @@ private:
     bool client_open;
     bool handshaked;
     TcpClient client;
-    cgc::Cipher* cipher;
     
     std::string buffer;
     std::string pck_frames;
@@ -59,7 +54,7 @@ class ScapeServer {
 public:
     ScapeServer();
     
-    bool Listen(uint16_t port);
+    bool Listen(uint16_t port, bool secure = false);
     bool Accept(ScapeConnection* client);
     
     inline bool IsOpen() const {

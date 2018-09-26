@@ -8,6 +8,8 @@
 #include "db/database.hpp"
 
 namespace sosc {
+typedef std::vector<db::Query*> Queries;
+
 typedef struct {
     // amount of threads to start with (never close)
     int initial_count = 3;
@@ -42,8 +44,6 @@ public:
     }
     
     virtual void Stop();
-
-    typedef std::vector<db::Query*> Queries;
 protected:
     virtual void SetupQueries(Queries* queries) {};
     virtual bool ProcessClient

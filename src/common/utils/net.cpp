@@ -8,7 +8,7 @@ sosc::net::IpAddress::IpAddress() {
 
 void sosc::net::IpAddress::Reset() {
     for(int i = 0; i < 8; ++i)
-        this->parts[i] = std::make_pair(0, 0);
+        this->parts[i] = std::make_pair<uint16_t, uint8_t>(0, 0);
 }
 
 bool sosc::net::IpAddress::ParseError() {
@@ -161,11 +161,8 @@ bool sosc::net::IpAddress::IsIPv4() const {
     for(int i = 0; i < 5; ++i)
         if(this->parts[i] != blank)
             return false;
-        
-    if(this->parts[5] != std::make_pair<uint16_t, uint8_t>(0xFFFF, 0))
-        return false;
-    
-    return true;
+
+    return this->parts[5] == std::make_pair<uint16_t, uint8_t>(0xFFFF, 0);
 }
 
 // END IPADDRESS CLASS

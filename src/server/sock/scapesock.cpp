@@ -7,21 +7,11 @@
 sosc::ScapeConnection::ScapeConnection() {
     this->client_open = false;
     this->handshaked = false;
-    this->cipher = nullptr;
 }
 
 void sosc::ScapeConnection::Open(const TcpClient& client) {
     this->client = client;
     this->client_open = true;
-}
-
-bool sosc::ScapeConnection::IsCiphered() const {
-    return this->cipher != nullptr;
-}
-
-void sosc::ScapeConnection::SetCipher(cgc::Cipher* cipher) {
-    this->cipher = cipher;
-    cipher->Parse(&this->buffer);
 }
 
 int sosc::ScapeConnection::Handshake() {    
@@ -98,9 +88,6 @@ int sosc::ScapeConnection::Receive(Packet* packet, bool block) {
         if(status == -1)
             return PCK_ERR;
 
-        if(this->IsCiphered())
-            this->cipher->Parse(&this->buffer, bufferSize);
-
         first_recv = false;
     }
     
@@ -124,8 +111,6 @@ bool sosc::ScapeConnection::Send(const Packet& packet) {
     
     std::string packet_raw;
     packet.ToString(&packet_raw);
-    if(this->IsCiphered())
-        this->cipher->Parse(&packet_raw);
 
     return this->client.Send(packet_raw);
 }
@@ -140,12 +125,12 @@ sosc::ScapeServer::ScapeServer() {
     this->server_open = false;
 }
 
-bool sosc::ScapeServer::Listen(uint16_t port) {
+bool sosc::ScapeServer::Listen(uint16_t port, bool secure) {
     if(this->server_open)
         return false;
     
     this->server = TcpServer();
-    this->server.Listen(port);
+    this->server.Listen(port, secure);
     this->server_open = true;
     return true;
 }
@@ -158,3 +143,7 @@ bool sosc::ScapeServer::Accept(ScapeConnection* client) {
     client->Open(raw_client);
     return true;
 }
+
+/****************************/
+/*   END SCAPESERVER CODE   */
+/****************************/

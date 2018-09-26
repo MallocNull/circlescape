@@ -3,16 +3,12 @@
 
 #include "tcpsock.hpp"
 #include "packet.hpp"
-#include "crypto/cipher.hpp"
 
 namespace sosc {
 class IntraClient {
 public:
     IntraClient();
-    bool Open(const std::string& host, uint16_t port);
-
-    bool IsCiphered() const;
-    void SetCipher(cgc::Cipher* cipher);
+    bool Open(const std::string& host, uint16_t port, bool secure = false);
 
     int Receive(Packet* packet, bool block = false);
     bool Send(const Packet& packet);
@@ -35,7 +31,6 @@ private:
     bool client_open;
     TcpClient client;
     std::string buffer;
-    cgc::Cipher* cipher;
     
     friend class IntraServer;
 };

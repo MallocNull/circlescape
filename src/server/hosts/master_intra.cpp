@@ -83,7 +83,7 @@ sosc::MasterIntra::MasterIntra(const IntraClient& client) {
     this->auth_attempts = 0;
 }
 
-bool sosc::MasterIntra::Process(const Pool::Queries* queries) {
+bool sosc::MasterIntra::Process(const Queries* queries) {
     Packet pck;
     int status = this->sock.Receive(&pck);
     if(status == PCK_ERR)
@@ -105,18 +105,7 @@ bool sosc::MasterIntra::Process(const Pool::Queries* queries) {
 }
 
 bool sosc::MasterIntra::InitAttempt(sosc::Packet& pck) {
-    if(!pck.Check(1, key.key_size_bytes))
-        return this->Close(
-            Packet(kEncryptionError, { net::htonv<uint16_t>(0x100) }));
-
-    Packet response;
-    if(!this->key.ParseRequest(pck, &response, kKeyExchange))
-        return this->Close(
-            Packet(kEncryptionError, { net::htonv<uint16_t>(0x101) }));
-
-    this->cipher = cgc::Cipher(this->key);
-    this->sock.Send(response);
-    this->sock.SetCipher(&this->cipher);
+    
 }
 
 bool sosc::MasterIntra::Authentication(sosc::Packet& pck) {
