@@ -93,8 +93,6 @@ bool sosc::MasterIntra::Process(const Queries* queries) {
 
     this->queries = queries;
     switch(pck.GetId()) {
-        case kInitAttempt:
-            return this->InitAttempt(pck);
         case kAuthentication:
             return this->Authentication(pck);
         case kStatusUpdate:
@@ -102,10 +100,6 @@ bool sosc::MasterIntra::Process(const Queries* queries) {
         default:
             return this->Close();
     }
-}
-
-bool sosc::MasterIntra::InitAttempt(sosc::Packet& pck) {
-    
 }
 
 bool sosc::MasterIntra::Authentication(sosc::Packet& pck) {

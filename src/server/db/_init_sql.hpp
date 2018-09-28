@@ -16,7 +16,13 @@ const char* _mem_db_sql =
 
     "CREATE UNIQUE INDEX `UIX_SERVER_LICENSES` ON `SERVER_LICENSES` ("
         "`KEY_ID`, `SECRET`"
-    ");\n";
+    ");\n"
+
+    "CREATE TABLE `USER_KEYS` ("
+        "`ID` INTEGER,"
+        "`SECRET` BLOB NOT NULL UNIQUE,"
+        "PRIMARY KEY(`ID`)"
+    ");";
 
 const char* _hard_db_init_migration_sql =
     "CREATE TABLE `MIGRATIONS` ("

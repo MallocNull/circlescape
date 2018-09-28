@@ -44,7 +44,6 @@ public:
     bool Close();
     bool Close(const Packet& message);
 private:
-    bool InitAttempt(Packet& pck);
     bool Authentication(Packet& pck);
     bool StatusUpdate(Packet& pck);
 
@@ -54,15 +53,12 @@ private:
     bool NotAuthorized(const std::string& packetId);
 
     enum SlaveToMasterId {
-        kInitAttempt = 1,
-        kAuthentication,
+        kAuthentication = 0,
         kStatusUpdate
     };
 
     enum MasterToSlaveId {
-        kKeyExchange = 1,
-        kEncryptionError,
-        kPositiveAck,
+        kPositiveAck = 0,
         kNegativeAck
     };
 

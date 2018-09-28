@@ -12,7 +12,7 @@ Because the body of the packet is a sequence of many different regions of byte d
 
 * The first two bytes will always be 0xB0 and 0x0B. If this is not set properly, the endpoint must close the connection.
 * The next four bytes are the total length of the entire packet, including the whole header.
-* The seventh byte is the packet id, the meanings of which are defined in the [_Packet IDs_](#packet-ids) section.
+* The seventh byte is the packet id, the meanings of which are defined in the packet ID list section.
 * The eighth byte is the number of byte regions in the packet.
 * The bytes following the eighth byte are a list of binary length segments, each of which correspond to the number of bytes in its respective region. They each follow this format:
     * If length is less than 254, the length of the region is stored in a single byte.
@@ -39,79 +39,25 @@ A packet ID may have a specific "direction" of communication, in that an endpoin
 
 A _blind requester_ is an endpoint that sends out a packet of a certain ID and either does not expect a response or expects a response on a different packet ID.
 
-#### Server to Client
-
-TODO: populate
-
-#### Client to Server
-
-TODO: populate
-
 ## Master/Slave Servers
 
 To keep track of the status of multiple servers from a centralized point that the client may query, each server must be able to communicate with a "master" server that will record and dispense information regarding all servers to clients. All servers that report to the master server will hereby be refered to as "slave" servers. 
 
-Communication between master and slave servers will be done over a TCP connection on a port that is defined by the master server's configuration. The protocol used for this communication is identical to the protocol defined for standard client/server communication; however, the [_Packet IDs_](#TODO) are defined differently.
+Communication between master and slave servers will be done over a TCP connection on a port that is defined by the master server's configuration. The protocol used for this communication is identical to the protocol defined for standard client/server communication; however, the Packet IDs are defined differently.
 
-Communication between the master server and clients will be done over a WebSocket connection on a port that is defined by the master server's configuration. The protocol used for this communication is identical to the protocol defined for standard client/server communication; however, the [_Packet IDs_](#TODO) are defined differently.
+Communication between the master server and clients will be done over a WebSocket connection on a port that is defined by the master server's configuration. The protocol used for this communication is identical to the protocol defined for standard client/server communication; however, the Packet IDs are defined differently.
+
+## Packet ID List
 
 ### Master/Slave Packet IDs
 
-#### Master to Slave
+#### Master to Slave [Encrypted]
 
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-   ID 1: Key Exchange<br />
+   ID 0: Positive ACK<br />
    Responder
-  </th>
- </thead>
- <thead>
-  <th>#</th>
-  <th>Region</th>
-  <th>Type</th>
- </thead>
- <tr>
-  <td>1</td>
-  <td>Generator</td>
-  <td>Big Int</td>
- </tr>
- <tr>
-  <td>2</td>
-  <td>Modulus</td>
-  <td>Big Int</td>
- </tr>
- <tr>
-  <td>3</td>
-  <td>Server Key</td>
-  <td>Big Int</td>
- </tr>
-</table>
-
-<table style="margin-right: 8px; margin-bottom: 8px;">
- <thead>
-  <th colspan="100" class="center">
-   ID 2: Encryption Error<br />
-   Responder
-  </th>
- </thead>
- <thead>
-  <th>#</th>
-  <th>Region</th>
-  <th>Type</th>
- </thead>
- <tr>
-  <td>1</td>
-  <td>Error Code</td>
-  <td>Packed Unsigned Short</td>
- </tr>
-</table>
-
-<table style="margin-right: 8px; margin-bottom: 8px;">
- <thead>
-  <th colspan="100" class="center">
-   ID 3: Positive ACK<br />
-   [Encrypted] Responder
   </th>
  </thead>
  <thead>
@@ -129,8 +75,8 @@ Communication between the master server and clients will be done over a WebSocke
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-   ID 4: Negative ACK<br />
-   [Encrypted] Responder
+   ID 1: Negative ACK<br />
+   Responder
   </th>
  </thead>
  <thead>
@@ -150,32 +96,13 @@ Communication between the master server and clients will be done over a WebSocke
  </tr>
 </table>
 
-#### Slave to Master
+#### Slave to Master [Encrypted]
 
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 1: Initiation Attempt<br />
+    ID 0: Authentication<br />
     Requester
-  </th>
- </thead>
- <thead>
-  <th>#</th>
-  <th>Region</th>
-  <th>Type</th>
- </thead>
- <tr>
-  <td class="center">1</td>
-  <td>Secret</td>
-  <td>String</td>
- </tr>
-</table>
-
-<table style="margin-right: 8px; margin-bottom: 8px;">
- <thead>
-  <th colspan="100" class="center">
-    ID 2: Authentication<br />
-    [Encrypted] Requester
   </th>
  </thead>
  <thead>
@@ -208,8 +135,8 @@ Communication between the master server and clients will be done over a WebSocke
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 3: Status Update<br />
-    [Encrypted] Blind Requester
+    ID 1: Status Update<br />
+    Blind Requester
   </th>
  </thead>
  <thead>
@@ -231,42 +158,13 @@ Communication between the master server and clients will be done over a WebSocke
 
 ### Master/Client Packet IDs
 
-#### Master to Client
+#### Master to Client [Encrypted]
 
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-   ID 1: Key Exchange<br />
-   Requester
-  </th>
- </thead>
- <thead>
-  <th>#</th>
-  <th>Region</th>
-  <th>Type</th>
- </thead>
- <tr>
-  <td>1</td>
-  <td>Generator</td>
-  <td>Big Int</td>
- </tr>
- <tr>
-  <td>2</td>
-  <td>Modulus</td>
-  <td>Big Int</td>
- </tr>
- <tr>
-  <td>3</td>
-  <td>Server Key</td>
-  <td>Big Int</td>
- </tr>
-</table>
-
-<table style="margin-right: 8px; margin-bottom: 8px;">
- <thead>
-  <th colspan="100" class="center">
-    ID 2: Login Attempt<br />
-    [Encrypted] Responder
+    ID 0: Login Attempt<br />
+    Responder
   </th>
  </thead>
  <thead>
@@ -310,8 +208,8 @@ Communication between the master server and clients will be done over a WebSocke
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 3: Registration Attempt<br />
-    [Encrypted] Responder
+    ID 1: Registration Attempt<br />
+    Responder
   </th>
  </thead>
  <thead>
@@ -334,8 +232,8 @@ Communication between the master server and clients will be done over a WebSocke
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 4: Server List Request<br />
-    [Encrypted] Responder
+    ID 2: Server List Request<br />
+    Responder
   </th>
  </thead>
  <thead>
@@ -364,32 +262,13 @@ Communication between the master server and clients will be done over a WebSocke
  </tr>
 </table>
 
-#### Client to Master
+#### Client to Master [Encrypted]
 
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 1: Key Exchange<br />
-    Responder
-  </th>
- </thead>
- <thead>
-  <th>#</th>
-  <th>Region</th>
-  <th>Type</th>
- </thead>
- <tr>
-  <td class="center">1</td>
-  <td>Secret</td>
-  <td>String</td>
- </tr>
-</table>
-
-<table style="margin-right: 8px; margin-bottom: 8px;">
- <thead>
-  <th colspan="100" class="center">
-    ID 2: Login Attempt<br />
-    [Encrypted] Requester
+    ID 0: Login Attempt<br />
+    Requester
   </th>
  </thead>
  <thead>
@@ -417,8 +296,8 @@ Communication between the master server and clients will be done over a WebSocke
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 3: Registration Attempt<br />
-    [Encrypted] Requester
+    ID 1: Registration Attempt<br />
+    Requester
   </th>
  </thead>
  <thead>
@@ -446,8 +325,8 @@ Communication between the master server and clients will be done over a WebSocke
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 4: Server List Request<br />
-    [Encrypted] Requester<br />
+    ID 2: Server List Request<br />
+    Requester<br />
   </th>
   <thead>
 	<th colspan="100" class="center">
@@ -456,6 +335,16 @@ Communication between the master server and clients will be done over a WebSocke
   </thead>
  </thead>
 </table>
+
+### Slave/Client Packet IDs
+
+#### Slave to Client
+
+TODO: populate
+
+#### Client to Slave
+
+TODO: populate
 
 ## Sockstamps
 
