@@ -39,6 +39,11 @@ if(_CMP)
 
     add_executable(client ${client_src})
 
+    add_custom_command(
+        TARGET client POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+    )
+
     target_include_directories(client
         #PRIVATE ${PROJECT_SOURCE_DIR}/src/common
         PRIVATE ${PROJECT_SOURCE_DIR}/src/client
