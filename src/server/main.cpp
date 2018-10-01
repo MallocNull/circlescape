@@ -58,6 +58,8 @@ bool master_intra(uint16_t port, const sosc::poolinfo_t& info) {
 bool master_client(uint16_t port, const sosc::poolinfo_t& info) {
     using namespace sosc;
 
+
+
     return true;
 }
 

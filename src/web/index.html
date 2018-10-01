@@ -3,12 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <title>client</title>
-    <style type="text/css">
-
-    </style>
+    <link href="style.css" rel="stylesheet" type="text/css" />
     <script type="text/javascript" src="script.js"></script>
 </head>
 <body>
-
+<div id="loading">
+    Connecting to<br />master server...
+</div>
+<div id="login" class="hidden">
+    <h1>Log In</h1>
+    <label>
+        Username: <br/>
+        <input type="text" id="login-user" />
+    </label>
+    <label>
+        Password: <br/>
+        <input type="password" id="login-pwd" />
+    </label>
+    <input type="button" value="Log In" />
+    <input type="button" value="Register" />
+</div>
+<div id="register" class="hidden">
+    <h1>Register</h1>
+    <label>
+        Username: <br/>
+        <input type="text" id="reg-user" />
+    </label>
+    <label>
+        Email: <br/>
+        <input type="password" id="reg-email" />
+    </label>
+    <label>
+        Password: <br/>
+        <input type="password" id="reg-pwd" />
+    </label>
+    <label>
+        Confirm Password: <br/>
+        <input type="password" id="reg-conf-pwd" />
+    </label>
+</div>
 </body>
 </html>

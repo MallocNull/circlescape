@@ -1,0 +1,20 @@
+body {
+    padding-top: 36px;
+    font-family: monospace;
+    text-align: center;
+    background: #000;
+    color: #fff;
+}
+
+.hidden {
+    display: none;
+}
+
+#loading {
+    font-size: 36px;
+    font-weight: bold;
+}
+
+#login label, #register label {
+    display: block;
+}

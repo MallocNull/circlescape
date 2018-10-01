@@ -1,6 +1,4 @@
 #include "master.hpp"
-#include "db/database.hpp"
-#include <mutex>
 
 static struct {
     std::mutex license_check_mtx;

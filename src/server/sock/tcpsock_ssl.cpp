@@ -1,6 +1,6 @@
 #include "tcpsock.hpp"
 
-static struct {
+struct {
     SSL_CTX* server;
     std::mutex server_mtx;
 

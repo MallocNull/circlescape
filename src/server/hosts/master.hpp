@@ -10,6 +10,7 @@
 #include "ctx/master.hpp"
 
 #include <vector>
+#include <mutex>
 
 namespace sosc {
 /** MASTER -> CLIENT **/

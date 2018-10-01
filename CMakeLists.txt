@@ -45,6 +45,7 @@ if(_CMP)
         PRIVATE ${PROJECT_SOURCE_DIR}/include/client)
 
     install(TARGETS client RUNTIME DESTINATION bin/client)
+
 else()
 
     ##################

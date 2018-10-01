@@ -6,3 +6,4 @@ connectionStrings.config
 .kdev4/
 .idea/
 cmake-build-*/
+*.db-journal
