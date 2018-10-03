@@ -31,8 +31,8 @@ if(_CMP)
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
 
     file(GLOB_RECURSE client_src
-        #"src/common/*.hpp"
-        #"src/common/*.cpp"
+        "src/common/*.hpp"
+        "src/common/*.cpp"
         "src/client/*.hpp"
         "src/client/*.cpp"
     )
@@ -42,10 +42,14 @@ if(_CMP)
     add_custom_command(
         TARGET client POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
+            ${PROJECT_SOURCE_DIR}/src/web/index.html
+            ${PROJECT_SOURCE_DIR}/src/web/script.js
+            ${PROJECT_SOURCE_DIR}/src/web/style.css
+            ${PROJECT_BINARY_DIR}
     )
 
     target_include_directories(client
-        #PRIVATE ${PROJECT_SOURCE_DIR}/src/common
+        PRIVATE ${PROJECT_SOURCE_DIR}/src/common
         PRIVATE ${PROJECT_SOURCE_DIR}/src/client
         PRIVATE ${PROJECT_SOURCE_DIR}/include/client)
 

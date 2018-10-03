@@ -7,7 +7,8 @@ static struct {
 /** MASTERCLIENTPOOL CODE **/
 
 void sosc::MasterClientPool::SetupQueries(Queries *queries) {
-#define QRY_
+#define QRY_USER_REGISTER 0
+    
 }
 
 /** MASTERCLIENT CODE **/
