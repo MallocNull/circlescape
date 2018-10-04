@@ -14,15 +14,11 @@ const char* _mem_db_sql =
         "`MAX_USERS` INTEGER NOT NULL DEFAULT 0"
     ");\n"
 
-    "CREATE UNIQUE INDEX `UIX_SERVER_LICENSES` ON `SERVER_LICENSES` ("
-        "`KEY_ID`, `SECRET`"
-    ");\n"
-
     "CREATE TABLE `USER_KEYS` ("
         "`ID` INTEGER,"
         "`SECRET` BLOB NOT NULL UNIQUE,"
         "PRIMARY KEY(`ID`)"
-    ");";
+    ");\n";
 
 const char* _hard_db_init_migration_sql =
     "CREATE TABLE `MIGRATIONS` ("
@@ -35,9 +31,13 @@ const char* _hard_db_init_migration_sql =
 const std::vector<const char*> _hard_db_sql = {
     /** START MIGRATION 0 **/
     "CREATE TABLE `SERVER_LICENSES` ("
-        "`KEY_ID` TEXT NOT NULL UNIQUE,"
-        "`SECRET` BLOB NOT NULL UNIQUE,"
+        "`KEY_ID` TEXT NOT NULL PRIMARY KEY AUTOINCREMENT,"
+        "`SECRET` BLOB NOT NULL,"
         "`ALLOWANCE` INTEGER NOT NULL DEFAULT 0"
+    ");\n"
+
+    "CREATE UNIQUE INDEX `UIX_SERVER_LICENSES` ON `SERVER_LICENSES` ("
+        "`KEY_ID`, `SECRET`"
     ");\n"
 
     "CREATE TABLE `USERS` ("

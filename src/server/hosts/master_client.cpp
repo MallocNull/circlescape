@@ -7,8 +7,42 @@ static struct {
 /** MASTERCLIENTPOOL CODE **/
 
 void sosc::MasterClientPool::SetupQueries(Queries *queries) {
-#define QRY_USER_REGISTER 0
-    
+#define QRY_USER_REG_CHECK 0
+    queries->push_back(new db::Query(
+        "SELECT COUNT(*) FROM `USERS` "
+        "WHERE `USERNAME` = ? OR `EMAIL` = ?"
+    ));
+
+#define QRY_USER_REGISTER 1
+    queries->push_back(new db::Query(
+        "INSERT INTO `USERS` "
+        "(`USERNAME`, `PASS_HASH`, `EMAIL`, `ACTIVATED`, `JOINED`) "
+        "VALUES (?, ?, ?, 0, CURRENT_TIMESTAMP)"
+    ));
+
+#define QRY_USER_GET_PWD_HASH 2
+    queries->push_back(new db::Query(
+        "SELECT `ID`, `PASS_HASH` FROM `USERS` "
+        "WHERE `USERNAME` = ?"
+    ));
+
+#define QRY_USER_GENERATE_KEY 3
+    queries->push_back(new db::Query(
+        "INSERT OR IGNORE INTO `USER_KEYS` "
+        "(`ID`, `SECRET`) VALUES (?, RANDOMBLOB(128))"
+    ));
+
+#define QRY_USER_GET_KEY 4
+    queries->push_back(new db::Query(
+        "SELECT `SECRET` FROM `USER_KEYS` "
+        "WHERE `ID` = ?"
+    ));
+
+#define QRY_USER_CHECK_KEY 5
+    queries->push_back(new db::Query(
+        "SELECT COUNT(*) FROM `USER_KEYS` "
+        "WHERE `ID` = ? AND `SECRET` = ?"
+    ));
 }
 
 /** MASTERCLIENT CODE **/

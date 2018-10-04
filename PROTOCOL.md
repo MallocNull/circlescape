@@ -188,20 +188,9 @@ Communication between the master server and clients will be done over a WebSocke
  <tr> 
   <td class="center">2</td>
   <td>Secret</td>
-  <td>Bytes (16)</td>
+  <td>Bytes (128)</td>
   <td>R<sub>1</sub></td>
  </tr>
- <tr> 
-  <td class="center">3</td>
-  <td>Server Address</td>
-  <td>IPv4 String</td>
-  <td>R<sub>1</sub></td>
- </tr>
- <tr> 
-  <td class="center">4</td>
-  <td>Server Port</td>
-  <td>Packed Unsigned Short</td>
-  <td>R<sub>1</sub></td>
  </tr>
 </table>
 

@@ -17,9 +17,25 @@ namespace sosc {
     
 class MasterClient {
 public:
-    
+    explicit MasterClient(const ScapeConnection& client);
+    bool Process(const Queries* queries);
+
+    bool Close();
+    bool Close(const Packet& message);
 private:
+    enum MasterToClientId {
+
+    };
+
+    enum ClientToMasterId {
+
+    };
+
     ScapeConnection sock;
+
+    bool authed;
+    int auth_attempts;
+    const int MAX_AUTH_ATTEMPTS = 5;
 };
 
 class MasterClientPool : public Pool<MasterClient, ctx::MasterClientContext> {
@@ -30,8 +46,7 @@ protected:
         ctx::MasterClientContext* context,
         const Queries* queries) override
     {
-        // TODO implement
-        return true;
+        return client.Process(queries);
     }
 };
 
