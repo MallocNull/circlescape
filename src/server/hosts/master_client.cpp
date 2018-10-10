@@ -46,3 +46,13 @@ void sosc::MasterClientPool::SetupQueries(Queries *queries) {
 }
 
 /** MASTERCLIENT CODE **/
+
+sosc::MasterClient::MasterClient(const ScapeConnection &client) {
+    this->sock = client;
+    this->authed = false;
+    this->auth_attempts = 0;
+}
+
+bool sosc::MasterClient::Process(const Queries *queries) {
+
+}
