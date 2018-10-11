@@ -54,5 +54,5 @@ sosc::MasterClient::MasterClient(const ScapeConnection &client) {
 }
 
 bool sosc::MasterClient::Process(const Queries *queries) {
-
+    
 }

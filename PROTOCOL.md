@@ -2,7 +2,7 @@
 
 Messages communicated between the client and server follow the same format, but have different meanings depending on which end is the recipient. A message's intent is determined by its packet ID, a unique identifier that tells the client or server how it should react to the received message. A message id that incites bidirectional communication between the client and server should typically be associated with the same message id on the client as on the server, so as to avoid confusion.
 
-A packet of communication between the client and server is considered to be a seamlessly connected regions of bytes, the boundaries of which are defined in the header of the packet.
+A packet of communication between the client and server is considered to be a header followed by seamlessly connected regions of bytes, the boundaries of which are defined in the header.
 
 All references to the 'byte' in this document refers to individual 8-bit octets, as is the de facto standard in modern computing. All binary-encoded multi-byte quantities sent in a packet are to be sent in network byte order (big endian).
 
@@ -19,11 +19,17 @@ Because the body of the packet is a sequence of many different regions of byte d
     * If length is greater than or equal to 254 but less than 65,536, the first byte of the length segment will be 254 and the following two bytes is the length of the region.
     * If length is greater than or equal to 65,536, the first byte of the length segment will be 255 and the following four bytes is the length of the region.
     
-The number of length segments must equal the number of byte regions as defined in the second byte. The combined length of the regions must not exceed 2^32-n where n is the length of the header.
+The number of length segments must equal the number of byte regions as defined in the second byte. The combined length of the regions must not exceed 2<sup>32</sup> - _n_ - 1 where _n_ is the length of the header.
+
+### Packet IDs
+
+A packet ID may have a specific "direction" of communication, in that an endpoint may either act as a _requester_ or a _responder_. A _requester_ is an endpoint that drives all of the communication on that specific packet ID, while the _responder_ is responsible for providing a timely response to the requests it receives. A _responder_ for a specific packet ID should never send that packet ID unsolicited; either the packet will be ignored or the other endpoint will close the connection. Any packet ID marked as bidirectional may be initiated by either endpoint at any time.
+
+A _blind requester_ is an endpoint that sends out a packet of a certain ID and either does not expect a response or expects a response on a different packet ID.
 
 ## Body
 
-The message body immediately follows the header with no separator, and consists of a sequence of byte regions as defined in the header that are joined together without any separator. The position of a byte region in the body should correspond to the offset of the length segment in the header.
+The message body immediately follows the header with no delimiter, and consists of a sequence of byte regions as defined in the header that are laid out in sequence without any delimiters. The position of a byte region in the body should correspond to the offset of the length segment in the header.
 
 ### Numeric Packing
 
@@ -32,12 +38,6 @@ All numbers, unless otherwise specified, are the string representation of a base
 * User IDs: Hex string, 8 bytes unsigned
 * Co-ordinates:  8 bytes, double-precision float
 * Big Int: Hex string, variable size
-
-### Packet IDs
-
-A packet ID may have a specific "direction" of communication, in that an endpoint may either act as a _requester_ or a _responder_. A _requester_ is an endpoint that drives all of the communication on that specific packet ID, while the _responder_ is responsible for providing a timely response to the requests it receives. A _responder_ for a specific packet ID should never send that packet ID unsolicited; either the packet will be ignored or the other endpoint will close the connection. Any packet ID marked as bidirectional may be initiated by either endpoint at any time.
-
-A _blind requester_ is an endpoint that sends out a packet of a certain ID and either does not expect a response or expects a response on a different packet ID.
 
 ## Master/Slave Servers
 
