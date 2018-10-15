@@ -8,7 +8,6 @@
 #include "db/database.hpp"
 
 namespace sosc {
-typedef std::vector<db::Query*> Queries;
 
 typedef struct {
     // amount of threads to start with (never close)
@@ -45,9 +44,9 @@ public:
     
     virtual void Stop();
 protected:
-    virtual void SetupQueries(Queries* queries) {};
+    virtual void SetupQueries(db::Queries* queries) {};
     virtual bool ProcessClient
-        (T& client, U* context, const Queries* queries) = 0;
+        (T& client, U* context, const db::Queries* queries) = 0;
 private:
     bool IsStackFull(int stackCount) const;
     bool CanAddStack() const;
@@ -69,7 +68,7 @@ private:
     private:
         void StackThread();
 
-        Queries queries;
+        db::Queries queries;
         std::thread* thread;
         Pool<T,U>* pool;
         bool is_open;
@@ -83,7 +82,7 @@ private:
     bool is_open;
 
     U context;
-    Queries queries;
+    db::Queries queries;
     std::vector<Stack*> stacks;
     
     friend class Stack;

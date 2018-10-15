@@ -6,7 +6,7 @@ static struct {
 
 /** MASTERINTRAPOOL CODE **/
 
-void sosc::MasterIntraPool::SetupQueries(Queries* queries) {
+void sosc::MasterIntraPool::SetupQueries(db::Queries* queries) {
 #define QRY_LICENSE_CHECK 0
     queries->push_back(new db::Query(
         "SELECT COUNT(*) FROM `SERVER_LICENSES` "
@@ -81,7 +81,7 @@ sosc::MasterIntra::MasterIntra(const IntraClient& client) {
     this->auth_attempts = 0;
 }
 
-bool sosc::MasterIntra::Process(const Queries* queries) {
+bool sosc::MasterIntra::Process(const db::Queries* queries) {
     Packet pck;
     int status = this->sock.Receive(&pck);
     if(status == PCK_ERR)

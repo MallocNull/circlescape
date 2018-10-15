@@ -20,7 +20,7 @@ protected:
     bool ProcessClient
         (SlaveClient& client,
          ctx::SlaveContext* context,
-         const Queries* queries) override
+         const db::Queries* queries) override
     {
         // TODO implement
         return true;

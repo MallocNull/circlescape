@@ -6,7 +6,7 @@ static struct {
 
 /** MASTERCLIENTPOOL CODE **/
 
-void sosc::MasterClientPool::SetupQueries(Queries *queries) {
+void sosc::MasterClientPool::SetupQueries(db::Queries *queries) {
 #define QRY_USER_REG_CHECK 0
     queries->push_back(new db::Query(
         "SELECT COUNT(*) FROM `USERS` "
@@ -53,6 +53,6 @@ sosc::MasterClient::MasterClient(const ScapeConnection &client) {
     this->auth_attempts = 0;
 }
 
-bool sosc::MasterClient::Process(const Queries *queries) {
+bool sosc::MasterClient::Process(const db::Queries *queries) {
     
 }

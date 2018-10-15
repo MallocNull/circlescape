@@ -14,6 +14,7 @@ namespace sosc {
 namespace db {
 
 class Query;
+typedef std::vector<db::Query*> Queries;
 
 class ResultSet {
 public:

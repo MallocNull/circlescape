@@ -18,7 +18,7 @@ namespace sosc {
 class MasterClient {
 public:
     explicit MasterClient(const ScapeConnection& client);
-    bool Process(const Queries* queries);
+    bool Process(const db::Queries* queries);
 
     bool Close();
     bool Close(const Packet& message);
@@ -40,11 +40,11 @@ private:
 
 class MasterClientPool : public Pool<MasterClient, ctx::MasterClientContext> {
 protected:
-    void SetupQueries(Queries* queries) override;
+    void SetupQueries(db::Queries* queries) override;
     bool ProcessClient(
         MasterClient& client,
         ctx::MasterClientContext* context,
-        const Queries* queries) override
+        const db::Queries* queries) override
     {
         return client.Process(queries);
     }
@@ -55,7 +55,7 @@ protected:
 class MasterIntra {
 public:
     explicit MasterIntra(const IntraClient& client);
-    bool Process(const Queries* queries);
+    bool Process(const db::Queries* queries);
 
     bool Close();
     bool Close(const Packet& message);
@@ -87,16 +87,16 @@ private:
     int32_t server_id;
     std::string license;
 
-    const Queries* queries;
+    const db::Queries* queries;
 };
 
 class MasterIntraPool : public Pool<MasterIntra, ctx::MasterIntraContext> {
 protected:
-    void SetupQueries(Queries* queries) override;
+    void SetupQueries(db::Queries* queries) override;
     bool ProcessClient
         (MasterIntra& client,
          ctx::MasterIntraContext* context,
-         const Queries* queries) override
+         const db::Queries* queries) override
     {
         return client.Process(queries);
     }
