@@ -1,0 +1,4 @@
+#ifndef SOSC_CLIENT_SOCKET_H
+#define SOSC_CLIENT_SOCKET_H
+
+#endif

@@ -2,7 +2,7 @@
 #define SOSC_INTSOCK_H
 
 #include "tcpsock.hpp"
-#include "packet.hpp"
+#include "sock/packet.hpp"
 
 namespace sosc {
 class IntraClient {

@@ -163,7 +163,7 @@ Communication between the master server and clients will be done over a WebSocke
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 0: Login Attempt<br />
+    ID 0: Login Response<br />
     Responder
   </th>
  </thead>
@@ -197,7 +197,7 @@ Communication between the master server and clients will be done over a WebSocke
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 1: Registration Attempt<br />
+    ID 1: Registration Response<br />
     Responder
   </th>
  </thead>
@@ -221,7 +221,7 @@ Communication between the master server and clients will be done over a WebSocke
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 2: Server List Request<br />
+    ID 2: Server Listing<br />
     Responder
   </th>
  </thead>
@@ -256,7 +256,7 @@ Communication between the master server and clients will be done over a WebSocke
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 0: Login Attempt<br />
+    ID 0: Login Request<br />
     Requester
   </th>
  </thead>
@@ -285,7 +285,7 @@ Communication between the master server and clients will be done over a WebSocke
 <table style="margin-right: 8px; margin-bottom: 8px;">
  <thead>
   <th colspan="100" class="center">
-    ID 1: Registration Attempt<br />
+    ID 1: Registration Request<br />
     Requester
   </th>
  </thead>

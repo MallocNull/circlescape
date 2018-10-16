@@ -24,11 +24,15 @@ public:
     bool Close(const Packet& message);
 private:
     enum MasterToClientId {
-
+        kLoginResponse = 0,
+        kRegisterResponse,
+        kServerList
     };
 
     enum ClientToMasterId {
-
+        kLoginRequest = 0,
+        kRegisterRequest,
+        kServerListRequest
     };
 
     ScapeConnection sock;

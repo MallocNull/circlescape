@@ -4,8 +4,8 @@
 #include <queue>
 #include "crypto/sha1.hpp"
 #include "crypto/base64.hpp"
+#include "sock/packet.hpp"
 #include "frame.hpp"
-#include "packet.hpp"
 #include "tcpsock.hpp"
 
 #define SOSC_SHAKE_ERR (-1)

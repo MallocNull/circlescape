@@ -54,5 +54,10 @@ sosc::MasterClient::MasterClient(const ScapeConnection &client) {
 }
 
 bool sosc::MasterClient::Process(const db::Queries *queries) {
-    
+    Packet pck;
+    int status = this->sock.Receive(&pck);
+    if(status == PCK_ERR)
+        return this->Close();
+    else if(status == PCK_MORE)
+        return true;
 }

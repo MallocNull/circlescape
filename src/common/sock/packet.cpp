@@ -1,4 +1,4 @@
-#include "packet.hpp"
+#include "sock/packet.hpp"
 
 sosc::Packet::Packet() {
     this->id = 0;
@@ -151,8 +151,7 @@ std::string* sosc::Packet::ToString(std::string* packet) const {
     (*packet)[1] = 0x0B;
     (*packet)[6] = this->id;
     (*packet)[7] = regions.size();
-    
-    //for(auto i = this->regions.begin(); i != this->regions.end(); ++i) {
+
     for(const auto& i : this->regions) {
         if(i.size() < 0xFE)
             *packet += (char)i.size();
@@ -164,8 +163,7 @@ std::string* sosc::Packet::ToString(std::string* packet) const {
             *packet += net::htonv<uint32_t>(i.size());
         }
     }
-    
-    //for(auto i = this->regions.begin(); i != this->regions.end(); ++i)
+
     for(const auto& i : this->regions)
         *packet += i;
     
