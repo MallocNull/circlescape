@@ -54,10 +54,28 @@ sosc::MasterClient::MasterClient(const ScapeConnection &client) {
 }
 
 bool sosc::MasterClient::Process(const db::Queries *queries) {
+    if(!this->sock.Handshaked())
+        return (this->sock.Handshake() != WS_SHAKE_ERR);
+
     Packet pck;
     int status = this->sock.Receive(&pck);
     if(status == PCK_ERR)
         return this->Close();
     else if(status == PCK_MORE)
         return true;
+
+    this->queries = queries;
+    switch(pck.GetId()) {
+        case kLoginRequest:
+
+            break;
+        case kRegisterRequest:
+
+            break;
+        case kServerListRequest:
+
+            break;
+        default:
+            return this->Close();
+    }
 }

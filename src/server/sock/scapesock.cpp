@@ -16,22 +16,22 @@ void sosc::ScapeConnection::Open(const TcpClient& client) {
 
 int sosc::ScapeConnection::Handshake() {    
     if(this->handshaked)
-        return SOSC_SHAKE_DONE;
+        return WS_SHAKE_DONE;
     if(!this->client_open)
-        return SOSC_SHAKE_ERR;
+        return WS_SHAKE_ERR;
     
     if(!this->client.IsDataReady())
-        return SOSC_SHAKE_CONT;
+        return WS_SHAKE_CONT;
     
     this->client.Receive(&this->buffer, SOSC_TCP_APPEND);
     
     if(!str::starts(this->buffer, "GET")) {
         this->Close();
-        return SOSC_SHAKE_ERR;
+        return WS_SHAKE_ERR;
     }
     
     if(!str::contains(this->buffer, "\r\n\r\n"))
-        return SOSC_SHAKE_CONT;
+        return WS_SHAKE_CONT;
     
     std::string websocket_key = "";
     auto lines = str::split(this->buffer, "\r\n");
@@ -50,7 +50,7 @@ int sosc::ScapeConnection::Handshake() {
     
     if(websocket_key.empty()) {
         this->Close();
-        return SOSC_SHAKE_ERR;
+        return WS_SHAKE_ERR;
     }
     
     websocket_key += "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -64,7 +64,7 @@ int sosc::ScapeConnection::Handshake() {
     this->client.Send(stream.str());
     
     this->handshaked = true;
-    return SOSC_SHAKE_DONE;
+    return WS_SHAKE_DONE;
 }
 
 int sosc::ScapeConnection::Receive(Packet* packet, bool block) {

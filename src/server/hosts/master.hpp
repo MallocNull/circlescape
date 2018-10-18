@@ -36,6 +36,7 @@ private:
     };
 
     ScapeConnection sock;
+    const db::Queries* queries;
 
     bool authed;
     int auth_attempts;
