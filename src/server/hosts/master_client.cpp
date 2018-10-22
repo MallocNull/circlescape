@@ -79,3 +79,13 @@ bool sosc::MasterClient::Process(const db::Queries *queries) {
             return this->Close();
     }
 }
+
+bool sosc::MasterClient::Close() {
+    this->sock.Close();
+    return false;
+}
+
+bool sosc::MasterClient::Close(const Packet& message) {
+    this->sock.Send(message);
+    this->Close();
+}

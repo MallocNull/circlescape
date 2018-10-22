@@ -28,6 +28,7 @@ int main(int argc, char **argv) {
         return -1;
 
     if(argv[1][0] == 'm') {
+
         master_intra(1234, sosc::poolinfo_t());
     } else {
         slave(1234, sosc::poolinfo_t());
@@ -58,15 +59,24 @@ bool master_intra(uint16_t port, const sosc::poolinfo_t& info) {
 bool master_client(uint16_t port, const sosc::poolinfo_t& info) {
     using namespace sosc;
 
+    ScapeServer server;
+    ScapeConnection client;
+    if(!server.Listen(port, true))
+        return false;
 
+    MasterClientPool pool;
+    pool.Configure(info);
+    pool.Start();
 
+    while(server.Accept(&client))
+        pool.AddClient(MasterClient(client));
+
+    pool.Stop();
     return true;
 }
 
 bool slave(uint16_t port, const sosc::poolinfo_t& info) {
     using namespace sosc;
-
-
 
     ScapeServer server;
     ScapeConnection client;
