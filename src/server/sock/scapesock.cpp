@@ -23,7 +23,10 @@ int sosc::ScapeConnection::Handshake() {
     if(!this->client.IsDataReady())
         return WS_SHAKE_CONT;
     
-    this->client.Receive(&this->buffer, SOSC_TCP_APPEND);
+    if(this->client.Receive(&this->buffer, SOSC_TCP_APPEND) <= 0) {
+        this->Close();
+        return WS_SHAKE_ERR;
+    }
     
     if(!str::starts(this->buffer, "GET")) {
         this->Close();
@@ -62,7 +65,8 @@ int sosc::ScapeConnection::Handshake() {
            << "Connection: Upgrade\r\n"
            << "Sec-WebSocket-Accept: " << websocket_key << "\r\n\r\n";
     this->client.Send(stream.str());
-    
+
+    this->buffer = std::string(this->buffer.c_str() + this->buffer.find("\r\n\r\n") + 4);
     this->handshaked = true;
     return WS_SHAKE_DONE;
 }
@@ -130,9 +134,8 @@ bool sosc::ScapeServer::Listen(uint16_t port, bool secure) {
         return false;
     
     this->server = TcpServer();
-    this->server.Listen(port, secure);
-    this->server_open = true;
-    return true;
+    this->server_open = this->server.Listen(port, secure);
+    return this->server_open;
 }
 
 bool sosc::ScapeServer::Accept(ScapeConnection* client) {

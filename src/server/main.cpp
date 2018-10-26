@@ -28,8 +28,8 @@ int main(int argc, char **argv) {
         return -1;
 
     if(argv[1][0] == 'm') {
-
-        master_intra(1234, sosc::poolinfo_t());
+        master_client(8008, sosc::poolinfo_t());
+        //master_intra(1234, sosc::poolinfo_t());
     } else {
         slave(1234, sosc::poolinfo_t());
     }

@@ -4,7 +4,7 @@
 #include <string>
 
 #ifdef SOSC_DEBUG
-#define SOSC_RESOURCE_PATH (std::string("../resources/client/"))
+#define SOSC_RESOURCE_PATH (std::string("../resources/server/"))
 #else
 #define SOSC_RESOURCE_PATH (std::string("resources/"))
 #endif

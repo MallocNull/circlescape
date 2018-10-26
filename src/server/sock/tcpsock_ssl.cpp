@@ -32,7 +32,7 @@ static bool ssl_init() {
         SOSC_RESC("ssl/cert.pem").c_str(),
         SSL_FILETYPE_PEM
     );
-    success |= SSL_CTX_use_certificate_file(
+    success |= SSL_CTX_use_PrivateKey_file(
         _ssl_ctx.server,
         SOSC_RESC("ssl/key.pem").c_str(),
         SSL_FILETYPE_PEM
