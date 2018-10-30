@@ -7,10 +7,10 @@
     <script type="text/javascript" src="script.js"></script>
 </head>
 <body>
-<div id="loading">
+<div id="loading" class="section">
     Connecting to<br />master server...
 </div>
-<div id="login" class="hidden">
+<div id="login" class="hidden section">
     <h1>Log In</h1>
     <label>
         Username: <br/>
@@ -23,7 +23,7 @@
     <input type="button" value="Log In" />
     <input type="button" value="Register" />
 </div>
-<div id="register" class="hidden">
+<div id="register" class="hidden section">
     <h1>Register</h1>
     <label>
         Username: <br/>
@@ -41,6 +41,9 @@
         Confirm Password: <br/>
         <input type="password" id="reg-conf-pwd" />
     </label>
+</div>
+<div id="client" class="hidden section">
+    <iframe id="client_iframe"></iframe>
 </div>
 </body>
 </html>
