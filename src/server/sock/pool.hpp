@@ -240,12 +240,12 @@ void Pool<T,U>::Stack::StackThread() {
 
     while(this->is_running) {
         for(auto client  = this->clients.begin();
-                 client != this->clients.end();
+                 client != this->clients.end() && this->clients.size() > 0;
                  ++client)
         {
             if(!this->is_running)
                 break;
-            
+
             this->clients_mtx.lock();
             if(!this->pool->ProcessClient
                 (*client, &this->pool->context, &this->queries))

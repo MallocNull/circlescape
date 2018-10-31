@@ -19,4 +19,12 @@ body {
 
 #login label, #register label {
     display: block;
+    margin: 10px;
+}
+
+.section > .error {
+    margin: 15px auto;
+    color: #d00;
+    font-size: 1.1em;
+    max-width: 250px;
 }

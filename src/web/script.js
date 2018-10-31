@@ -1,3 +1,4 @@
+let unloading = false;
 let sections = {};
 let ws;
 
@@ -15,27 +16,107 @@ const kMasterToClient = {
     "ServerList": 2
 };
 
-function show_section(name) {
-    for(let i in sections) {
-        if(!sections.hasOwnProperty(i))
-            continue;
+let receive_callbacks = {};
 
-        if(i === name)
+function attempt_login() {
+    let section = document.getElementById("login");
+    let error = section.getElementsByClassName("error");
+    let buttons = filter(
+        to_array(section.getElementsByTagName("input")),
+        x => (x.type === "button" || x.type === "submit")
+    );
+
+    for(let i in buttons)
+        buttons[i].disabled = true;
+
+    receive_callbacks[kMasterToClient.LoginResponse] = (pck) => {
+
+
+        for(let i in buttons)
+            buttons[i].disabled = false;
+    };
+}
+
+function show_section(id) {
+    clear_inputs();
+    clear_errors();
+
+    for(let i in sections) {
+        if(i === id)
             sections[i].classList.remove("hidden");
         else
             sections[i].classList.add("hidden");
     }
 }
 
+function clear_inputs() {
+    let types = ["text", "password"];
+    let inputs = document.getElementsByTagName("input");
+
+    for_each(inputs, x => {
+        if(types.indexOf(x.type) !== -1)
+            x.value = "";
+    });
+}
+
+function clear_errors() {
+    let errors = document.getElementsByClassName("error");
+    for_each(errors, x => {
+        x.classList.add("hidden");
+    });
+}
+
 function pack(id, regions) {
     if(!Array.isArray(regions))
-        throw Error("PACK MUST BE GIVEN ARRAY OF STRINGS AND UINT8ARRAYS");
+        throw Error("REGIONS ARGUMENT MALFORMED");
+    if(regions.length > 255)
+        throw Error("REGIONS ARGUMENT MALFORMED");
 
-    let pck = null;
+    let pck;
     let size = 8;
+    let head_size = size;
     for(let i in regions) {
         if(typeof regions[i] === "string")
+            regions[i] = regions[i].toByteArray();
+        else if(!(regions[i] instanceof Uint8Array))
+            throw Error("REGIONS ARGUMENT MALFORMED");
+        let length = regions[i].length;
 
+        size += length;
+        if(length < 254)
+            ++head_size;
+        else if(length < 65536)
+            head_size += 3;
+        else
+            head_size += 5;
+    }
+    size += head_size;
+
+    pck = new Uint8Array(size);
+    pck.set(MAHOU, 0);
+    pck.set(size.packUint32(), 2);
+    pck[6] = regions.length;
+    pck[7] = Math.min(id, 255);
+
+    let head_ptr = 8;
+    let body_ptr = head_size;
+    for(let i in regions) {
+        let length = regions[i].length;
+        if(length < 254) {
+            pck[head_ptr] = length;
+            head_ptr++;
+        } else if(length < 65536) {
+            pck[head_ptr] = 254;
+            pck.set(length.packUint16(), head_ptr + 1);
+            head_ptr += 3;
+        } else {
+            pck[head_ptr] = 255;
+            pck.set(length.packUint32(), head_ptr + 1);
+            head_ptr += 5;
+        }
+
+        pck.set(regions[i], body_ptr);
+        body_ptr += length;
     }
 
     return pck;
@@ -90,15 +171,8 @@ function parse(data) {
         return;
 
     switch(packet.id) {
-        case kMasterToClient.LoginResponse:
-
-            break;
-        case kMasterToClient.RegisterResponse:
-
-            break;
-        case kMasterToClient.ServerList:
-
-            break;
+        default:
+            receive_callbacks[packet.id](packet);
     }
 }
 
@@ -107,7 +181,7 @@ function conn_open() {
     ws.binaryType = "arraybuffer";
 
     ws.onopen = function (e) {
-
+        show_section("login");
     };
 
     ws.onmessage = function(e) {
@@ -115,7 +189,8 @@ function conn_open() {
     };
 
     ws.onclose = function (e) {
-        conn_retry();
+        if(!unloading)
+            conn_retry();
     }
 }
 
@@ -127,17 +202,21 @@ function conn_retry() {
 
     let loading = document.getElementById("loading");
     loading.innerHTML = "Connection lost.<br/>Retrying...";
-    loading.classList.remove("hidden");
+    show_section("loading");
 
     conn_open();
 }
 
 window.onload = function() {
-    let raw_sections = document.body.getElementsByClassName("section");
-    for(let i in raw_sections)
-        sections[raw_sections[i].id] = raw_sections[i];
+    for_each(document.body.getElementsByClassName("section"), x => {
+        sections[x.id] = x;
+    });
 
     conn_open();
+};
+
+window.onbeforeunload = function() {
+    unloading = true;
 };
 
 /****************************/
@@ -486,3 +565,17 @@ let utf8 = {
     utf8.encode = utf8encode;
     utf8.decode = utf8encode;
 })();
+
+/*** I REALLY CAN'T FUCKING BELIEVE I HAVE TO ADD THESE ***/
+
+function for_each(x, f) {
+    Array.prototype.forEach.call(x, f);
+}
+
+function filter(x, f) {
+    return Array.prototype.filter.call(x, f);
+}
+
+function to_array(x) {
+    return Array.prototype.slice.call(x);
+}

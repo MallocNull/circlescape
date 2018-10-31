@@ -12,6 +12,9 @@
 </div>
 <div id="login" class="hidden section">
     <h1>Log In</h1>
+    <div class="error">
+        test error test test error test test error test test error test test error test test error test test error test test error test test error test
+    </div>
     <label>
         Username: <br/>
         <input type="text" id="login-user" />
@@ -21,17 +24,18 @@
         <input type="password" id="login-pwd" />
     </label>
     <input type="button" value="Log In" />
-    <input type="button" value="Register" />
+    <input type="button" value="Register" onclick="show_section('register');" />
 </div>
 <div id="register" class="hidden section">
     <h1>Register</h1>
+    <div class="hidden error"></div>
     <label>
         Username: <br/>
         <input type="text" id="reg-user" />
     </label>
     <label>
         Email: <br/>
-        <input type="password" id="reg-email" />
+        <input type="test" id="reg-email" />
     </label>
     <label>
         Password: <br/>
@@ -41,6 +45,8 @@
         Confirm Password: <br/>
         <input type="password" id="reg-conf-pwd" />
     </label>
+    <input type="button" value="Register" />
+    <input type="button" value="Cancel" onclick="show_section('login')" />
 </div>
 <div id="client" class="hidden section">
     <iframe id="client_iframe"></iframe>
