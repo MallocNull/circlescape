@@ -275,11 +275,6 @@ Communication between the master server and clients will be done over a WebSocke
   <td>Password</td>
   <td>String</td>
  </tr>
- <tr>
-  <td class="center">3</td>
-  <td>Server Id</td>
-  <td>Packed Unsigned Short</td>
- </tr>
 </table>
 
 <table style="margin-right: 8px; margin-bottom: 8px;">

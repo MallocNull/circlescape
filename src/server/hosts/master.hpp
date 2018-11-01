@@ -17,11 +17,14 @@ namespace sosc {
     
 class MasterClient {
 public:
+    MasterClient() = delete;
     explicit MasterClient(const ScapeConnection& client);
     bool Process(const db::Queries* queries);
 
     bool Close();
     bool Close(const Packet& message);
+
+    ~MasterClient();
 private:
     enum MasterToClientId {
         kLoginResponse = 0,
@@ -47,11 +50,11 @@ class MasterClientPool : public Pool<MasterClient, ctx::MasterClientContext> {
 protected:
     void SetupQueries(db::Queries* queries) override;
     bool ProcessClient(
-        MasterClient& client,
+        MasterClient* client,
         ctx::MasterClientContext* context,
         const db::Queries* queries) override
     {
-        return client.Process(queries);
+        return client->Process(queries);
     }
 };
 
@@ -59,11 +62,14 @@ protected:
 
 class MasterIntra {
 public:
+    MasterIntra() = delete;
     explicit MasterIntra(const IntraClient& client);
     bool Process(const db::Queries* queries);
 
     bool Close();
     bool Close(const Packet& message);
+
+    ~MasterIntra();
 private:
     bool Authentication(Packet& pck);
     bool StatusUpdate(Packet& pck);
@@ -99,11 +105,11 @@ class MasterIntraPool : public Pool<MasterIntra, ctx::MasterIntraContext> {
 protected:
     void SetupQueries(db::Queries* queries) override;
     bool ProcessClient
-        (MasterIntra& client,
+        (MasterIntra* client,
          ctx::MasterIntraContext* context,
          const db::Queries* queries) override
     {
-        return client.Process(queries);
+        return client->Process(queries);
     }
 };
 }

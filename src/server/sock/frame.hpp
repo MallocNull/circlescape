@@ -72,7 +72,7 @@ private:
     std::string body;
     
     inline static bool IsValidOpCode(int op) {
-        return !(op == 0x0 || op == 0x1 || op == 0x2
+        return  (op == 0x0 || op == 0x1 || op == 0x2
               || op == 0x8 || op == 0x9 || op == 0xA);
     }
 };

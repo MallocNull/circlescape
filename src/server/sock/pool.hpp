@@ -36,7 +36,7 @@ public:
     void Configure(const poolinfo_t& info);
     
     void Start();
-    bool AddClient(T client);
+    bool AddClient(T* client);
     int ClientCount();
     inline bool IsOpen() const {
         return this->is_open;
@@ -46,7 +46,7 @@ public:
 protected:
     virtual void SetupQueries(db::Queries* queries) {};
     virtual bool ProcessClient
-        (T& client, U* context, const db::Queries* queries) = 0;
+        (T* client, U* context, const db::Queries* queries) = 0;
 private:
     bool IsStackFull(int stackCount) const;
     bool CanAddStack() const;
@@ -58,7 +58,7 @@ private:
         
         void Start();
         
-        void AddClient(T client);
+        void AddClient(T* client);
         int ClientCount();
         inline bool IsOpen() const {
             return this->is_open;
@@ -74,7 +74,7 @@ private:
         bool is_open;
         bool is_running;
         
-        std::list<T> clients;
+        std::list<T*> clients;
         std::mutex clients_mtx;
     };
     
@@ -132,7 +132,7 @@ bool Pool<T,U>::CanAddStack() const {
 }
 
 template<class T, class U>
-bool Pool<T,U>::AddClient(T client) {
+bool Pool<T,U>::AddClient(T* client) {
     if(!this->is_open)
         return false;
     
@@ -214,7 +214,7 @@ void Pool<T,U>::Stack::Start() {
 }
 
 template<class T, class U>
-void Pool<T,U>::Stack::AddClient(T client) {
+void Pool<T,U>::Stack::AddClient(T* client) {
     if(!this->is_open || !this->is_running)
         return;
     
@@ -248,9 +248,10 @@ void Pool<T,U>::Stack::StackThread() {
 
             this->clients_mtx.lock();
             if(!this->pool->ProcessClient
-                (*client, &this->pool->context, &this->queries))
+                (client, &this->pool->context, &this->queries))
             {
                 this->clients.erase(client);
+                delete client;
             }
             this->clients_mtx.unlock();
         }
@@ -269,8 +270,11 @@ void Pool<T,U>::Stack::Stop() {
 
     this->is_running = false;
     this->thread->join();
-    
     delete this->thread;
+
+    for(auto client : this->clients)
+        delete client;
+
     this->is_open = false;
 }
 }

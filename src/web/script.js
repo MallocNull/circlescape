@@ -21,19 +21,27 @@ let receive_callbacks = {};
 function attempt_login() {
     let section = document.getElementById("login");
     let error = section.getElementsByClassName("error");
-    let buttons = filter(
+    let lock_fields = filter(
         to_array(section.getElementsByTagName("input")),
-        x => (x.type === "button" || x.type === "submit")
+        x => ["submit", "button", "text", "password"].indexOf(x.type) !== -1
     );
 
-    for(let i in buttons)
-        buttons[i].disabled = true;
+    for_each(lock_fields, x => x.disabled = true);
+    ws.send(pack(
+        kClientToMaster.LoginRequest, [
+            document.getElementById("login-user").value,
+            document.getElementById("login-pwd").value
+        ]
+    ));
 
-    receive_callbacks[kMasterToClient.LoginResponse] = (pck) => {
+    receive_callbacks[kMasterToClient.LoginResponse] = pck => {
+        if(pck.regions[0][0] === 0) {
+            error.innerHTML = "Username or password was incorrect."
+        } else {
+            alert("allo");
+        }
 
-
-        for(let i in buttons)
-            buttons[i].disabled = false;
+        for_each(lock_fields, x => x.disabled = false);
     };
 }
 
@@ -578,4 +586,8 @@ function filter(x, f) {
 
 function to_array(x) {
     return Array.prototype.slice.call(x);
+}
+
+function concat(x, y) {
+    return Array.prototype.concat.call(x, y);
 }

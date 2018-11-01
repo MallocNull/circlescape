@@ -12,9 +12,7 @@
 </div>
 <div id="login" class="hidden section">
     <h1>Log In</h1>
-    <div class="error">
-        test error test test error test test error test test error test test error test test error test test error test test error test test error test
-    </div>
+    <div class="hidden error"></div>
     <label>
         Username: <br/>
         <input type="text" id="login-user" />
@@ -23,7 +21,7 @@
         Password: <br/>
         <input type="password" id="login-pwd" />
     </label>
-    <input type="button" value="Log In" />
+    <input type="button" value="Log In" onclick="attempt_login();" />
     <input type="button" value="Register" onclick="show_section('register');" />
 </div>
 <div id="register" class="hidden section">
