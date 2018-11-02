@@ -10,7 +10,10 @@ namespace sosc {
 
 class SlaveClient {
 public:
+    SlaveClient() = delete;
     explicit SlaveClient(const ScapeConnection& client);
+
+    ~SlaveClient();
 private:
     ScapeConnection sock;
 };
@@ -18,7 +21,7 @@ private:
 class SlaveClientPool : public Pool<SlaveClient, ctx::SlaveContext> {
 protected:
     bool ProcessClient
-        (SlaveClient& client,
+        (SlaveClient* client,
          ctx::SlaveContext* context,
          const db::Queries* queries) override
     {
