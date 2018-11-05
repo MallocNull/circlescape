@@ -26,8 +26,6 @@ public:
 
     ~MasterClient() { this->Close(); };
 private:
-    bool IsAuthed();
-
     bool ProcessLogin(Packet& pck);
     bool ProcessRegistration(Packet& pck);
     bool ListServers(Packet& pck);

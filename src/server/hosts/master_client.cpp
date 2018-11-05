@@ -83,8 +83,9 @@ bool sosc::MasterClient::Process(const db::Queries *queries) {
     }
 }
 
-bool sosc::MasterClient::IsAuthed() {
+bool sosc::MasterClient::ProcessLogin(Packet &pck) {
 
+    return true;
 }
 
 bool sosc::MasterClient::Close() {

@@ -127,8 +127,6 @@ function pack(id, regions) {
         body_ptr += length;
     }
 
-    console.log(regions);
-    console.log(pck);
     return pck;
 }
 

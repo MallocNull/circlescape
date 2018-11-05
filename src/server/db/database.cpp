@@ -25,7 +25,8 @@ bool sosc::db::init_databases(std::string* error) {
 
     int32_t lastMig = db::Query::ScalarInt32("SELECT MAX(ID) FROM MIGRATIONS");
     if(lastMig > _hard_db_sql.size()) {
-        *error = "HARD DB: RECORDED MIGRATION COUNT TOO HIGH";
+        if(error != nullptr)
+            *error = "HARD DB: RECORDED MIGRATION COUNT TOO HIGH";
         return false;
     }
 
@@ -41,7 +42,8 @@ bool sosc::db::init_databases(std::string* error) {
         std::string hash = getMigration.ScalarText();
         if(hash.empty()) {
             if(id < lastMig) {
-                *error = "HARD DB: MIGRATION RECORDS NOT CONTINUOUS";
+                if(error != nullptr)
+                    *error = "HARD DB: MIGRATION RECORDS NOT CONTINUOUS";
                 return false;
             }
 
@@ -52,7 +54,8 @@ bool sosc::db::init_databases(std::string* error) {
             insertMigration.NonQuery();
         } else {
             if(hash != cgc::sha1(_hard_db_sql[id])) {
-                *error = "HARD DB: MIGRATION SQL HASH MISMATCH";
+                if(error != nullptr)
+                    *error = "HARD DB: MIGRATION SQL HASH MISMATCH";
                 return false;
             }
         }
