@@ -94,18 +94,21 @@ int sosc::Packet::Parse(const std::string& data, std::string* extra) {
         switch(raw[ptr]) {
             default:
                 region_length = raw[ptr];
+                ++ptr;
                 break;
             case 254:
                 if(ptr + 2 >= length)
                     return PCK_ERR;
                 
                 region_length = net::ntohv<uint16_t>(data, ptr + 1);
+                ptr += 3;
                 break;
             case 255:
                 if(ptr + 4 >= length)
                     return PCK_ERR;
                 
                 region_length = net::ntohv<uint32_t>(data, ptr + 1);
+                ptr += 5;
                 break;
         }
         
@@ -113,12 +116,12 @@ int sosc::Packet::Parse(const std::string& data, std::string* extra) {
         body_length += region_length;
     }
     
-    if(body_length - ptr != 0)
+    if(body_length + ptr < expected_length)
         return PCK_ERR;
     
-    for(int i = 0; i < region_count; ++i) {
-        this->regions[i] = data.substr(ptr, region_lengths[i]);
-        ptr += region_lengths[i];
+    for(const auto region_length : region_lengths) {
+        this->regions.push_back(data.substr(ptr, region_length));
+        ptr += region_length;
     }
     
     if(length > expected_length && extra != nullptr)

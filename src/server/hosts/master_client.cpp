@@ -20,25 +20,31 @@ void sosc::MasterClientPool::SetupQueries(db::Queries *queries) {
         "VALUES (?, ?, ?, 0, CURRENT_TIMESTAMP)"
     ));
 
-#define QRY_USER_GET_PWD_HASH 2
+#define QRY_USER_NAME_EXISTS 2
     queries->push_back(new db::Query(
-        "SELECT `ID`, `PASS_HASH` FROM `USERS` "
-        "WHERE `USERNAME` = ?"
+        "SELECT COUNT(*) FROM `USERS` "
+        "WHERE LOWER(`USERNAME`) = LOWER(?)"
     ));
 
-#define QRY_USER_GENERATE_KEY 3
+#define QRY_USER_GET_PWD_HASH 3
+    queries->push_back(new db::Query(
+        "SELECT `ID`, `PASS_HASH` FROM `USERS` "
+        "WHERE LOWER(`USERNAME`) = LOWER(?)"
+    ));
+
+#define QRY_USER_GENERATE_KEY 4
     queries->push_back(new db::Query(
         "INSERT OR IGNORE INTO `USER_KEYS` "
         "(`ID`, `SECRET`) VALUES (?, RANDOMBLOB(128))"
     ));
 
-#define QRY_USER_GET_KEY 4
+#define QRY_USER_GET_KEY 5
     queries->push_back(new db::Query(
         "SELECT `SECRET` FROM `USER_KEYS` "
         "WHERE `ID` = ?"
     ));
 
-#define QRY_USER_CHECK_KEY 5
+#define QRY_USER_CHECK_KEY 6
     queries->push_back(new db::Query(
         "SELECT COUNT(*) FROM `USER_KEYS` "
         "WHERE `ID` = ? AND `SECRET` = ?"
@@ -67,17 +73,18 @@ bool sosc::MasterClient::Process(const db::Queries *queries) {
     this->queries = queries;
     switch(pck.GetId()) {
         case kLoginRequest:
-
-            break;
+            return ProcessLogin(pck);
         case kRegisterRequest:
-
-            break;
+            return ProcessRegistration(pck);
         case kServerListRequest:
-
-            break;
+            return ListServers(pck);
         default:
             return this->Close();
     }
+}
+
+bool sosc::MasterClient::IsAuthed() {
+
 }
 
 bool sosc::MasterClient::Close() {
@@ -87,5 +94,5 @@ bool sosc::MasterClient::Close() {
 
 bool sosc::MasterClient::Close(const Packet& message) {
     this->sock.Send(message);
-    this->Close();
+    return this->Close();
 }

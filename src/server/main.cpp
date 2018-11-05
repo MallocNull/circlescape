@@ -28,6 +28,7 @@ int main(int argc, char **argv) {
         return -1;
 
     if(argv[1][0] == 'm') {
+
         master_client(8008, sosc::poolinfo_t());
         //master_intra(1234, sosc::poolinfo_t());
     } else {
@@ -41,7 +42,7 @@ bool master_intra(uint16_t port, const sosc::poolinfo_t& info) {
     using namespace sosc;
     
     IntraServer server;
-    IntraClient* client;
+    IntraClient client;
     if(!server.Listen(port))
         return false;
     
@@ -49,8 +50,8 @@ bool master_intra(uint16_t port, const sosc::poolinfo_t& info) {
     pool.Configure(info);
     pool.Start();
     
-    while(server.Accept(client = new IntraClient()))
-        pool.AddClient(MasterIntra(client));
+    while(server.Accept(&client))
+        pool.AddClient(new MasterIntra(client));
 
     pool.Stop();
     return true;
@@ -60,7 +61,7 @@ bool master_client(uint16_t port, const sosc::poolinfo_t& info) {
     using namespace sosc;
 
     ScapeServer server;
-    ScapeConnection* client;
+    ScapeConnection client;
     if(!server.Listen(port, true))
         return false;
 
@@ -68,8 +69,8 @@ bool master_client(uint16_t port, const sosc::poolinfo_t& info) {
     pool.Configure(info);
     pool.Start();
 
-    while(server.Accept(client = new ScapeConnection()))
-        pool.AddClient(MasterClient(client));
+    while(server.Accept(&client))
+        pool.AddClient(new MasterClient(client));
 
     pool.Stop();
     return true;
@@ -79,7 +80,7 @@ bool slave(uint16_t port, const sosc::poolinfo_t& info) {
     using namespace sosc;
 
     ScapeServer server;
-    ScapeConnection* client;
+    ScapeConnection client;
     if(!server.Listen(port))
         return false;
 
@@ -87,8 +88,8 @@ bool slave(uint16_t port, const sosc::poolinfo_t& info) {
     pool.Configure(info);
     pool.Start();
 
-    while(server.Accept(client = new ScapeConnection()))
-        pool.AddClient(SlaveClient(client));
+    while(server.Accept(&client))
+        pool.AddClient(new SlaveClient(client));
 
     pool.Stop();
     return true;

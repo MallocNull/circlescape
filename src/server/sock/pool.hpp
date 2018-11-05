@@ -240,7 +240,7 @@ void Pool<T,U>::Stack::StackThread() {
 
     while(this->is_running) {
         for(auto client  = this->clients.begin();
-                 client != this->clients.end() && this->clients.size() > 0;
+                 client != this->clients.end();
                  ++client)
         {
             if(!this->is_running)
@@ -248,10 +248,10 @@ void Pool<T,U>::Stack::StackThread() {
 
             this->clients_mtx.lock();
             if(!this->pool->ProcessClient
-                (client, &this->pool->context, &this->queries))
+                (*client, &this->pool->context, &this->queries))
             {
-                this->clients.erase(client);
-                delete client;
+                delete *client;
+                client = this->clients.erase(client);
             }
             this->clients_mtx.unlock();
         }

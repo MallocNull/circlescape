@@ -81,8 +81,8 @@ function pack(id, regions) {
         throw Error("REGIONS ARGUMENT MALFORMED");
 
     let pck;
-    let size = 8;
-    let head_size = size;
+    let size = 0;
+    let head_size = 8;
     for(let i in regions) {
         if(typeof regions[i] === "string")
             regions[i] = regions[i].toByteArray();
@@ -103,8 +103,8 @@ function pack(id, regions) {
     pck = new Uint8Array(size);
     pck.set(MAHOU, 0);
     pck.set(size.packUint32(), 2);
-    pck[6] = regions.length;
-    pck[7] = Math.min(id, 255);
+    pck[6] = Math.min(id, 255);
+    pck[7] = regions.length;
 
     let head_ptr = 8;
     let body_ptr = head_size;
@@ -127,6 +127,8 @@ function pack(id, regions) {
         body_ptr += length;
     }
 
+    console.log(regions);
+    console.log(pck);
     return pck;
 }
 

@@ -13,7 +13,10 @@ public:
     SlaveClient() = delete;
     explicit SlaveClient(const ScapeConnection& client);
 
-    ~SlaveClient();
+    bool Close();
+    bool Close(const Packet& message);
+
+    ~SlaveClient()  { this->Close(); }
 private:
     ScapeConnection sock;
 };

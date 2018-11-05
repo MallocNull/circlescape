@@ -24,8 +24,14 @@ public:
     bool Close();
     bool Close(const Packet& message);
 
-    ~MasterClient();
+    ~MasterClient() { this->Close(); };
 private:
+    bool IsAuthed();
+
+    bool ProcessLogin(Packet& pck);
+    bool ProcessRegistration(Packet& pck);
+    bool ListServers(Packet& pck);
+
     enum MasterToClientId {
         kLoginResponse = 0,
         kRegisterResponse,
@@ -69,7 +75,7 @@ public:
     bool Close();
     bool Close(const Packet& message);
 
-    ~MasterIntra();
+    ~MasterIntra() { this->Close(); }
 private:
     bool Authentication(Packet& pck);
     bool StatusUpdate(Packet& pck);
