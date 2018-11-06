@@ -30,7 +30,7 @@ public:
 
     int ColumnCount();
 private:
-    ResultSet(Query* query);
+    explicit ResultSet(Query* query);
     Query* query;
 
     friend class Query;

@@ -8,52 +8,54 @@
 #include "hosts/master.hpp"
 #include "hosts/slave.hpp"
 
-static struct _slave_ctx {
-    sosc::ScapeServer server;
-    sosc::SlaveClientPool pool;
+template<class T, class U>
+struct _server_ctx {
+    std::thread thread;
+    T server;
+    U pool;
 };
 
+typedef _server_ctx<sosc::IntraServer, sosc::MasterIntraPool>
+    master_intra_ctx;
+typedef _server_ctx<sosc::ScapeServer, sosc::MasterClientPool>
+    master_client_ctx;
+typedef _server_ctx<sosc::ScapeServer, sosc::SlaveClientPool>
+    slave_ctx;
+
 static struct {
-    struct {
-        sosc::IntraServer server;
-        sosc::MasterIntraPool pool;
-    } master_intra;
-
-    struct {
-        sosc::ScapeServer server;
-        sosc::MasterIntraPool pool;
-    } master_client;
-
-    _slave_ctx* slaves;
-    bool running;
+    master_intra_ctx* master_intra = nullptr;
+    master_client_ctx* master_client = nullptr;
+    slave_ctx* slaves = nullptr;
+    int slave_count = 0;
 } _ctx;
 
-bool master_intra(uint16_t port, const sosc::poolinfo_t& info);
-bool master_client(uint16_t port, const sosc::poolinfo_t& info);
-bool slave(uint16_t port, const sosc::poolinfo_t& info);
+bool master_intra_start(uint16_t port, const sosc::poolinfo_t& info);
+bool master_client_start(uint16_t port, const sosc::poolinfo_t& info);
+bool slave_start(uint16_t port, const sosc::poolinfo_t& info, slave_ctx* ctx);
+
+void master_intra_stop();
+void master_client_stop();
+void slave_stop(slave_ctx* ctx);
 
 int main(int argc, char **argv) {
     using namespace sosc;
     if(argc < 2)
         return -1;
 
-    _ctx.running = true;
-    std::vector<std::thread*> threads;
-
     if(argv[1][0] == 'm') {
         if(!db::init_databases(nullptr))
             return -1;
 
-        threads.push_back(new std::thread([&] {
-            master_client(8008, poolinfo_t());
-        }));
-        threads.push_back(new std::thread([&] {
-            master_intra(1234, poolinfo_t());
-        }));
+        _ctx.master_intra = new master_intra_ctx;
+        master_intra_start(1234, poolinfo_t());
+        _ctx.master_client = new master_client_ctx;
+        master_client_start(8008, poolinfo_t());
     } else {
-        threads.push_back(new std::thread([&] {
-            slave(1234, poolinfo_t());
-        }));
+        _ctx.slave_count = 1;
+        _ctx.slaves = new slave_ctx[_ctx.slave_count];
+
+        for(int i = 0; i < _ctx.slave_count; ++i)
+            slave_start(1234, poolinfo_t(), _ctx.slaves + i);
     }
 
     std::cout << "Server threads started. Type STOP to cancel." << std::endl;
@@ -67,89 +69,93 @@ int main(int argc, char **argv) {
             break;
     }
 
-    _ctx.running = false;
-    for(const auto& thread : threads) {
-        thread->join();
-        delete thread;
-    }
+    master_client_stop();
+    master_intra_stop();
+    for(int i = 0; i < _ctx.slave_count; ++i)
+        slave_stop(_ctx.slaves + i);
 
     return 0;
 }
 
-bool master_intra(uint16_t port, const sosc::poolinfo_t& info) {
-    using namespace sosc;
-    
-    IntraServer server;
-    IntraClient client;
-    if(!server.Listen(port))
+bool master_intra_start(uint16_t port, const sosc::poolinfo_t& info) {
+    if(!_ctx.master_intra->server.Listen(port))
         return false;
-    
-    MasterIntraPool pool;
-    pool.Configure(info);
-    pool.Start();
 
-    auto listenThread = std::thread([&] {
-        while (server.Accept(&client))
-            pool.AddClient(new MasterIntra(client));
+    _ctx.master_intra->pool.Configure(info);
+    _ctx.master_intra->pool.Start();
+
+    _ctx.master_intra->thread = std::thread([&] {
+        sosc::IntraClient client;
+        while (_ctx.master_intra->server.Accept(&client))
+            _ctx.master_intra->pool.AddClient(new sosc::MasterIntra(client));
     });
-
-    while(_ctx.running);
-
-    server.Close();
-    listenThread.join();
-    pool.Stop();
 
     return true;
 }
 
-bool master_client(uint16_t port, const sosc::poolinfo_t& info) {
-    using namespace sosc;
-
-    ScapeServer server;
-    ScapeConnection client;
-    if(!server.Listen(port, true))
+bool master_client_start(uint16_t port, const sosc::poolinfo_t& info) {
+    if(!_ctx.master_client->server.Listen(port, true))
         return false;
 
-    MasterClientPool pool;
-    pool.Configure(info);
-    pool.Start();
+    _ctx.master_client->pool.Configure(info);
+    _ctx.master_client->pool.Start();
 
-    auto listenThread = std::thread([&] {
-        while(server.Accept(&client))
-            pool.AddClient(new MasterClient(client));
+    _ctx.master_client->thread = std::thread([&] {
+        sosc::ScapeConnection client;
+        while(_ctx.master_client->server.Accept(&client))
+            _ctx.master_client->pool.AddClient(new sosc::MasterClient(client));
     });
-
-    while(_ctx.running);
-
-    server.Close();
-    listenThread.join();
-    pool.Stop();
 
     return true;
 }
 
-bool slave(uint16_t port, const sosc::poolinfo_t& info) {
-    using namespace sosc;
-
-    ScapeServer server;
-    ScapeConnection client;
-    if(!server.Listen(port))
+bool slave_start(uint16_t port, const sosc::poolinfo_t& info, slave_ctx* ctx) {
+    if(!ctx->server.Listen(port))
         return false;
 
-    SlaveClientPool pool;
-    pool.Configure(info);
-    pool.Start();
+    ctx->pool.Configure(info);
+    ctx->pool.Start();
 
-    auto listenThread = std::thread([&] {
-        while (server.Accept(&client))
-            pool.AddClient(new SlaveClient(client));
+    ctx->thread = std::thread([&] {
+        sosc::ScapeConnection client;
+        while (ctx->server.Accept(&client))
+            ctx->pool.AddClient(new sosc::SlaveClient(client));
     });
 
-    while(_ctx.running);
-
-    server.Close();
-    listenThread.join();
-    pool.Stop();
-
     return true;
+}
+
+void master_intra_stop() {
+    if(_ctx.master_intra == nullptr)
+        return;
+
+    _ctx.master_intra->server.Close();
+    _ctx.master_intra->thread.join();
+    _ctx.master_intra->pool.Stop();
+
+    delete _ctx.master_intra;
+    _ctx.master_intra = nullptr;
+}
+
+void master_client_stop() {
+    if(_ctx.master_client == nullptr)
+        return;
+
+    _ctx.master_client->server.Close();
+    _ctx.master_client->thread.join();
+    _ctx.master_client->pool.Stop();
+
+    delete _ctx.master_client;
+    _ctx.master_client = nullptr;
+}
+
+void slave_stop(slave_ctx* ctx) {
+    if(ctx == nullptr)
+        return;
+
+    ctx->server.Close();
+    ctx->thread.join();
+    ctx->pool.Stop();
+
+    delete ctx;
 }
