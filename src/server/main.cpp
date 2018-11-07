@@ -3,10 +3,11 @@
 #include <ctime>
 #include <thread>
 
-#include "utils/string.hpp"
 #include "db/database.hpp"
 #include "hosts/master.hpp"
 #include "hosts/slave.hpp"
+#include "utils/ini.hpp"
+#include "utils/string.hpp"
 
 template<class T, class U>
 struct _server_ctx {
@@ -41,6 +42,12 @@ int main(int argc, char **argv) {
     using namespace sosc;
     if(argc < 2)
         return -1;
+
+    auto test = ini::File::Open("test.ini", {
+        ini::File::Rule("test section", true, false, {
+            ini::File::Rule::Field<bool>("test")
+        }),
+    });
 
     if(argv[1][0] == 'm') {
         if(!db::init_databases(nullptr))

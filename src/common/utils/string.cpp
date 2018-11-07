@@ -73,6 +73,12 @@ std::vector<std::string> sosc::str::split
     return parts;
 }
 
+std::string sosc::str::join
+    (const std::vector<std::string>& parts, int count)
+{
+    return join(parts, "", count);
+}
+
 std::string sosc::str::join(const std::vector<std::string>& parts,
     char delimiter, int count)
 {

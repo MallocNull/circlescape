@@ -29,7 +29,8 @@ std::vector<std::string> split
     (const std::string& str, char delimiter, int count = -1);
 std::vector<std::string> split
     (const std::string& str, std::string delimiter, int count = -1);
-    
+
+std::string join(const std::vector<std::string>& parts, int count = -1);
 std::string join(const std::vector<std::string>& parts, 
     char delimiter, int count = -1);
 std::string join(const std::vector<std::string>& parts, 
