@@ -1,6 +1,29 @@
 #include "ini.hpp"
 using namespace sosc::ini;
 
+bool Field::Test() const {
+    try {
+        switch(type) {
+            case INT32:
+                (int32_t)File::Proxy(name);
+                break;
+            case UINT32:
+                (uint32_t)File::Proxy(name);
+                break;
+            case DOUBLE:
+                (double)File::Proxy(name);
+                break;
+            case BOOL:
+                (bool)File::Proxy(name);
+                break;
+        }
+
+        return true;
+    } catch(...) {
+        return false;
+    }
+}
+
 File* File::Open
     (const std::string& filename, const std::vector<Rule>& rules)
 {
@@ -54,7 +77,7 @@ File* File::Open
             str::tolower(str::trim(&(parts[0])));
             str::trim(&(parts[1]));
 
-            if(parts[0] == "" || active_section->values.count(parts[0]) == 0)
+            if(parts[0] == "" || active_section->values.count(parts[0]) > 0)
                 throw LoadError(ini, line_number,
                     "Duplicate key-value pair field in section."
                 );
@@ -69,16 +92,15 @@ File* File::Open
                 "Required section '", rule.name, "' not found."
             }));
 
-        if(!rule.allow_multiple && ini[rule.name].sections.size() > 1)
+        if(!rule.allow_multiple && (*ini)[rule.name].sections.size() > 1)
             throw LoadError(ini, -1, str::join({
                 "Multiple instances of '", rule.name, "' section "
                 "when explicitely not allowed."
             }));
 
-        for(auto& section : ini[rule.name].sections) {
+        for(auto& section : (*ini)[rule.name].sections) {
             for(auto &field : rule.required_fields) {
-                str::tolower(&field.name);
-                if(section.values.count(field.name) == 0)
+                if(section.values.count(str::tolower(field.name)) == 0)
                     throw LoadError(ini, -1, str::join({
                         "Required field '", field.name, "' in section '",
                         rule.name, "' not found."
@@ -115,12 +137,20 @@ const File::SectionList&
 {
     str::tolower(&name);
     if(this->section_lists.count(name) > 0)
-        return this->section_lists[name];
+        return this->section_lists.at(name);
     else
         throw std::range_error("Section name not found.");
 }
 
-const std::string&
+bool File::SectionList::HasKey(std::string name) const {
+    return this->sections[0].HasKey(name);
+}
+
+int File::SectionList::SectionCount() const {
+    return this->sections.size();
+}
+
+const File::Proxy&
     File::SectionList::operator[] (std::string key) const
 {
     return this->sections[0][key];
@@ -135,12 +165,17 @@ const File::SectionList::Section&
         throw std::range_error("Section index out-of-bounds.");
 }
 
-const std::string&
+bool File::SectionList::Section::HasKey(std::string name) const {
+    str::tolower(&name);
+    return this->values.count(name) == 1;
+}
+
+const File::Proxy&
     File::SectionList::Section::operator[] (std::string key) const
 {
     str::tolower(&key);
     if(this->values.count(key) > 0)
-        return this->values[key];
+        return Proxy(this->values.at(key));
     else
         throw std::range_error("Key not found in section.");
 }

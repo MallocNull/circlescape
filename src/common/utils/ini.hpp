@@ -11,11 +11,46 @@
 
 namespace sosc {
 namespace ini {
+struct Field {
+    enum kType {
+        STRING,
+        INT32,
+        UINT32,
+        DOUBLE,
+        BOOL
+    };
+
+    explicit Field
+        (const std::string& name, kType type = STRING)
+        : name(name), type(type) {}
+    bool Test() const;
+
+    std::string name;
+    kType type;
+};
+
+struct Rule {
+    Rule() = delete;
+    Rule(
+        const std::string& name,
+        bool required,
+        bool allow_multiple,
+        const std::vector<Field>& required_fields
+    ) : name(name),
+        required(required),
+        allow_multiple(allow_multiple),
+        required_fields(required_fields) {};
+
+    std::string name;
+    bool required;
+    bool allow_multiple;
+    std::vector<Field> required_fields;
+};
+
 class File {
 public:
     struct Proxy {
-        std::string value;
-        Proxy(const std::string& value) : value(value) {};
+        explicit Proxy(const std::string& value) : value(value) {};
 
         explicit operator bool() const {
             if(this->value == "1" || this->value == "true")
@@ -34,7 +69,7 @@ public:
              && !std::is_same<std::allocator<char>, Decayed>::value
              && !std::is_same<std::initializer_list<char>, Decayed>::value
             >::type
-        > explicit operator T() {
+        > explicit operator T() const {
             std::stringstream ss;
             ss << this->value;
 
@@ -44,58 +79,27 @@ public:
             else
                 return retval;
         }
-    };
 
-    struct Rule {
-        template<typename T = std::string>
-        struct Field {
-            Field(const std::string& name) : name(name) {}
-            bool Test() {
-                try {
-                    (T)Proxy(this->name);
-                    return true;
-                } catch(...) {
-                    return false;
-                }
-            }
-
-            std::string name;
-        };
-
-        Rule() = delete;
-        Rule(
-            const std::string& name,
-            bool required,
-            bool allow_multiple,
-            const std::vector<Field>& required_fields
-        ) : name(name),
-            required(required),
-            allow_multiple(allow_multiple),
-            required_fields(required_fields) {};
-
-        std::string name;
-        bool required;
-        bool allow_multiple;
-        std::vector<Field> required_fields;
+        std::string value;
     };
 
     class SectionList {
     public:
         class Section {
         public:
-            const std::string& operator[] (std::string key) const;
+            bool HasKey(std::string name) const;
+            const Proxy& operator[] (std::string key) const;
         private:
-            Section() = default;
-
             std::map<std::string, std::string> values;
             friend class File;
         };
 
-        const std::string& operator[] (std::string key) const;
+        bool HasKey(std::string name) const;
+        int SectionCount() const;
+
+        const Proxy& operator[] (std::string key) const;
         const Section& operator[] (int index) const;
     private:
-        SectionList() = default;
-
         std::vector<Section> sections;
         friend class File;
     };
@@ -103,6 +107,8 @@ public:
     File(const File&) = delete;
     static File* Open
         (const std::string& filename, const std::vector<Rule>& rules = {});
+
+    bool HasSection(std::string name) const;
     void Close();
 
     const SectionList& operator[] (std::string name) const;

@@ -1,6 +1,7 @@
 #ifndef SOSC_UTIL_STRING_H
 #define SOSC_UTIL_STRING_H
 
+#include <cstring>
 #include <vector>
 #include <string>
 #include <sstream>

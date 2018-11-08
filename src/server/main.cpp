@@ -2,6 +2,7 @@
 #include <string>
 #include <ctime>
 #include <thread>
+#include <sock/pool.hpp>
 
 #include "db/database.hpp"
 #include "hosts/master.hpp"
@@ -43,26 +44,69 @@ int main(int argc, char **argv) {
     if(argc < 2)
         return -1;
 
-    auto test = ini::File::Open("test.ini", {
-        ini::File::Rule("test section", true, false, {
-            ini::File::Rule::Field<bool>("test")
-        }),
-    });
+    ini::File* config;
+    try {
+        config = ini::File::Open(SOSC_RESC("config.ini"), {
+            ini::Rule("general", true, false, {
+                ini::Field("run master", ini::Field::BOOL),
+                ini::Field("master host", ini::Field::STRING),
+                ini::Field("master port", ini::Field::UINT32),
+            }),
+            ini::Rule("defaults", true, false, {
+                ini::Field("initial count", ini::Field::UINT32),
+                ini::Field("initial size", ini::Field::UINT32),
+                ini::Field("size growth", ini::Field::UINT32),
 
-    if(argv[1][0] == 'm') {
+                ini::Field("max size", ini::Field::INT32),
+                ini::Field("max count", ini::Field::INT32),
+                ini::Field("max total", ini::Field::INT32),
+                ini::Field("tolerance", ini::Field::INT32),
+            }),
+            ini::Rule("master", true, false, {
+                ini::Field("client port", ini::Field::UINT32),
+                ini::Field("intra port", ini::Field::UINT32),
+            }),
+            ini::Rule("slave", false, true, {
+                ini::Field("port", ini::Field::UINT32),
+                ini::Field("name", ini::Field::STRING),
+            })
+        });
+    } catch(const std::exception& e) {
+        std::cout << e.what() << std::endl;
+        return -1;
+    }
+
+    poolinfo_t info = poolinfo_t();
+    info.initial_count =
+
+    if((*config)["master"]["run master"]) {
         if(!db::init_databases(nullptr))
             return -1;
 
         _ctx.master_intra = new master_intra_ctx;
-        master_intra_start(1234, poolinfo_t());
+        master_intra_start(
+            (uint16_t)(*config)["master"]["intra port"],
+            poolinfo_t()
+        );
+
         _ctx.master_client = new master_client_ctx;
-        master_client_start(8008, poolinfo_t());
-    } else {
-        _ctx.slave_count = 1;
+        master_client_start(
+            (uint16_t)(*config)["master"]["client port"],
+            poolinfo_t()
+        );
+    }
+
+    if(config->HasSection("slave")) {
+        _ctx.slave_count = (*config)["slave"].SectionCount();
         _ctx.slaves = new slave_ctx[_ctx.slave_count];
 
-        for(int i = 0; i < _ctx.slave_count; ++i)
-            slave_start(1234, poolinfo_t(), _ctx.slaves + i);
+        for(int i = 0; i < _ctx.slave_count; ++i) {
+            slave_start(
+                (uint16_t)(*config)["slave"][i]["port"],
+                poolinfo_t(),
+                _ctx.slaves + i
+            );
+        }
     }
 
     std::cout << "Server threads started. Type STOP to cancel." << std::endl;

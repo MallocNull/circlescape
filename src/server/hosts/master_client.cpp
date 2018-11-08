@@ -88,6 +88,16 @@ bool sosc::MasterClient::ProcessLogin(Packet &pck) {
     return true;
 }
 
+bool sosc::MasterClient::ProcessRegistration(Packet &pck) {
+
+    return true;
+}
+
+bool sosc::MasterClient::ListServers(Packet &pck) {
+
+    return true;
+}
+
 bool sosc::MasterClient::Close() {
     this->sock.Close();
     return false;
