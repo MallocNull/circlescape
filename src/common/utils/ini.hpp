@@ -88,7 +88,7 @@ public:
         class Section {
         public:
             bool HasKey(std::string name) const;
-            const Proxy& operator[] (std::string key) const;
+            const Proxy operator[] (std::string key) const;
         private:
             std::map<std::string, std::string> values;
             friend class File;
@@ -97,7 +97,7 @@ public:
         bool HasKey(std::string name) const;
         int SectionCount() const;
 
-        const Proxy& operator[] (std::string key) const;
+        const Proxy operator[] (std::string key) const;
         const Section& operator[] (int index) const;
     private:
         std::vector<Section> sections;

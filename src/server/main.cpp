@@ -25,6 +25,8 @@ typedef _server_ctx<sosc::ScapeServer, sosc::SlaveClientPool>
     slave_ctx;
 
 static struct {
+    sosc::poolinfo_t default_info;
+
     master_intra_ctx* master_intra = nullptr;
     master_client_ctx* master_client = nullptr;
     slave_ctx* slaves = nullptr;
@@ -38,6 +40,28 @@ bool slave_start(uint16_t port, const sosc::poolinfo_t& info, slave_ctx* ctx);
 void master_intra_stop();
 void master_client_stop();
 void slave_stop(slave_ctx* ctx);
+
+void configure_poolinfo(sosc::poolinfo_t* info,
+    const sosc::ini::File::SectionList::Section& section) 
+{
+    *info = sosc::poolinfo_t(_ctx.default_info);
+
+    if(section.HasKey("inital count"))
+        info->initial_count = (int)section["initial count"];
+    if(section.HasKey("inital size"))
+        info->initial_size = (int)section["initial size"];
+    if(section.HasKey("size growth"))
+        info->size_growth = (int)section["size growth"];
+
+    if(section.HasKey("max size"))
+        info->max_size = (int)section["max size"];
+    if(section.HasKey("max count"))
+        info->max_count = (int)section["max count"];
+    if(section.HasKey("max total"))
+        info->max_total = (int)section["max total"];
+    if(section.HasKey("tolerance"))
+        info->tolerance = (int)section["tolerance"];
+}
 
 int main(int argc, char **argv) {
     using namespace sosc;
@@ -62,9 +86,11 @@ int main(int argc, char **argv) {
                 ini::Field("max total", ini::Field::INT32),
                 ini::Field("tolerance", ini::Field::INT32),
             }),
-            ini::Rule("master", true, false, {
-                ini::Field("client port", ini::Field::UINT32),
-                ini::Field("intra port", ini::Field::UINT32),
+            ini::Rule("master to client", false, false, {
+                ini::Field("port", ini::Field::UINT32),
+            }),
+            ini::Rule("master to slave", false, false, {
+                ini::Field("port", ini::Field::UINT32),
             }),
             ini::Rule("slave", false, true, {
                 ini::Field("port", ini::Field::UINT32),
@@ -76,19 +102,31 @@ int main(int argc, char **argv) {
         return -1;
     }
 
-    poolinfo_t info = poolinfo_t();
-    info.initial_count =
+    poolinfo_t info;
+    configure_poolinfo(&_ctx.default_info, (*config)["defaults"][0]);
 
     if((*config)["master"]["run master"]) {
-        if(!db::init_databases(nullptr))
+        if(!config->HasSection("master to client") ||
+           !config->HasSection("master to slave"))
+        {
+            std::cout << "'MASTER TO CLIENT' and 'MASTER TO SLAVE' sections "
+                      << "must exist if 'RUN MASTER' is true." << std::endl;
             return -1;
+        }
 
+        if(!db::init_databases(nullptr)) {
+            std::cout << "Could not initialized master database.";
+            return -1;
+        }
+
+        configure_poolinfo(&info, (*config)["master to slave"][0]);
         _ctx.master_intra = new master_intra_ctx;
         master_intra_start(
             (uint16_t)(*config)["master"]["intra port"],
             poolinfo_t()
         );
 
+        configure_poolinfo(&info, (*config)["master to client"][0]);
         _ctx.master_client = new master_client_ctx;
         master_client_start(
             (uint16_t)(*config)["master"]["client port"],
@@ -101,6 +139,7 @@ int main(int argc, char **argv) {
         _ctx.slaves = new slave_ctx[_ctx.slave_count];
 
         for(int i = 0; i < _ctx.slave_count; ++i) {
+            configure_poolinfo(&info, (*config)["slave"][i]);
             slave_start(
                 (uint16_t)(*config)["slave"][i]["port"],
                 poolinfo_t(),

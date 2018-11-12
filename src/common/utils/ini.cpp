@@ -132,6 +132,10 @@ std::runtime_error File::LoadError
         ));
 }
 
+bool File::HasSection(std::string name) const {
+    return this->section_lists.count(name) > 0;
+}
+
 const File::SectionList&
     File::operator[] (std::string name) const
 {
@@ -150,9 +154,7 @@ int File::SectionList::SectionCount() const {
     return this->sections.size();
 }
 
-const File::Proxy&
-    File::SectionList::operator[] (std::string key) const
-{
+const File::Proxy File::SectionList::operator[] (std::string key) const{
     return this->sections[0][key];
 }
 
@@ -170,7 +172,7 @@ bool File::SectionList::Section::HasKey(std::string name) const {
     return this->values.count(name) == 1;
 }
 
-const File::Proxy&
+const File::Proxy
     File::SectionList::Section::operator[] (std::string key) const
 {
     str::tolower(&key);
