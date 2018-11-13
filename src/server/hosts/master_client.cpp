@@ -84,6 +84,12 @@ bool sosc::MasterClient::Process(const db::Queries *queries) {
 }
 
 bool sosc::MasterClient::ProcessLogin(Packet &pck) {
+    if(this->authed)
+        return true;
+    if(!pck.Check(2, PCK_ANY, PCK_ANY))
+        return false;
+
+    db::Query* query = this->queries->at(QRY_USER_NAME_EXISTS);
 
     return true;
 }

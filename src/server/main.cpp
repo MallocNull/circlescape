@@ -122,15 +122,13 @@ int main(int argc, char **argv) {
         configure_poolinfo(&info, (*config)["master to slave"][0]);
         _ctx.master_intra = new master_intra_ctx;
         master_intra_start(
-            (uint16_t)(*config)["master"]["intra port"],
-            poolinfo_t()
+            (uint16_t)(*config)["master"]["intra port"], info
         );
 
         configure_poolinfo(&info, (*config)["master to client"][0]);
         _ctx.master_client = new master_client_ctx;
         master_client_start(
-            (uint16_t)(*config)["master"]["client port"],
-            poolinfo_t()
+            (uint16_t)(*config)["master"]["client port"], info
         );
     }
 
@@ -142,8 +140,7 @@ int main(int argc, char **argv) {
             configure_poolinfo(&info, (*config)["slave"][i]);
             slave_start(
                 (uint16_t)(*config)["slave"][i]["port"],
-                poolinfo_t(),
-                _ctx.slaves + i
+                info, _ctx.slaves + i
             );
         }
     }
