@@ -181,8 +181,8 @@ Communication between the master server and clients will be done over a WebSocke
  </tr>
  <tr style="border-bottom: 2px solid;"> 
   <td class="center">2</td>
-  <td>Message</td>
-  <td>String</td>
+  <td>Error Code</td>
+  <td>Packed Unsigned Short</td>
   <td>&not;R<sub>1</sub></td>
  </tr>
  <tr> 
@@ -213,8 +213,8 @@ Communication between the master server and clients will be done over a WebSocke
  </tr>
  <tr>
   <td class="center">2</td>
-  <td>Message</td>
-  <td>String</td>
+  <td>Error Code</td>
+  <td>Packed Unsigned Short</td>
  </tr>
 </table>
 
@@ -354,12 +354,7 @@ TODO: MAKE THIS SECTION NOT LOOK LIKE SHIT
 
 ### Master / Slave
 
-#### M -> S (ID 2)
-0x100: KEY SIZE WAS INCORRECT
-
-0x101: COULD NOT PARSE KEY
-
-#### M -> S (ID 4)
+#### M -> S (ID 1)
 0x100: MAX AUTH ATTEMPTS REACHED
 
 0x101: LICENSE DATA INCORRECT
@@ -369,5 +364,23 @@ TODO: MAKE THIS SECTION NOT LOOK LIKE SHIT
 0x200: NOT AUTHORIZED TO PERFORM ACTION
 
 ### Master / Client
+
+#### M -> C (ID 0)
+
+0x100: MAX AUTH ATTEMPTS REACHED
+
+0x101: USERNAME DOES NOT EXIST
+
+0x102: PASSWORD INCORRECT
+
+#### M -> C (ID 1)
+
+0x000: OK
+
+0x100: USERNAME TAKEN
+
+0x101: EMAIL TAKEN
+
+0x102: PASSWORD TOO WEAK
 
 ### Slave / Client

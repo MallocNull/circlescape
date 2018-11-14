@@ -1,20 +1,20 @@
 #include "ini.hpp"
 using namespace sosc::ini;
 
-bool Field::Test() const {
+bool Field::Test(const std::string& value) const {
     try {
         switch(type) {
             case INT32:
-                (int32_t)File::Proxy(name);
+                (int32_t)File::Proxy(value);
                 break;
             case UINT32:
-                (uint32_t)File::Proxy(name);
+                (uint32_t)File::Proxy(value);
                 break;
             case DOUBLE:
-                (double)File::Proxy(name);
+                (double)File::Proxy(value);
                 break;
             case BOOL:
-                (bool)File::Proxy(name);
+                (bool)File::Proxy(value);
                 break;
         }
 
@@ -100,13 +100,14 @@ File* File::Open
 
         for(auto& section : (*ini)[rule.name].sections) {
             for(auto &field : rule.required_fields) {
-                if(section.values.count(str::tolower(field.name)) == 0)
+                std::string field_name = str::tolower(field.name);
+                if(section.values.count(field_name) == 0)
                     throw LoadError(ini, -1, str::join({
                         "Required field '", field.name, "' in section '",
                         rule.name, "' not found."
                     }));
 
-                if(!field.Test())
+                if(!field.Test(section.values.at(field_name)))
                     throw LoadError(ini, -1, str::join({
                         "Field '", field.name, "' in section '",rule.name, "' "
                         "cannot be casted to requested type."
@@ -121,15 +122,16 @@ File* File::Open
 std::runtime_error File::LoadError
     (File* file, int line, const std::string &error)
 {
-    delete file;
+    std::string msg;
     if(line > 0)
-        return std::runtime_error(str::join(
+        msg = str::join(
             {"LOAD ERROR IN '", file->filename, "' L", TOSTR(line), ": ", error}
-        ));
+        );
     else
-        return std::runtime_error(str::join(
-            {"LOAD ERROR IN '", file->filename, "': ", error}
-        ));
+        msg = str::join({"LOAD ERROR IN '", file->filename, "': ", error});
+
+    delete file;
+    throw std::runtime_error(msg);
 }
 
 bool File::HasSection(std::string name) const {

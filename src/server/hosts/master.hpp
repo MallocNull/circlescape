@@ -5,8 +5,8 @@
 #include "sock/scapesock.hpp"
 #include "sock/pool.hpp"
 
+#include "crypto/bcrypt.hpp"
 #include "db/database.hpp"
-
 #include "ctx/master.hpp"
 
 #include <vector>
@@ -27,7 +27,11 @@ public:
     ~MasterClient() { this->Close(); };
 private:
     bool ProcessLogin(Packet& pck);
+    bool LoginError(uint16_t error_code);
+
     bool ProcessRegistration(Packet& pck);
+    bool RegistrationError(uint16_t error_code);
+
     bool ListServers(Packet& pck);
 
     enum MasterToClientId {
@@ -79,9 +83,9 @@ private:
     bool StatusUpdate(Packet& pck);
 
     bool AuthenticationFailure
-        (const std::string& packetId, uint16_t errorCode);
+        (const std::string& packet_id, uint16_t error_code);
 
-    bool NotAuthorized(const std::string& packetId);
+    bool NotAuthorized(const std::string& packet_id);
 
     enum SlaveToMasterId {
         kAuthentication = 0,

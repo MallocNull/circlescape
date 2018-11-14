@@ -7,6 +7,8 @@
 #include <vector>
 #include <map>
 
+#include <iostream>
+
 #include "string.hpp"
 
 namespace sosc {
@@ -23,7 +25,7 @@ struct Field {
     explicit Field
         (const std::string& name, kType type = STRING)
         : name(name), type(type) {}
-    bool Test() const;
+    bool Test(const std::string& value) const;
 
     std::string name;
     kType type;

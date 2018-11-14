@@ -152,23 +152,23 @@ bool sosc::MasterIntra::Authentication(sosc::Packet& pck) {
 }
 
 bool sosc::MasterIntra::AuthenticationFailure
-    (const std::string& packetId, uint16_t errorCode)
+    (const std::string& packet_id, uint16_t error_code)
 {
     if(++this->auth_attempts < MAX_AUTH_ATTEMPTS) {
         this->sock.Send(
-            Packet(kNegativeAck, { packetId , net::htonv(errorCode) })
+            Packet(kNegativeAck, { packet_id , net::htonv(error_code) })
         );
         return true;
     } else {
         return this->Close(
-            Packet(kNegativeAck, { packetId, net::htonv<uint16_t>(0x100) })
+            Packet(kNegativeAck, { packet_id, net::htonv<uint16_t>(0x100) })
         );
     }
 }
 
-bool sosc::MasterIntra::NotAuthorized(const std::string& packetId) {
+bool sosc::MasterIntra::NotAuthorized(const std::string& packet_id) {
     return this->Close(
-        Packet(kNegativeAck, { packetId, net::htonv<uint16_t>(0x200) })
+        Packet(kNegativeAck, { packet_id, net::htonv<uint16_t>(0x200) })
     );
 }
 

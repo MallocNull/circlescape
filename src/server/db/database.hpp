@@ -4,6 +4,7 @@
 #include "sqlite/sqlite3.h"
 #include "utils/time.hpp"
 #include "crypto/sha1.hpp"
+#include "common.hpp"
 #include <vector>
 #include <string>
 
@@ -86,7 +87,7 @@ private:
 };
 
 // THE FOLLOWING ARE NOT THREAD SAFE !!
-// CALL THEM ONLY WHEN MASTER POOL IS INACTIVE
+// CALL THEM ONLY WHEN MASTER POOLS ARE INACTIVE
 bool init_databases(std::string* error);
 void close_databases();
 }}

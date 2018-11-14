@@ -23,19 +23,19 @@
 #undef NTOHLL
 #undef NTOHULL
 
-#define HTONS (X) sosc::net::htonv<int16_t>(X)
+#define  HTONS(X) sosc::net::htonv<int16_t>(X)
 #define HTONUS(X) sosc::net::htonv<uint16_t>(X)
-#define NTOHS (X) sosc::net::ntohv<int16_t>(X)
+#define  NTOHS(X) sosc::net::ntohv<int16_t>(X)
 #define NTOHUS(X) sosc::net::ntohv<uint16_t>(X)
 
-#define HTONL (X) sosc::net::htonv<int32_t>(X)
+#define  HTONL(X) sosc::net::htonv<int32_t>(X)
 #define HTONUL(X) sosc::net::htonv<uint32_t>(X)
-#define NTOHL (X) sosc::net::ntohv<int32_t>(X, 0)
+#define  NTOHL(X) sosc::net::ntohv<int32_t>(X, 0)
 #define NTOHUL(X) sosc::net::ntohv<uint32_t>(X, 0)
 
-#define HTONLL (X) sosc::net::htonv<int64_t>(X)
+#define  HTONLL(X) sosc::net::htonv<int64_t>(X)
 #define HTONULL(X) sosc::net::htonv<uint64_t>(X)
-#define NTOHLL (X) sosc::net::ntohv<int64_t>(X, 0)
+#define  NTOHLL(X) sosc::net::ntohv<int64_t>(X, 0)
 #define NTOHULL(X) sosc::net::ntohv<uint64_t>(X, 0)
 
 namespace sosc {

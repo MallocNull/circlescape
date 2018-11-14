@@ -148,6 +148,15 @@ bool sosc::Packet::Check(int region_count, ...) const {
     return true;
 }
 
+void sosc::Packet::TrimRegions(const std::vector<uint32_t>& ids) {
+    if(ids.size() == 0)
+        for(uint32_t id = 0; id < this->regions.size(); ++id)
+            str::trim(&this->regions[id]);
+    else
+        for(auto id : ids)
+            str::trim(&this->regions[id]);
+}
+
 std::string* sosc::Packet::ToString(std::string* packet) const {
     *packet = std::string(8, 0);
     (*packet)[0] = 0xB0;

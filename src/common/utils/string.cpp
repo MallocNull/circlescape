@@ -88,15 +88,15 @@ std::string sosc::str::join(const std::vector<std::string>& parts,
 std::string sosc::str::join(const std::vector<std::string>& parts,
     std::string delimiter, int count)
 {
-    std::string assembled;
+    std::stringstream ss;
     int bounds = (count == -1)
         ? parts.size()
         : std::min<int>(count, parts.size());
         
     for(int i = 0; i < bounds; ++i)
-        assembled += (i == 0 ? "" : delimiter) + parts[i];
+        ss << (i == 0 ? "" : delimiter) + parts[i];
     
-    return assembled;
+    return ss.str();
 }
 
 bool sosc::str::starts

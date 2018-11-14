@@ -11,11 +11,12 @@ static struct {
 bool sosc::db::init_databases(std::string* error) {
     if(_ctx.ready)
         return true;
+    _ctx.ready = true;
 
     sqlite3_open(":memory:", &_ctx.mem_db);
     sqlite3_exec(_ctx.mem_db, _mem_db_sql, nullptr, nullptr, nullptr);
 
-    sqlite3_open("scape.db", &_ctx.hard_db);
+    sqlite3_open(SOSC_RESC("scape.db").c_str(), &_ctx.hard_db);
 
     int32_t migrationsExist = db::Query::ScalarInt32(
         "SELECT COUNT(*) FROM SQLITE_MASTER WHERE TBL_NAME = 'MIGRATIONS'"
@@ -27,13 +28,14 @@ bool sosc::db::init_databases(std::string* error) {
     if(lastMig > _hard_db_sql.size()) {
         if(error != nullptr)
             *error = "HARD DB: RECORDED MIGRATION COUNT TOO HIGH";
+        _ctx.ready = false;
         return false;
     }
 
     int id;
     Query insertMigration(
         "INSERT INTO MIGRATIONS (ID, SQL_HASH, DATE_RAN) "
-        "VALUES (?, ?, NOW())"
+        "VALUES (?, ?, DATETIME('NOW'))"
     );
     Query getMigration("SELECT SQL_HASH FROM MIGRATIONS WHERE ID = ?");
     for(id = 0; id < _hard_db_sql.size(); ++id) {
@@ -44,6 +46,7 @@ bool sosc::db::init_databases(std::string* error) {
             if(id < lastMig) {
                 if(error != nullptr)
                     *error = "HARD DB: MIGRATION RECORDS NOT CONTINUOUS";
+                _ctx.ready = false;
                 return false;
             }
 
@@ -56,6 +59,7 @@ bool sosc::db::init_databases(std::string* error) {
             if(hash != cgc::sha1(_hard_db_sql[id])) {
                 if(error != nullptr)
                     *error = "HARD DB: MIGRATION SQL HASH MISMATCH";
+                _ctx.ready = false;
                 return false;
             }
         }
@@ -106,7 +110,7 @@ sosc::db::Query::Query(const std::string& query, int db) : results(this) {
 void sosc::db::Query::SetQuery(const std::string &query, int db) {
     if(!_ctx.ready)
         return;
-    if(!this->open)
+    if(this->open)
         this->Close();
 
     this->database = db == DB_USE_MEMORY ? _ctx.mem_db : _ctx.hard_db;
@@ -120,6 +124,8 @@ void sosc::db::Query::SetQuery(const std::string &query, int db) {
 
     if(status == SQLITE_OK)
         this->open = true;
+    else
+        throw std::runtime_error(sqlite3_errmsg(this->database));
 }
 
 void sosc::db::Query::BindDouble(double value, int i) {

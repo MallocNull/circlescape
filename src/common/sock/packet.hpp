@@ -35,6 +35,7 @@ public:
     
     int Parse(const std::string& data, std::string* extra = nullptr);
     bool Check(int region_count, ...) const;
+    void TrimRegions(const std::vector<uint32_t>& ids = {});
     
     inline void SetId(uint8_t id) {
         this->id = id;

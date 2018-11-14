@@ -65,8 +65,6 @@ void configure_poolinfo(sosc::poolinfo_t* info,
 
 int main(int argc, char **argv) {
     using namespace sosc;
-    if(argc < 2)
-        return -1;
 
     ini::File* config;
     try {
@@ -105,7 +103,7 @@ int main(int argc, char **argv) {
     poolinfo_t info;
     configure_poolinfo(&_ctx.default_info, (*config)["defaults"][0]);
 
-    if((*config)["master"]["run master"]) {
+    if((*config)["general"]["run master"]) {
         if(!config->HasSection("master to client") ||
            !config->HasSection("master to slave"))
         {
@@ -122,13 +120,13 @@ int main(int argc, char **argv) {
         configure_poolinfo(&info, (*config)["master to slave"][0]);
         _ctx.master_intra = new master_intra_ctx;
         master_intra_start(
-            (uint16_t)(*config)["master"]["intra port"], info
+            (uint16_t)(*config)["master to slave"]["port"], info
         );
 
         configure_poolinfo(&info, (*config)["master to client"][0]);
         _ctx.master_client = new master_client_ctx;
         master_client_start(
-            (uint16_t)(*config)["master"]["client port"], info
+            (uint16_t)(*config)["master to client"]["port"], info
         );
     }
 
