@@ -110,8 +110,8 @@ bool sosc::MasterIntra::Authentication(sosc::Packet& pck) {
 
     db::Query* query = this->queries->at(QRY_LICENSE_CHECK);
     query->Reset();
-    query->BindText(pck[2], 0);
-    query->BindBlob(pck[3], 1);
+    query->BindText(pck[2], 1);
+    query->BindBlob(pck[3], 2);
     if(query->ScalarInt32() == 0)
         return AuthenticationFailure(packetId, 0x101);
 
@@ -120,11 +120,11 @@ bool sosc::MasterIntra::Authentication(sosc::Packet& pck) {
     int limit;
     query = this->queries->at(QRY_LICENSE_LIMIT);
     query->Reset();
-    query->BindText(pck[2], 0);
+    query->BindText(pck[2], 1);
     if((limit = query->ScalarInt32()) != 0) {
         query = this->queries->at(QRY_LICENSE_ACTIVE_COUNT);
         query->Reset();
-        query->BindText(pck[2], 0);
+        query->BindText(pck[2], 1);
         if(query->ScalarInt32() < limit) {
             _ctx.license_check_mtx.unlock();
             return AuthenticationFailure(packetId, 0x102);
@@ -133,10 +133,10 @@ bool sosc::MasterIntra::Authentication(sosc::Packet& pck) {
 
     query = this->queries->at(QRY_SERVER_LIST_ADD);
     query->Reset();
-    query->BindText(pck[0], 0);
-    query->BindText(pck[2], 1);
-    query->BindText(this->sock.GetIpAddress(), 2);
-    query->BindInt32(net::ntohv<uint16_t>(pck[1]), 3);
+    query->BindText(pck[0], 1);
+    query->BindText(pck[2], 2);
+    query->BindText(this->sock.GetIpAddress(), 3);
+    query->BindInt32(net::ntohv<uint16_t>(pck[1]), 4);
     query->NonQuery();
 
     query = this->queries->at(QRY_SERVER_LIST_GET_ID);
@@ -179,7 +179,7 @@ bool sosc::MasterIntra::StatusUpdate(sosc::Packet &pck) {
 
     db::Query* query = this->queries->at(QRY_LICENSE_VERIFY);
     query->Reset();
-    query->BindText(this->license, 0);
+    query->BindText(this->license, 1);
     if(query->ScalarInt32() == 0)
         return this->NotAuthorized(packetId);
 
@@ -188,8 +188,8 @@ bool sosc::MasterIntra::StatusUpdate(sosc::Packet &pck) {
 
     query = this->queries->at(QRY_SERVER_LIST_MODIFY);
     query->Reset();
-    query->BindInt32(net::ntohv<uint16_t>(pck[0]), 0);
-    query->BindInt32(net::ntohv<uint16_t>(pck[1]), 1);
+    query->BindInt32(net::ntohv<uint16_t>(pck[0]), 1);
+    query->BindInt32(net::ntohv<uint16_t>(pck[1]), 2);
     query->BindInt32(this->server_id, 2);
     query->NonQuery();
     return true;

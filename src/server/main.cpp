@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
             })
         });
     } catch(const std::exception& e) {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         return -1;
     }
 
@@ -107,27 +107,33 @@ int main(int argc, char **argv) {
         if(!config->HasSection("master to client") ||
            !config->HasSection("master to slave"))
         {
-            std::cout << "'MASTER TO CLIENT' and 'MASTER TO SLAVE' sections "
+            std::cerr << "'MASTER TO CLIENT' and 'MASTER TO SLAVE' sections "
                       << "must exist if 'RUN MASTER' is true." << std::endl;
             return -1;
         }
 
         if(!db::init_databases(nullptr)) {
-            std::cout << "Could not initialized master database.";
+            std::cerr << "Could not initialized master database.";
             return -1;
         }
 
         configure_poolinfo(&info, (*config)["master to slave"][0]);
         _ctx.master_intra = new master_intra_ctx;
-        master_intra_start(
-            (uint16_t)(*config)["master to slave"]["port"], info
-        );
+        if(!master_intra_start(
+            (uint16_t)(*config)["master to slave"]["port"], info))
+        {
+            std::cerr << "Could not start master-slave server." << std::endl;
+            return -1;
+        }
 
         configure_poolinfo(&info, (*config)["master to client"][0]);
         _ctx.master_client = new master_client_ctx;
-        master_client_start(
-            (uint16_t)(*config)["master to client"]["port"], info
-        );
+        if(!master_client_start(
+            (uint16_t)(*config)["master to client"]["port"], info))
+        {
+            std::cerr << "Could not start master-client server." << std::endl;
+            return -1;
+        }
     }
 
     if(config->HasSection("slave")) {
@@ -136,10 +142,13 @@ int main(int argc, char **argv) {
 
         for(int i = 0; i < _ctx.slave_count; ++i) {
             configure_poolinfo(&info, (*config)["slave"][i]);
-            slave_start(
+            if(!slave_start(
                 (uint16_t)(*config)["slave"][i]["port"],
-                info, _ctx.slaves + i
-            );
+                info, _ctx.slaves + i))
+            {
+                std::cerr << "Could not start slave server." << std::endl;
+                return -1;
+            }
         }
     }
 
@@ -158,6 +167,7 @@ int main(int argc, char **argv) {
     master_intra_stop();
     for(int i = 0; i < _ctx.slave_count; ++i)
         slave_stop(_ctx.slaves + i);
+    delete[] _ctx.slaves;
 
     return 0;
 }
@@ -215,7 +225,8 @@ void master_intra_stop() {
         return;
 
     _ctx.master_intra->server.Close();
-    _ctx.master_intra->thread.join();
+    if(_ctx.master_intra->thread.joinable())
+        _ctx.master_intra->thread.join();
     _ctx.master_intra->pool.Stop();
 
     delete _ctx.master_intra;
@@ -227,7 +238,8 @@ void master_client_stop() {
         return;
 
     _ctx.master_client->server.Close();
-    _ctx.master_client->thread.join();
+    if(_ctx.master_client->thread.joinable())
+        _ctx.master_client->thread.join();
     _ctx.master_client->pool.Stop();
 
     delete _ctx.master_client;
@@ -239,8 +251,7 @@ void slave_stop(slave_ctx* ctx) {
         return;
 
     ctx->server.Close();
-    ctx->thread.join();
+    if(ctx->thread.joinable())
+        ctx->thread.join();
     ctx->pool.Stop();
-
-    delete ctx;
 }

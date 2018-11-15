@@ -185,7 +185,7 @@ function parse(data) {
 }
 
 function conn_open() {
-    ws = new WebSocket("wss://localhost:8008");
+    ws = new WebSocket("wss://localhost:5050");
     ws.binaryType = "arraybuffer";
 
     ws.onopen = function (e) {

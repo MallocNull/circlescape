@@ -42,19 +42,19 @@ void sosc::MasterClientPool::SetupQueries(db::Queries *queries) {
     queries->push_back(new db::Query(
         "INSERT OR IGNORE INTO `USER_KEYS` "
         "(`ID`, `SECRET`) VALUES (?, RANDOMBLOB(128))"
-    ));
+    , DB_USE_MEMORY));
 
 #define QRY_USER_GET_KEY 6
     queries->push_back(new db::Query(
         "SELECT `SECRET` FROM `USER_KEYS` "
         "WHERE `ID` = ?"
-    ));
+    , DB_USE_MEMORY));
 
 #define QRY_USER_CHECK_KEY 7
     queries->push_back(new db::Query(
         "SELECT COUNT(*) FROM `USER_KEYS` "
         "WHERE `ID` = ? AND `SECRET` = ?"
-    ));
+    , DB_USE_MEMORY));
 }
 
 /** MASTERCLIENT CODE **/
@@ -99,13 +99,13 @@ bool sosc::MasterClient::ProcessLogin(Packet &pck) {
     db::ResultSet* results = nullptr;
     db::Query* query = this->queries->at(QRY_USER_NAME_EXISTS);
     query->Reset();
-    query->BindText(pck[0], 0);
+    query->BindText(pck[0], 1);
     if(query->ScalarInt32() == 0)
         return LoginError(0x101);
 
     query = this->queries->at(QRY_USER_GET_PWD_HASH);
     query->Reset();
-    query->BindText(pck[0], 0);
+    query->BindText(pck[0], 1);
     results = query->GetResults();
     results->Step();
 
@@ -115,12 +115,12 @@ bool sosc::MasterClient::ProcessLogin(Packet &pck) {
 
     query = this->queries->at(QRY_USER_GENERATE_KEY);
     query->Reset();
-    query->BindInt64(user_id, 0);
+    query->BindInt64(user_id, 1);
     query->NonQuery();
 
     query = this->queries->at(QRY_USER_GET_KEY);
     query->Reset();
-    query->BindInt64(user_id, 0);
+    query->BindInt64(user_id, 1);
     auto secret = query->ScalarBlob();
 
     this->sock.Send(Packet(kLoginResponse, {"\1", secret}));
@@ -148,21 +148,21 @@ bool sosc::MasterClient::ProcessRegistration(Packet &pck) {
 
     db::Query* query = this->queries->at(QRY_USER_NAME_REG_CHECK);
     query->Reset();
-    query->BindText(pck[0], 0);
+    query->BindText(pck[0], 1);
     if(query->ScalarInt32() > 0)
         return RegistrationError(0x100);
 
     query = this->queries->at(QRY_USER_MAIL_REG_CHECK);
     query->Reset();
-    query->BindText(pck[2], 0);
+    query->BindText(pck[2], 1);
     if(query->ScalarInt32() > 0)
         return RegistrationError(0x101);
 
     query = this->queries->at(QRY_USER_REGISTER);
     query->Reset();
-    query->BindText(pck[0], 0);
-    query->BindText(cgc::bcrypt_hash(pck[1]), 1);
-    query->BindText(pck[2], 2);
+    query->BindText(pck[0], 1);
+    query->BindText(cgc::bcrypt_hash(pck[1]), 2);
+    query->BindText(pck[2], 3);
     query->NonQuery();
 
     this->sock.Send(Packet(kRegisterResponse, {"\1", 0x000}));

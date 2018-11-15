@@ -14,7 +14,8 @@ bool sosc::db::init_databases(std::string* error) {
     _ctx.ready = true;
 
     sqlite3_open(":memory:", &_ctx.mem_db);
-    sqlite3_exec(_ctx.mem_db, _mem_db_sql, nullptr, nullptr, nullptr);
+    for(const auto& query : _mem_db_sql)
+        sqlite3_exec(_ctx.mem_db, query, nullptr, nullptr, nullptr);
 
     sqlite3_open(SOSC_RESC("scape.db").c_str(), &_ctx.hard_db);
 
@@ -22,7 +23,8 @@ bool sosc::db::init_databases(std::string* error) {
         "SELECT COUNT(*) FROM SQLITE_MASTER WHERE TBL_NAME = 'MIGRATIONS'"
     );
     if(migrationsExist == 0)
-        db::Query::NonQuery(_hard_db_init_migration_sql);
+        for(const auto& query : _hard_db_init_migration_sql)
+            db::Query::NonQuery(query);
 
     int32_t lastMig = db::Query::ScalarInt32("SELECT MAX(ID) FROM MIGRATIONS");
     if(lastMig > _hard_db_sql.size()) {
@@ -39,9 +41,11 @@ bool sosc::db::init_databases(std::string* error) {
     );
     Query getMigration("SELECT SQL_HASH FROM MIGRATIONS WHERE ID = ?");
     for(id = 0; id < _hard_db_sql.size(); ++id) {
-        getMigration.BindInt32(id, 0);
-
+        getMigration.Reset();
+        getMigration.BindInt32(id, 1);
         std::string hash = getMigration.ScalarText();
+        std::string local_hash = "";
+
         if(hash.empty()) {
             if(id < lastMig) {
                 if(error != nullptr)
@@ -50,13 +54,20 @@ bool sosc::db::init_databases(std::string* error) {
                 return false;
             }
 
-            Query::NonQuery(_hard_db_sql[id]);
+            for(const auto& query : _hard_db_sql[id]) {
+                Query::NonQuery(query);
+                local_hash += cgc::sha1(query);
+            }
 
-            insertMigration.BindInt32(id, 0);
-            insertMigration.BindText(cgc::sha1(_hard_db_sql[id]), 1);
+            insertMigration.Reset();
+            insertMigration.BindInt32(id, 1);
+            insertMigration.BindText(cgc::sha1(local_hash), 2);
             insertMigration.NonQuery();
         } else {
-            if(hash != cgc::sha1(_hard_db_sql[id])) {
+            for(const auto& query : _hard_db_sql[id])
+                local_hash += cgc::sha1(query);
+
+            if(hash != cgc::sha1(local_hash)) {
                 if(error != nullptr)
                     *error = "HARD DB: MIGRATION SQL HASH MISMATCH";
                 _ctx.ready = false;
@@ -338,7 +349,7 @@ bool sosc::db::ResultSet::Step() {
     else if(result == SQLITE_DONE)
         return false;
     else
-        throw std::string(sqlite3_errmsg(this->query->database));
+        throw std::runtime_error(sqlite3_errmsg(this->query->database));
 }
 
 double sosc::db::ResultSet::GetDouble(int column) {
