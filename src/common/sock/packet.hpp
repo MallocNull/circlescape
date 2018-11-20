@@ -9,9 +9,9 @@
 
 #define PCK_ANY 0
 
-#define PCK_OK    0
-#define PCK_MORE  1
-#define PCK_ERR  -1
+#define PCK_OK     0
+#define PCK_MORE   1
+#define PCK_ERR  (-1)
 
 #define PCK_MAX_LEN 0xFFFFFFFF
 
