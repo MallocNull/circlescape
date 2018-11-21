@@ -115,8 +115,7 @@ bool sosc::ScapeConnection::Send(const Packet& packet) {
     
     std::string packet_raw;
     packet.ToString(&packet_raw);
-
-    return this->client.Send(packet_raw);
+    return this->client.Send(ws::Frame(packet_raw));
 }
 
 /******************************/

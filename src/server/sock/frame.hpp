@@ -5,9 +5,9 @@
 #include <cstdint>
 #include "utils/net.hpp"
 
-#define FRAME_OK    0
-#define FRAME_MORE  1
-#define FRAME_ERR  -1
+#define FRAME_OK     0
+#define FRAME_MORE   1
+#define FRAME_ERR  (-1)
 
 namespace sosc {
 namespace ws {

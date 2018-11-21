@@ -131,12 +131,12 @@ bool sosc::MasterClient::ProcessLogin(Packet &pck) {
 bool sosc::MasterClient::LoginError(uint16_t error_code) {
     if(++this->auth_attempts < MAX_AUTH_ATTEMPTS) {
         this->sock.Send(
-            Packet(kLoginResponse, {"\0", HTONUS(error_code)})
+            Packet(kLoginResponse, {std::string(1, '\0'), HTONUS(error_code)})
         );
         return true;
     } else {
         return this->Close(
-            Packet(kLoginResponse, {"\0", HTONUS(0x100)})
+            Packet(kLoginResponse, {std::string(1, '\0'), HTONUS(0x100)})
         );
     }
 }
@@ -171,7 +171,7 @@ bool sosc::MasterClient::ProcessRegistration(Packet &pck) {
 
 bool sosc::MasterClient::RegistrationError(uint16_t error_code) {
     this->sock.Send(
-        Packet(kRegisterResponse, {"\0", HTONUS(error_code)})
+        Packet(kRegisterResponse, {std::string(1, '\0'), HTONUS(error_code)})
     );
     return true;
 }

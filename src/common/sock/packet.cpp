@@ -178,9 +178,8 @@ std::string* sosc::Packet::ToString(std::string* packet) const {
 
     for(const auto& i : this->regions)
         *packet += i;
-    
-    packet->assign(net::htonv<uint32_t>(packet->length()), 2, 4);
-    
+
+    packet->replace(2, 4, net::htonv<uint32_t>(packet->length()));
     return packet;
 }
 

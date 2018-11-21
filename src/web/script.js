@@ -131,6 +131,8 @@ function pack(id, regions) {
 }
 
 function unpack(data) {
+    console.log(data);
+    console.log(typeof data);
     if(!data.subarray(0, 2).every((v, i) => v === MAHOU[i]))
         return null;
 

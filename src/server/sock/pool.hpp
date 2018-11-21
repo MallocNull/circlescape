@@ -237,7 +237,6 @@ int Pool<T,U>::Stack::ClientCount() {
 
 template<class T, class U>
 void Pool<T,U>::Stack::StackThread() {
-
     while(this->is_running) {
         for(auto client  = this->clients.begin();
                  client != this->clients.end();
@@ -255,6 +254,9 @@ void Pool<T,U>::Stack::StackThread() {
             }
             this->clients_mtx.unlock();
         }
+
+        // TODO figure out a signal based system to avoid this
+        std::this_thread::sleep_for(std::chrono::microseconds(5));
     }
 }
 
