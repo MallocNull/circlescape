@@ -35,7 +35,9 @@ function attempt_login() {
     ));
 
     receive_callbacks[kMasterToClient.LoginResponse] = pck => {
-        if(pck.regions[0][0] === 0) {
+        console.log(pck.regions);
+
+        if(pck.regions[0][0] === 0x0) {
             error.innerHTML = "Username or password was incorrect."
         } else {
             alert("allo");
@@ -195,7 +197,7 @@ function conn_open() {
     };
 
     ws.onmessage = function(e) {
-        parse(e.data);
+        parse(new Uint8Array(e.data));
     };
 
     ws.onclose = function (e) {
