@@ -101,7 +101,7 @@ bool sosc::MasterClient::ProcessLogin(Packet &pck) {
     query->Reset();
     query->BindText(pck[0], 1);
     if(query->ScalarInt32() == 0)
-        return LoginError(0x101);
+        return LoginError(0x105);
 
     query = this->queries->at(QRY_USER_GET_PWD_HASH);
     query->Reset();

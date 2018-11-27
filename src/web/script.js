@@ -19,8 +19,10 @@ const kMasterToClient = {
 let receive_callbacks = {};
 
 function attempt_login() {
+    clear_errors();
+
     let section = document.getElementById("login");
-    let error = section.getElementsByClassName("error");
+    let error = section.getElementsByClassName("error")[0];
     let lock_fields = filter(
         to_array(section.getElementsByTagName("input")),
         x => ["submit", "button", "text", "password"].indexOf(x.type) !== -1
@@ -38,7 +40,23 @@ function attempt_login() {
         console.log(pck.regions);
 
         if(pck.regions[0][0] === 0x0) {
-            error.innerHTML = "Username or password was incorrect."
+            console.log(pck.regions[1].unpackUint16());
+
+            let error_text = "Login failed";
+            switch(pck.regions[1].unpackUint16()) {
+                case 0x100:
+                    error_text = "Too many attempts. Try again later.";
+                    break;
+                case 0x101:
+                    error_text = "Username does not exist.";
+                    break;
+                case 0x102:
+                    error_text = "Password is incorrect.";
+                    break;
+            }
+
+            error.innerHTML = error_text;
+            error.classList.remove("hidden");
         } else {
             alert("allo");
         }
@@ -133,8 +151,6 @@ function pack(id, regions) {
 }
 
 function unpack(data) {
-    console.log(data);
-    console.log(typeof data);
     if(!data.subarray(0, 2).every((v, i) => v === MAHOU[i]))
         return null;
 
@@ -163,8 +179,8 @@ function unpack(data) {
     }
 
     try {
-        for (let i = 0; i < region_cnt; ++i) {
-            regions.push(data.subarray(ptr, region_lengths[i]));
+        for(let i = 0; i < region_cnt; ++i) {
+            regions.push(data.subarray(ptr, ptr + region_lengths[i]));
             ptr += region_lengths[i];
         }
     } catch(ex) {
@@ -192,15 +208,23 @@ function conn_open() {
     ws = new WebSocket("wss://localhost:5050");
     ws.binaryType = "arraybuffer";
 
-    ws.onopen = function (e) {
+    ws.onopen = function(e) {
         show_section("login");
     };
 
     ws.onmessage = function(e) {
-        parse(new Uint8Array(e.data));
+        if(e.data instanceof Blob) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                parse(new Uint8Array(reader.result));
+            };
+
+            reader.readAsArrayBuffer(e.data);
+        } else
+            parse(new Uint8Array(e.data));
     };
 
-    ws.onclose = function (e) {
+    ws.onclose = function(e) {
         if(!unloading)
             conn_retry();
     }
@@ -334,33 +358,27 @@ Number.prototype.packDouble = function() {
 /*** UINT8ARRAY EXTENSIONS ***/
 
 Uint8Array.prototype.unpackInt16 = function(offset = 0) {
-    let buffer = this.buffer;
-    return new DataView(buffer).getInt16(offset, false);
+    return new DataView(this.buffer).getInt16(offset, false);
 };
 
 Uint8Array.prototype.unpackUint16 = function(offset = 0) {
-    let buffer = this.buffer;
-    return new DataView(buffer).getUint16(offset, false);
+    return new DataView(this.buffer).getUint16(offset, false);
 };
 
 Uint8Array.prototype.unpackInt32 = function(offset = 0) {
-    let buffer = this.buffer;
-    return new DataView(buffer).getInt32(offset, false);
+    return new DataView(this.buffer).getInt32(offset, false);
 };
 
 Uint8Array.prototype.unpackUint32 = function(offset = 0) {
-    let buffer = this.buffer;
-    return new DataView(buffer).getUint32(offset, false);
+    return new DataView(this.buffer).getUint32(offset, false);
 };
 
 Uint8Array.prototype.unpackFloat = function(offset = 0) {
-    let buffer = this.buffer;
-    return new DataView(buffer).getFloat32(offset, false);
+    return new DataView(this.buffer).getFloat32(offset, false);
 };
 
 Uint8Array.prototype.unpackDouble = function(offset = 0) {
-    let buffer = this.buffer;
-    return new DataView(buffer).getFloat64(offset, false);
+    return new DataView(this.buffer).getFloat64(offset, false);
 };
 
 Uint8Array.prototype.toString = function() {
