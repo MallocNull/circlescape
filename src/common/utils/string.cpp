@@ -136,3 +136,43 @@ std::string* sosc::str::tolower(std::string* str) {
     std::transform(str->begin(), str->end(), str->begin(), ::tolower);
     return str;
 }
+
+bool sosc::str::verify_email(const std::string& email) {
+    if(email.length() > 320)
+        return false;
+
+    std::string::size_type at_loc;
+    if((at_loc = email.find('@')) == std::string::npos)
+        return false;
+    if(at_loc > 64)
+        return false;
+    if(email.find('.', at_loc) == std::string::npos)
+        return false;
+
+    for(std::string::size_type i = 0; i < at_loc; ++i) {
+        if(!(
+            (email[i] >= 'A' && email[i] <= 'Z') ||
+            (email[i] >= 'a' && email[i] <= 'z') ||
+            (email[i] >= '0' && email[i] <= '9') ||
+            (email[i] >= '!' && email[i] <= '/' &&
+             email[i] != '"' && email[i] != ',' &&
+             email[i] != '(' && email[i] != ')') ||
+            (email[i] >= '^' && email[i] <= '`') ||
+            (email[i] >= '{' && email[i] <= '~') ||
+             email[i] == '=' || email[i] == '?'
+        ))
+            return false;
+    }
+
+    for(std::string::size_type i = at_loc + 1; i < email.length(); ++i) {
+        if(!(
+            (email[i] >= 'A' && email[i] <= 'Z') ||
+            (email[i] >= 'a' && email[i] <= 'z') ||
+            (email[i] >= '0' && email[i] <= '9') ||
+             email[i] == '-' || email[i] == '.'
+        ))
+            return false;
+    }
+
+    return true;
+}

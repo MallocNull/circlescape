@@ -44,6 +44,8 @@ bool contains(const std::string& haystack, const std::string& needle);
 
 std::string  tolower(std::string  str);
 std::string* tolower(std::string* str);
+
+bool verify_email(const std::string& email);
 }}
 
 #endif

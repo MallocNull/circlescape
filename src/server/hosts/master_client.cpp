@@ -101,7 +101,7 @@ bool sosc::MasterClient::ProcessLogin(Packet &pck) {
     query->Reset();
     query->BindText(pck[0], 1);
     if(query->ScalarInt32() == 0)
-        return LoginError(0x105);
+        return LoginError(0x101);
 
     query = this->queries->at(QRY_USER_GET_PWD_HASH);
     query->Reset();
@@ -146,18 +146,24 @@ bool sosc::MasterClient::ProcessRegistration(Packet &pck) {
         return false;
     pck.TrimRegions();
 
+    if(pck[0].length() == 0)
+        return RegistrationError(0x101);
     db::Query* query = this->queries->at(QRY_USER_NAME_REG_CHECK);
     query->Reset();
     query->BindText(pck[0], 1);
     if(query->ScalarInt32() > 0)
         return RegistrationError(0x100);
 
+    if(pck[2].length() == 0 || !str::verify_email(pck[2]))
+        return RegistrationError(0x111);
     query = this->queries->at(QRY_USER_MAIL_REG_CHECK);
     query->Reset();
     query->BindText(pck[2], 1);
     if(query->ScalarInt32() > 0)
-        return RegistrationError(0x101);
+        return RegistrationError(0x110);
 
+    if(pck[1].length() == 0)
+        return RegistrationError(0x120);
     query = this->queries->at(QRY_USER_REGISTER);
     query->Reset();
     query->BindText(pck[0], 1);

@@ -58,11 +58,39 @@ function attempt_login() {
             error.innerHTML = error_text;
             error.classList.remove("hidden");
         } else {
-            alert("allo");
+            //show_section()
         }
 
         for_each(lock_fields, x => x.disabled = false);
     };
+}
+
+function attempt_register() {
+    clear_errors();
+
+    let section = document.getElementById("register");
+    let error = section.getElementsByClassName("error")[0];
+    let lock_fields = filter(
+        to_array(section.getElementsByTagName("input")),
+        x => ["submit", "button", "text", "password"].indexOf(x.type) !== -1
+    );
+
+    let fields = {};
+    for_each(section.getElementsByTagName("input"), x => {
+        if(x.id.substr(0, 4) === "reg-")
+            fields[x.id.substr(4)] = x.value.trim();
+    });
+
+    if(fields["pwd"] === fields["conf-pwd"])
+
+
+    for_each(lock_fields, x => x.disabled = true);
+    ws.send(pack(
+        kClientToMaster.LoginRequest, [
+            document.getElementById("login-user").value,
+            document.getElementById("login-pwd").value
+        ]
+    ));
 }
 
 function show_section(id) {
@@ -82,8 +110,10 @@ function clear_inputs() {
     let inputs = document.getElementsByTagName("input");
 
     for_each(inputs, x => {
-        if(types.indexOf(x.type) !== -1)
+        if(types.indexOf(x.type) !== -1) {
             x.value = "";
+            x.disabled = false;
+        }
     });
 }
 
@@ -358,26 +388,32 @@ Number.prototype.packDouble = function() {
 /*** UINT8ARRAY EXTENSIONS ***/
 
 Uint8Array.prototype.unpackInt16 = function(offset = 0) {
+    offset += this.byteOffset;
     return new DataView(this.buffer).getInt16(offset, false);
 };
 
 Uint8Array.prototype.unpackUint16 = function(offset = 0) {
+    offset += this.byteOffset;
     return new DataView(this.buffer).getUint16(offset, false);
 };
 
 Uint8Array.prototype.unpackInt32 = function(offset = 0) {
+    offset += this.byteOffset;
     return new DataView(this.buffer).getInt32(offset, false);
 };
 
 Uint8Array.prototype.unpackUint32 = function(offset = 0) {
+    offset += this.byteOffset;
     return new DataView(this.buffer).getUint32(offset, false);
 };
 
 Uint8Array.prototype.unpackFloat = function(offset = 0) {
+    offset += this.byteOffset;
     return new DataView(this.buffer).getFloat32(offset, false);
 };
 
 Uint8Array.prototype.unpackDouble = function(offset = 0) {
+    offset += this.byteOffset;
     return new DataView(this.buffer).getFloat64(offset, false);
 };
 

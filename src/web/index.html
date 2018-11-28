@@ -33,7 +33,7 @@
     </label>
     <label>
         Email: <br/>
-        <input type="test" id="reg-email" />
+        <input type="text" id="reg-email" />
     </label>
     <label>
         Password: <br/>
@@ -43,8 +43,8 @@
         Confirm Password: <br/>
         <input type="password" id="reg-conf-pwd" />
     </label>
-    <input type="button" value="Register" />
-    <input type="button" value="Cancel" onclick="show_section('login')" />
+    <input type="button" value="Register" onclick="attempt_register();" />
+    <input type="button" value="Cancel" onclick="show_section('login');" />
 </div>
 <div id="client" class="hidden section">
     <iframe id="client_iframe"></iframe>
