@@ -8,3 +8,4 @@ connectionStrings.config
 cmake-build-*/
 *.db-journal
 scape.db
+memory.db

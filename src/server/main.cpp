@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
                 ini::Field("master host", ini::Field::STRING),
                 ini::Field("master port", ini::Field::UINT32),
             }),
-            ini::Rule("defaults", true, false, {
+            ini::Rule("pool defaults", true, false, {
                 ini::Field("initial count", ini::Field::UINT32),
                 ini::Field("initial size", ini::Field::UINT32),
                 ini::Field("size growth", ini::Field::UINT32),
@@ -93,6 +93,7 @@ int main(int argc, char **argv) {
             ini::Rule("slave", false, true, {
                 ini::Field("port", ini::Field::UINT32),
                 ini::Field("name", ini::Field::STRING),
+                ini::Field("max users", ini::Field::STRING),
             })
         });
     } catch(const std::exception& e) {
@@ -101,7 +102,7 @@ int main(int argc, char **argv) {
     }
 
     poolinfo_t info;
-    configure_poolinfo(&_ctx.default_info, (*config)["defaults"][0]);
+    configure_poolinfo(&_ctx.default_info, (*config)["pool defaults"][0]);
 
     if((*config)["general"]["run master"]) {
         if(!config->HasSection("master to client") ||
@@ -152,7 +153,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    std::cout << "Server threads started. Type STOP to cancel." << std::endl;
+    std::cout << "Server threads started. Type STOP to quit." << std::endl;
 
     std::string input;
     while(true) {
@@ -181,7 +182,7 @@ bool master_intra_start(uint16_t port, const sosc::poolinfo_t& info) {
 
     _ctx.master_intra->thread = std::thread([&] {
         sosc::IntraClient client;
-        while (_ctx.master_intra->server.Accept(&client))
+        while(_ctx.master_intra->server.Accept(&client))
             _ctx.master_intra->pool.AddClient(new sosc::MasterIntra(client));
     });
 
@@ -213,7 +214,7 @@ bool slave_start(uint16_t port, const sosc::poolinfo_t& info, slave_ctx* ctx) {
 
     ctx->thread = std::thread([&] {
         sosc::ScapeConnection client;
-        while (ctx->server.Accept(&client))
+        while(ctx->server.Accept(&client))
             ctx->pool.AddClient(new sosc::SlaveClient(client));
     });
 

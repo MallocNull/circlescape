@@ -240,14 +240,19 @@ Communication between the master server and clients will be done over a WebSocke
   <td colspan="2">Iterated over <i>n</i> (0 &leq; <i>i</i> &leq; <i>n - 1</i>)</td>
  </tr>
  <tr>
-  <td class="center">2 + 2<i>i</i></td>
+  <td class="center">2 + 3<i>i</i></td>
   <td>Server Id</td>
   <td>Packed Unsigned Short</td>
  </tr>
  <tr>
-  <td class="center">3 + 2<i>i</i></td>
+  <td class="center">3 + 3<i>i</i></td>
+  <td>Server Name</td>
+  <td>Text</td>
+ <tr>
+  <td class="center">4 + 3<i>i</i></td>
   <td>User Count</td>
   <td>Packed Unsigned Short</td>
+ </tr>
  </tr>
 </table>
 

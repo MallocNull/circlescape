@@ -1,5 +1,6 @@
 let unloading = false;
 let sections = {};
+let key = null;
 let ws;
 
 const MAHOU = [0xB0, 0x0B];
@@ -28,21 +29,9 @@ function attempt_login() {
         x => ["submit", "button", "text", "password"].indexOf(x.type) !== -1
     );
 
-    for_each(lock_fields, x => x.disabled = true);
-    ws.send(pack(
-        kClientToMaster.LoginRequest, [
-            document.getElementById("login-user").value,
-            document.getElementById("login-pwd").value
-        ]
-    ));
-
     receive_callbacks[kMasterToClient.LoginResponse] = pck => {
-        console.log(pck.regions);
-
         if(pck.regions[0][0] === 0x0) {
-            console.log(pck.regions[1].unpackUint16());
-
-            let error_text = "Login failed";
+            let error_text = "Login failed.";
             switch(pck.regions[1].unpackUint16()) {
                 case 0x100:
                     error_text = "Too many attempts. Try again later.";
@@ -58,11 +47,20 @@ function attempt_login() {
             error.innerHTML = error_text;
             error.classList.remove("hidden");
         } else {
-            //show_section()
+            key = pck.regions[1];
+            show_section("servers");
         }
 
         for_each(lock_fields, x => x.disabled = false);
     };
+
+    for_each(lock_fields, x => x.disabled = true);
+    ws.send(pack(
+        kClientToMaster.LoginRequest, [
+            document.getElementById("login-user").value,
+            document.getElementById("login-pwd").value
+        ]
+    ));
 }
 
 function attempt_register() {
@@ -82,17 +80,98 @@ function attempt_register() {
     });
 
     if(fields["pwd"] !== fields["conf-pwd"]) {
-        error.innerHTML = "";
+        error.innerHTML = "Confirmation password does not match password.";
+        error.classList.remove("hidden");
+        return;
     }
 
+    receive_callbacks[kMasterToClient.RegisterResponse] = pck => {
+        if(pck.regions[0][0] === 0x0) {
+            let error_text = "Registration failed.";
+            switch(pck.regions[1].unpackUint16()) {
+                case 0x100:
+                    error_text = "Username is taken.";
+                    break;
+                case 0x101:
+                    error_text = "Username is illegal.";
+                    break;
+                case 0x110:
+                    error_text = "Email is taken.";
+                    break;
+                case 0x111:
+                    error_text = "Email isn't properly formed.";
+                    break;
+                case 0x120:
+                    error_text = "Password is too weak, just like you.";
+                    break;
+            }
+
+            error.innerHTML = error_text;
+            error.classList.remove("hidden");
+        } else {
+            alert("Registration was successful.");
+            show_section("servers");
+            refresh_list();
+        }
+
+        for_each(lock_fields, x => x.disabled = false);
+    };
 
     for_each(lock_fields, x => x.disabled = true);
     ws.send(pack(
-        kClientToMaster.LoginRequest, [
-            document.getElementById("login-user").value,
-            document.getElementById("login-pwd").value
+        kClientToMaster.RegisterRequest, [
+            fields["user"],
+            fields["pwd"],
+            fields["email"]
         ]
     ));
+}
+
+function refresh_list() {
+    if(key === null)
+        return;
+
+    let table = document.getElementById("servers-list");
+    let button = document.getElementById("servers-refresh");
+
+    button.disabled = true;
+    while(table.rows.length > 1)
+        table.deleteRow(-1);
+
+    receive_callbacks[kMasterToClient.ServerList] = pck => {
+        let count = pck[0].unpackUint16();
+        for(let i = 0; i < count; ++i) {
+            let id = pck[2 + 3*i].unpackUint16();
+            let row = table.insertRow();
+
+            let cell = row.insertCell();
+            let link = document.createElement("a");
+            link.setAttribute("href", "javascript: void(0);");
+            link.text = "Join";
+            link.tag = id;
+            link.onclick = e => join_server(id);
+            cell.appendChild(cell);
+
+            cell = row.insertCell();
+            cell.innerText = id;
+            cell = row.insertCell();
+            cell.innerText = pck[3 + 3*i];
+            cell = row.insertCell();
+            cell.innerText = pck[4 + 3*i];
+        }
+
+        button.disabled = false;
+    };
+
+    ws.send(pack(kClientToMaster.ServerListRequest, []));
+}
+
+function log_out() {
+
+}
+
+function join_server(id) {
+
 }
 
 function show_section(id) {

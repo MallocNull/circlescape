@@ -46,8 +46,29 @@
     <input type="button" value="Register" onclick="attempt_register();" />
     <input type="button" value="Cancel" onclick="show_section('login');" />
 </div>
+<div id="servers" class="hidden section">
+    <h1>Server List</h1>
+    <label>
+        <input type="button" value="Refresh" id="servers-refresh"
+               onclick="refresh_list();" />
+        &nbsp;&nbsp;
+        <input type="button" value="Log Out" id="servers-logout"
+               onclick="log_out();" />
+    </label>
+    <table id="servers-list">
+        <thead>
+            <tr>
+                <th>&nbsp;</th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Users</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
 <div id="client" class="hidden section">
-    <iframe id="client_iframe"></iframe>
+    <iframe id="client-iframe"></iframe>
 </div>
 </body>
 </html>

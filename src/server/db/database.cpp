@@ -13,7 +13,11 @@ bool sosc::db::init_databases(std::string* error) {
         return true;
     _ctx.ready = true;
 
+#ifdef SOSC_DEBUG
+    sqlite3_open(SOSC_RESC("memory.db").c_str(), &_ctx.mem_db);
+#else
     sqlite3_open(":memory:", &_ctx.mem_db);
+#endif
     for(const auto& query : _mem_db_sql)
         sqlite3_exec(_ctx.mem_db, query, nullptr, nullptr, nullptr);
 

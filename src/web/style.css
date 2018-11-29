@@ -1,11 +1,21 @@
+:root {
+    /**/
+    --foreground-color: #000;
+    --background-color: #fff;
+    /**/
+
+    /*
+    --foreground-color: #fff;
+    --background-color: #000;
+    /**/
+}
+
 body {
     padding-top: 36px;
     font-family: monospace;
     text-align: center;
-    /*background: #000;
-    color: #fff;*/
-    background: #fff;
-    color: #000;
+    background: var(--background-color);
+    color: var(--foreground-color);
 }
 
 .hidden {
@@ -27,4 +37,14 @@ body {
     color: #d00;
     font-size: 1.1em;
     max-width: 250px;
+}
+
+.section > table {
+    font-size: 1.1em;
+    margin: 15px auto;
+    border-collapse: collapse;
+}
+
+.section > table td, .section > table th {
+    border: 1px solid var(--foreground-color);
 }

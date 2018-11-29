@@ -16,7 +16,7 @@ void sosc::MasterClientPool::SetupQueries(db::Queries *queries) {
 #define QRY_USER_MAIL_REG_CHECK 1
     queries->push_back(new db::Query(
         "SELECT COUNT(*) FROM `USERS` "
-        "WHERE `USERNAME` = ?"
+        "WHERE `EMAIL` = ?"
     ));
 
 #define QRY_USER_REGISTER 2
@@ -171,7 +171,7 @@ bool sosc::MasterClient::ProcessRegistration(Packet &pck) {
     query->BindText(pck[2], 3);
     query->NonQuery();
 
-    this->sock.Send(Packet(kRegisterResponse, {"\1", 0x000}));
+    this->sock.Send(Packet(kRegisterResponse, {"\1", HTONUS(0x000)}));
     return true;
 }
 

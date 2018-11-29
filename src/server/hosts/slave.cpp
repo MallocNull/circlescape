@@ -1,5 +1,7 @@
 #include "slave.hpp"
 
+/** SLAVE -> CLIENT **/
+
 sosc::SlaveClient::SlaveClient(const ScapeConnection& client) {
     this->sock = client;
 }
@@ -13,3 +15,6 @@ bool sosc::SlaveClient::Close(const Packet& message) {
     this->sock.Send(message);
     return this->Close();
 }
+
+/** SLAVE -> MASTER **/
+

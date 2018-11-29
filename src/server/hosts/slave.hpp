@@ -1,6 +1,7 @@
 #ifndef SOSC_HOST_SLAVE_H
 #define SOSC_HOST_SLAVE_H
 
+#include "sock/intrasock.hpp"
 #include "sock/scapesock.hpp"
 #include "sock/pool.hpp"
 #include "ctx/slave.hpp"
@@ -31,6 +32,20 @@ protected:
         // TODO implement
         return true;
     }
+};
+
+/** SLAVE -> MASTER **/
+
+class SlaveMaster {
+public:
+    SlaveMaster();
+
+
+
+    bool Close();
+    bool Close(const Packet& message);
+private:
+    IntraClient sock;
 };
 }
 
