@@ -81,7 +81,9 @@ function attempt_register() {
             fields[x.id.substr(4)] = x.value.trim();
     });
 
-    if(fields["pwd"] === fields["conf-pwd"])
+    if(fields["pwd"] !== fields["conf-pwd"]) {
+        error.innerHTML = "";
+    }
 
 
     for_each(lock_fields, x => x.disabled = true);
