@@ -4,6 +4,7 @@
 #include <thread>
 #include <sock/pool.hpp>
 
+#include "common.hpp"
 #include "db/database.hpp"
 #include "hosts/master.hpp"
 #include "hosts/slave.hpp"
@@ -66,9 +67,8 @@ void configure_poolinfo(sosc::poolinfo_t* info,
 int main(int argc, char **argv) {
     using namespace sosc;
 
-    ini::File* config;
     try {
-        config = ini::File::Open(SOSC_RESC("config.ini"), {
+        _global_ctx.config = ini::File::Open(SOSC_RESC("config.ini"), {
             ini::Rule("general", true, false, {
                 ini::Field("run master", ini::Field::BOOL),
                 ini::Field("master host", ini::Field::STRING),
@@ -101,6 +101,7 @@ int main(int argc, char **argv) {
         return -1;
     }
 
+    ini::File* config = _global_ctx.config;
     poolinfo_t info;
     configure_poolinfo(&_ctx.default_info, (*config)["pool defaults"][0]);
 
@@ -220,6 +221,8 @@ bool slave_start(uint16_t port, const sosc::poolinfo_t& info, slave_ctx* ctx) {
 
     return true;
 }
+
+
 
 void master_intra_stop() {
     if(_ctx.master_intra == nullptr)

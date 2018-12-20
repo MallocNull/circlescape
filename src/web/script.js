@@ -110,7 +110,7 @@ function attempt_register() {
             error.classList.remove("hidden");
         } else {
             alert("Registration was successful.");
-            show_section("servers");
+            show_section("login");
             refresh_list();
         }
 

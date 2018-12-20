@@ -7,6 +7,10 @@
 #include "ctx/slave.hpp"
 
 namespace sosc {
+/** SLAVE -> MASTER **/
+
+bool slave_to_master_thread(IntraClient* client);
+
 /** SLAVE -> CLIENT **/
 
 class SlaveClient {
@@ -32,20 +36,6 @@ protected:
         // TODO implement
         return true;
     }
-};
-
-/** SLAVE -> MASTER **/
-
-class SlaveMaster {
-public:
-    SlaveMaster();
-
-
-
-    bool Close();
-    bool Close(const Packet& message);
-private:
-    IntraClient sock;
 };
 }
 
