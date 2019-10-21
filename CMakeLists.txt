@@ -4,37 +4,38 @@ project(sockscape)
 string(COMPARE EQUAL ${CMAKE_BUILD_TYPE} Debug _CMP)
 if(_CMP)
     set(CMAKE_VERBOSE_MAKEFILE ON)
-    add_definitions("-DSOSC_DEBUG")
+    add_definitions("-DCSC_DEBUG")
 endif()
 
-string(COMPARE EQUAL ${SOSC_BUILD_TARGET} CLIENT _CMP)
+string(COMPARE EQUAL ${CSC_BUILD_TARGET} CLIENT _CMP)
 if(_CMP)
 
     ##################
     ## CLIENT BUILD ##
     ##################
 
-    set(CMAKE_CXX_STANDARD 11)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-
-    set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -s USE_SDL=2 --preload-file ../resources/client")
-    set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} --shell-file ../src/client/shell.html")
-    set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS='[\"bmp\"]'")
-    set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -s EXPORTED_FUNCTIONS='[\"_main\", \"_resize_context\"]'")
-    set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -s EXTRA_EXPORTED_RUNTIME_METHODS='[\"ccall\"]'")
+    set(CMAKE_C_FLAGS
+        "${CMAKE_C_FLAGS} -s USE_SDL=2 --preload-file ../resources/client")
+    set(CMAKE_C_FLAGS
+        "${CMAKE_C_FLAGS} --shell-file ../src/client/shell.html")
+    set(CMAKE_C_FLAGS
+        "${CMAKE_C_FLAGS} -s USE_SDL_IMAGE=2 -s SDL2_IMAGE_FORMATS='[\"bmp\"]'")
+    set(CMAKE_C_FLAGS
+        "${CMAKE_C_FLAGS} -s EXPORTED_FUNCTIONS='[\"_main\", \"_resize_context\"]'")
+    set(CMAKE_C_FLAGS
+        "${CMAKE_C_FLAGS} -s EXTRA_EXPORTED_RUNTIME_METHODS='[\"ccall\"]'")
+    set(CMAKE_C_FLAGS
+        "${CMAKE_C_FLAGS} -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=1")
 
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
 
     file(GLOB_RECURSE client_src
-        "src/common/*.hpp"
-        "src/common/*.cpp"
-        "src/client/*.hpp"
-        "src/client/*.cpp"
+        "src/common/*.h"
+        "src/common/*.c"
+        "src/client/*.h"
+        "src/client/*.c"
+        "include/client/*.h"
+        "include/client/*.c"
     )
 
     add_executable(client ${client_src})
@@ -67,12 +68,12 @@ else()
     endif()
 
     file(GLOB_RECURSE server_src
-        "src/common/*.hpp"
-        "src/common/*.cpp"
-        "src/server/*.hpp"
-        "src/server/*.cpp"
-        "src/server/*.c"
+        "src/common/*.h"
+        "src/common/*.c"
         "src/server/*.h"
+        "src/server/*.c"
+        "include/server/*.h"
+        "include/server/*.c"
     )
 
     find_package(OpenSSL)
