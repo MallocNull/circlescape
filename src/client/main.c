@@ -5,6 +5,8 @@
 #include <GL/glew.h>
 #include <emscripten.h>
 
+#include "okuu/okuu.h"
+
 static struct {
     SDL_Window* hwnd;
     SDL_GLContext gl;
@@ -13,6 +15,16 @@ static struct {
 void draw();
 
 int main(int argc, char** argv) {
+    mat4f_t test = {{
+        {1, 2, 1, 2},
+        {3, 4, 3, 4},
+        {5, 6, 5, 6},
+        {7, 8, 7, 8},
+    }};
+
+    okuu_transw4f(&test);
+    okuu_printmf(&test, 4, 4);
+
     if(argc != 3)
         return -1;
 
